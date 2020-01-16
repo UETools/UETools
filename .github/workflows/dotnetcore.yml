@@ -1,0 +1,24 @@
+name: UnrealTools
+on: [push]
+jobs:
+  build:
+    runs-on: windows-latest
+    strategy:
+      matrix: 
+        package: [ UnrealTools.TypeFactory, UnrealTools.Core, UnrealTools.Assets, UnrealTools.Pak, UnrealTools.Objects, UnrealTools.KismetVM ]
+    steps:
+    - uses: actions/checkout@v1
+    - uses: NuGet/setup-nuget@v1.0.2
+    - name: Add nuget source
+      run: nuget sources add -name "github" -Source "https://nuget.pkg.github.com/UnrealTools/index.json" -Username jesterret -Password ${{ secrets.GITHUB_TOKEN }}
+    - uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 3.1.100
+    - name: build
+      run: |
+        dotnet build src/UnrealTools.sln --configuration Release 
+        dotnet pack src/UnrealTools.sln --configuration Release
+    - name: Push package
+      run: |
+        cd bin/${{ matrix.package }}/Release
+        nuget push -Source "github" *.nupkg
