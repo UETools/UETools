@@ -6,15 +6,20 @@ Example usage:
 ```cs
 using UnrealTools.Pak;
 using UnrealTools.Assets;
-
-using (var reader = PakVFS.OpenAt(path))
+class Program
 {
-    foreach (var (name, entry) in reader.AbsoluteIndex)
+    static void Main(string[] args)
     {
-        using (var data = entry.Read())
+        using (var reader = PakVFS.OpenAt(path))
         {
-            data.Version = UE4Version.VER_UE4_AUTOMATIC_VERSION;
-            data.Read(out UAssetAsset asset);
+            foreach (var (name, entry) in reader.AbsoluteIndex)
+            {
+                using (var data = entry.Read())
+                {
+                    data.Version = UE4Version.VER_UE4_AUTOMATIC_VERSION;
+                    data.Read(out UAssetAsset asset);
+                }
+            }
         }
     }
 }
