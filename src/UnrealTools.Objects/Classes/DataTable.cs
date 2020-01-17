@@ -8,7 +8,7 @@ using UnrealTools.Core.Interfaces;
 namespace UnrealTools.Objects.Classes
 {
     using TableItems = List<KeyValuePair<string, TaggedObject>>;
-    sealed class DataTable : UObject, IUnrealDeserializable, IUnrealReadable
+    public sealed class DataTable : UObject, IUnrealDeserializable, IUnrealReadable
     {
         public TableItems Rows { get; } = new TableItems();
 
