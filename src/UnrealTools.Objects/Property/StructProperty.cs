@@ -3,6 +3,7 @@ using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Reflection;
 using UnrealTools.Core;
 using UnrealTools.Core.Interfaces;
 using UnrealTools.Objects.Classes;
@@ -14,7 +15,7 @@ namespace UnrealTools.Objects.Property
 {
     internal sealed class StructProperty : UProperty<object>
     {
-        private static IReadOnlyDictionary<string, Func<IUnrealStruct>> Structures { get; } = new ReadOnlyDictionary<string, Func<IUnrealStruct>>(new TypeCollector<IUnrealStruct>(".").ToFactory().factories);
+        private static IReadOnlyDictionary<string, Func<IUnrealStruct>> Structures { get; } = new ReadOnlyDictionary<string, Func<IUnrealStruct>>(new TypeCollector<IUnrealStruct>(Assembly.GetCallingAssembly()).ToFactory().factories);
 
         private string? _unsuccessfulStruct;
         public override void Deserialize(FArchive reader, PropertyTag tag)

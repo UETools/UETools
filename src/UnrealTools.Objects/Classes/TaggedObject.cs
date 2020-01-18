@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
+using System.Reflection;
 using System.Text;
 using UnrealTools.Core;
 using UnrealTools.Core.Interfaces;
@@ -79,7 +80,7 @@ namespace UnrealTools.Objects.Classes
 
 
         private static IReadOnlyDictionary<string, Func<TaggedObject>> Classes { get; } = new ReadOnlyDictionary<string, Func<TaggedObject>>(
-            new TypeCollector<TaggedObject>(".").ToFactory().factories
+            new TypeCollector<TaggedObject>(Assembly.GetCallingAssembly()).ToFactory().factories
             );
     }
 }
