@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Reflection;
 using UnrealTools.Core;
 using UnrealTools.Objects.Interfaces;
@@ -9,7 +10,7 @@ namespace UnrealTools.Objects
 {
     public static class PropertyFactory
     {
-        private static TypeCollector<IProperty> TypeCollector = new TypeCollector<IProperty>(Assembly.GetCallingAssembly(), true);
+        private static TypeCollector<IProperty> TypeCollector = new TypeCollector<IProperty>(Path.GetDirectoryName(Assembly.GetCallingAssembly().Location)!, true);
         private static TypeFactory<IProperty> TypeFactory = TypeCollector.ToFactory();
         private static bool HasType(string value, [NotNullWhen(true)] out Type? type)
         {

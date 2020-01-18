@@ -15,7 +15,7 @@ namespace UnrealTools.Objects.Property
 {
     internal sealed class StructProperty : UProperty<object>
     {
-        private static IReadOnlyDictionary<string, Func<IUnrealStruct>> Structures { get; } = new ReadOnlyDictionary<string, Func<IUnrealStruct>>(new TypeCollector<IUnrealStruct>(Assembly.GetCallingAssembly()).ToFactory().factories);
+        private static IReadOnlyDictionary<string, Func<IUnrealStruct>> Structures { get; } = new ReadOnlyDictionary<string, Func<IUnrealStruct>>(new TypeCollector<IUnrealStruct>(Path.GetDirectoryName(Assembly.GetCallingAssembly().Location)!).ToFactory().factories);
 
         private string? _unsuccessfulStruct;
         public override void Deserialize(FArchive reader, PropertyTag tag)

@@ -80,7 +80,7 @@ namespace UnrealTools.Objects.Classes
 
 
         private static IReadOnlyDictionary<string, Func<TaggedObject>> Classes { get; } = new ReadOnlyDictionary<string, Func<TaggedObject>>(
-            new TypeCollector<TaggedObject>(Assembly.GetCallingAssembly()).ToFactory().factories
+            new TypeCollector<TaggedObject>(Path.GetDirectoryName(Assembly.GetCallingAssembly().Location)!).ToFactory().factories
             );
     }
 }

@@ -46,15 +46,9 @@ namespace UnrealTools.Assets
             return;
         }
 
-        public IEnumerable<ObjectExport> GetAssets()
-        {
-            return _exports.GetAssets();
-        }
+        public IEnumerable<ObjectExport> GetAssets() => _exports.GetAssets();
 
-        public ObjectExport? GetClass()
-        {
-            return _exports.GetClass();
-        }
+        public ObjectExport? GetClass() => _exports.GetClass();
 
         public void ReadTo(IndentedTextWriter writer)
         {
