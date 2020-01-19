@@ -8,7 +8,6 @@ namespace UnrealTools.Core
     /// </summary>
     public struct SHA1Hash : IUnrealDeserializable
     {
-        public SHA1Hash(Memory<byte> memory) => _bytes = memory;
         /// <summary>
         /// Deserializes hash data from the stream.
         /// </summary>

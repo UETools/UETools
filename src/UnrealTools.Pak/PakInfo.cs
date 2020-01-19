@@ -5,11 +5,12 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using UnrealTools.Core;
+using UnrealTools.Core.Interfaces;
 using UnrealTools.Pak.Enums;
 
 namespace UnrealTools.Pak
 {
-    public sealed partial class PakInfo
+    public sealed partial class PakInfo : IUnrealDeserializable
     {
         public bool IsUnrealPak => _magic == PakFile.Magic;
         public FArchive ReadIndex(Stream stream)
@@ -46,48 +47,9 @@ namespace UnrealTools.Pak
         };
 
         private PakInfo(PakInfoSize infoSize) => _infoSize = infoSize;
-        public PakInfo(Span<byte> data) : this((PakInfoSize)data.Length) => Deserialize(new SpanReader(data));
         public PakInfo(Memory<byte> data) : this((PakInfoSize)data.Length) => Deserialize(new FArchive(data));
 
-        private void Deserialize(SpanReader reader)
-        {
-            reader.Read(out _encryptionIndexGuid);
-            reader.Read(out _encryptedIndex);
-            reader.Read(out _magic);
-            if (!IsUnrealPak)
-                return;
-
-            reader.Read(out _version);
-            reader.Read(out _indexOffset);
-            reader.Read(out _indexSize);
-            reader.Read(out Memory<byte> bytes, 20);
-            _indexHash = new SHA1Hash(bytes);
-            if (_version < PakVersion.IndexEncryption)
-                _encryptedIndex = 0;
-            if (_version < PakVersion.EncryptionKeyGuid)
-                _encryptionIndexGuid = default;
-
-            if (_version < PakVersion.FNameBasedCompressionMethod)
-            {
-                _compressionMethods.Add("Zlib");
-                _compressionMethods.Add("Gzip");
-                _compressionMethods.Add("Oodle");
-            }
-            else
-            {
-                reader.Read(out Span<byte> shit, reader.Remaining);
-                for (int Index = 0, start = 0; start < shit.Length; start = ++Index * CompressionMethodNameLen)
-                {
-                    var MethodString = shit.Slice(start, CompressionMethodNameLen);
-                    if (MethodString[0] != 0)
-                    {
-                        var chars = MemoryMarshal.Cast<byte, char>(MethodString.Slice(0, MethodString.IndexOf((byte)0)));
-                        _compressionMethods.Add(chars.ToString());
-                    }
-                }
-            }
-        }
-        private void Deserialize(FArchive reader)
+        public void Deserialize(FArchive reader)
         {
             reader.Read(out _encryptionIndexGuid);
             reader.Read(out _encryptedIndex);

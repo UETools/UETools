@@ -42,7 +42,7 @@ namespace UnrealTools.Pak
 
         public Memory<byte> ReadEntry(PakEntry entry)
         {
-            Memory<byte> buf = ReadStream(entry.Offset + entry.EntryHeaderSize, entry.Size);
+            var buf = ReadStream(entry.Offset + entry.EntryHeaderSize, entry.Size);
             if (entry.IsEncrypted)
             {
                 //var aes = new AesCryptoServiceProvider();
@@ -52,7 +52,7 @@ namespace UnrealTools.Pak
             {
                 Memory<byte> decompressed = new byte[entry.UncompressedSize];
                 _compressor.Method = entry.CompressionMethod;
-                _compressor.Decompress(buf.Span, decompressed.Span, entry.CompressionBlocks.Select(x => x.AbsoluteTo(entry.EntryHeaderSize)));
+                _compressor.Decompress(buf.Memory.Span, decompressed.Span, entry.CompressionBlocks.Select(x => x.AbsoluteTo(entry.EntryHeaderSize)));
                 return decompressed;
             }
             else
@@ -80,7 +80,7 @@ namespace UnrealTools.Pak
         public async ValueTask<Memory<byte>> ReadEntryAsync(PakEntry entry, CancellationToken cancellationToken = default)
         {
             var taskData = ReadStreamAsync(entry.Offset + entry.EntryHeaderSize, entry.Size, cancellationToken);
-            var buf = taskData.IsCompletedSuccessfully ? taskData.Result : await taskData;
+            var buf = taskData.IsCompletedSuccessfully ? taskData.Result : await taskData.ConfigureAwait(false);
             if (entry.IsEncrypted)
             {
                 //var aes = new AesCryptoServiceProvider();
@@ -115,7 +115,7 @@ namespace UnrealTools.Pak
         }
         private async Task InitializeAsync(PakInfo info, CancellationToken cancellationToken = default)
         {
-            var reader = await info.ReadIndexAsync(FileStream, cancellationToken);
+            var reader = await info.ReadIndexAsync(FileStream, cancellationToken).ConfigureAwait(false);
             reader.Read(out FString mountPoint);
             MountPoint = mountPoint.ToString().Replace("../../../", null);
             reader.Read(out int NumEntries);
@@ -149,7 +149,8 @@ namespace UnrealTools.Pak
                 throw new NotPakFileException();
             }
         }
-        public async static Task<PakFile?> OpenAsync(FileInfo fileInfo, CancellationToken cancellationToken = default)
+        public static ValueTask<PakFile?> OpenAsync(FileInfo fileInfo, CancellationToken cancellationToken = default) => OpenAsync(fileInfo, AutomaticVersionProvider.Instance, cancellationToken);
+        public async static ValueTask<PakFile?> OpenAsync(FileInfo fileInfo, IVersionProvider versionProvider, CancellationToken cancellationToken = default)
         {
             if (fileInfo is null) throw new ArgumentNullException(nameof(fileInfo));
             if (!fileInfo.Exists) throw new FileNotFoundException();
@@ -170,12 +171,12 @@ namespace UnrealTools.Pak
             var values = Enum.GetValues(typeof(PakInfoSize)).Cast<int>().ToArray();
             var len = fileStream.Length;
             var maxSize = (int)Math.Min(values.Max(), len);
-            Span<byte> data = stackalloc byte[maxSize];
-            fileStream.ReadWholeBuf(-maxSize, SeekOrigin.End, data);
+            using var data = PakMemoryPool.Shared.Rent(maxSize);
+            fileStream.ReadWholeBuf(-maxSize, SeekOrigin.End, data.Memory.Span);
             foreach (var value in values)
             {
                 var a = (int)Math.Min(value, len);
-                var z = data[^a..];
+                var z = data.Memory[^a..];
                 var pak = new PakInfo(z);
                 if (pak.IsUnrealPak)
                 {
@@ -187,24 +188,18 @@ namespace UnrealTools.Pak
             return false;
         }
 
-        private Memory<byte> ReadStream(long offset, long size)
-        {
-            Memory<byte> data = new byte[size];
-            FileStream.ReadWholeBuf(offset, data.Span);
-            return data;
-        }
-        private IMemoryOwner<byte> ReadStreamOwner(long offset, long size)
+        private IMemoryOwner<byte> ReadStream(long offset, long size)
         {
             var data = PakMemoryPool.Shared.Rent((int)size);
             FileStream.ReadWholeBuf(offset, data.Memory.Span);
             return data;
         }
-        private async ValueTask<Memory<byte>> ReadStreamAsync(long offset, long size, CancellationToken cancellationToken)
+        private async ValueTask<IMemoryOwner<byte>> ReadStreamAsync(long offset, long size, CancellationToken cancellationToken)
         {
-            Memory<byte> data = new byte[size];
-            var result = FileStream.ReadWholeBufAsync(offset, data, cancellationToken);
+            var data = PakMemoryPool.Shared.Rent((int)size);
+            var result = FileStream.ReadWholeBufAsync(offset, data.Memory, cancellationToken);
             if (!result.IsCompletedSuccessfully)
-                await result;
+                await result.ConfigureAwait(false);
 
             return data;
         }
