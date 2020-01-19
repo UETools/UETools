@@ -28,7 +28,7 @@ namespace UnrealTools.Pak
             var memory = PakMemoryPool.Shared.Rent((int)_indexSize);
             var val = stream.ReadWholeBufAsync(_indexOffset, memory.Memory, cancellationToken);
             if (!val.IsCompletedSuccessfully)
-                await val;
+                await val.ConfigureAwait(false);
 
             return new FArchive(memory)
             {

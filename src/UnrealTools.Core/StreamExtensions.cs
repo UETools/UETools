@@ -49,7 +49,7 @@ namespace UnrealTools.Core
             while (remaining > 0)
             {
                 var task = stream.ReadAsync(buf.Slice(offset), cancellationToken);
-                var read = task.IsCompletedSuccessfully ? task.Result : await task;
+                var read = task.IsCompletedSuccessfully ? task.Result : await task.ConfigureAwait(false);
                 if (read <= 0)
                     throw new EndOfStreamException($"End of stream reached, {remaining} bytes left to read");
 

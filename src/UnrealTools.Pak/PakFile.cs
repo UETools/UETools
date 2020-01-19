@@ -40,31 +40,12 @@ namespace UnrealTools.Pak
         }
         private PakFile(FileInfo file, FileStream fileStream) : this(file, fileStream, AutomaticVersionProvider.Instance) { }
 
-        public Memory<byte> ReadEntry(PakEntry entry)
+        public IMemoryOwner<byte> ReadEntry(PakEntry entry)
         {
             var buf = ReadStream(entry.Offset + entry.EntryHeaderSize, entry.Size);
             if (entry.IsEncrypted)
             {
-                //var aes = new AesCryptoServiceProvider();
-                return null;
-            }
-            if (entry.IsCompressed)
-            {
-                Memory<byte> decompressed = new byte[entry.UncompressedSize];
-                _compressor.Method = entry.CompressionMethod;
-                _compressor.Decompress(buf.Memory.Span, decompressed.Span, entry.CompressionBlocks.Select(x => x.AbsoluteTo(entry.EntryHeaderSize)));
-                return decompressed;
-            }
-            else
-                return buf;
-        }
-        public IMemoryOwner<byte> ReadEntryOwner(PakEntry entry)
-        {
-            var buf = ReadStreamOwner(entry.Offset + entry.EntryHeaderSize, entry.Size);
-            if (entry.IsEncrypted)
-            {
-                //var aes = new AesCryptoServiceProvider();
-                return null;
+                throw new NotImplementedException();
             }
             if (entry.IsCompressed)
             {
@@ -77,20 +58,20 @@ namespace UnrealTools.Pak
             else
                 return buf;
         }
-        public async ValueTask<Memory<byte>> ReadEntryAsync(PakEntry entry, CancellationToken cancellationToken = default)
+        public async ValueTask<IMemoryOwner<byte>> ReadEntryAsync(PakEntry entry, CancellationToken cancellationToken = default)
         {
             var taskData = ReadStreamAsync(entry.Offset + entry.EntryHeaderSize, entry.Size, cancellationToken);
             var buf = taskData.IsCompletedSuccessfully ? taskData.Result : await taskData.ConfigureAwait(false);
             if (entry.IsEncrypted)
             {
-                //var aes = new AesCryptoServiceProvider();
-                return null;
+                throw new NotImplementedException();
             }
             if (entry.IsCompressed)
             {
-                Memory<byte> decompressed = new byte[entry.UncompressedSize];
+                var decompressed = PakMemoryPool.Shared.Rent((int)entry.UncompressedSize);
                 _compressor.Method = entry.CompressionMethod;
-                _compressor.Decompress(buf.Span, decompressed.Span, entry.CompressionBlocks.Select(x => x.AbsoluteTo(entry.EntryHeaderSize)));
+                _compressor.Decompress(buf.Memory.Span, decompressed.Memory.Span, entry.CompressionBlocks.Select(x => x.AbsoluteTo(entry.EntryHeaderSize)));
+                buf.Dispose();
                 return decompressed;
             }
             else
@@ -149,8 +130,8 @@ namespace UnrealTools.Pak
                 throw new NotPakFileException();
             }
         }
-        public static ValueTask<PakFile?> OpenAsync(FileInfo fileInfo, CancellationToken cancellationToken = default) => OpenAsync(fileInfo, AutomaticVersionProvider.Instance, cancellationToken);
-        public async static ValueTask<PakFile?> OpenAsync(FileInfo fileInfo, IVersionProvider versionProvider, CancellationToken cancellationToken = default)
+        public static Task<PakFile?> OpenAsync(FileInfo fileInfo, CancellationToken cancellationToken = default) => OpenAsync(fileInfo, AutomaticVersionProvider.Instance, cancellationToken);
+        public async static Task<PakFile?> OpenAsync(FileInfo fileInfo, IVersionProvider versionProvider, CancellationToken cancellationToken = default)
         {
             if (fileInfo is null) throw new ArgumentNullException(nameof(fileInfo));
             if (!fileInfo.Exists) throw new FileNotFoundException();

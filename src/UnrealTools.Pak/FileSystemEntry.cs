@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers;
 using System.IO;
 using System.Security.Cryptography;
 using System.Threading;
@@ -19,21 +20,20 @@ namespace UnrealTools.Pak
             => _fileStream = fileStream;
 
         public FArchive Read() => new FArchive(ReadBuf());
-        public async ValueTask<FArchive> ReadAsync(CancellationToken cancellationToken = default) => new FArchive(await ReadBufAsync(cancellationToken));
+        public async ValueTask<FArchive> ReadAsync(CancellationToken cancellationToken = default) => new FArchive(await ReadBufAsync(cancellationToken).ConfigureAwait(false));
 
-
-        private Memory<byte> ReadBuf()
+        private IMemoryOwner<byte> ReadBuf()
         {
-            Memory<byte> data = new byte[_fileStream.Length];
-            _fileStream.ReadWholeBuf(data.Span);
+            var data = PakMemoryPool.Shared.Rent((int)_fileStream.Length);
+            _fileStream.ReadWholeBuf(data.Memory.Span);
             return data;
         }
-        private async ValueTask<Memory<byte>> ReadBufAsync(CancellationToken cancellationToken = default)
+        private async ValueTask<IMemoryOwner<byte>> ReadBufAsync(CancellationToken cancellationToken = default)
         {
-            Memory<byte> data = new byte[_fileStream.Length];
-            var task = _fileStream.ReadWholeBufAsync(data, cancellationToken);
+            var data = PakMemoryPool.Shared.Rent((int)_fileStream.Length);
+            var task = _fileStream.ReadWholeBufAsync(data.Memory, cancellationToken);
             if (!task.IsCompletedSuccessfully)
-                await task;
+                await task.ConfigureAwait(false);
             return data;
         }
 

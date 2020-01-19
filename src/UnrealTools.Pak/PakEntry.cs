@@ -16,6 +16,7 @@ namespace UnrealTools.Pak
     public partial class PakEntry : IUnrealDeserializable, IEntry
     {
         private PakFile Owner { get; }
+        internal PakEntry LinkedEntry { get; set; } = null!;
         internal long EntryHeaderSize { get; private set; }
 
         public long Size => _size;
@@ -83,9 +84,8 @@ namespace UnrealTools.Pak
         }
 
         public FArchive Read() => new FArchive(Owner.ReadEntry(this));
-        public Memory<byte> ReadBytes() => Owner.ReadEntry(this);
-        public IMemoryOwner<byte> ReadBytesOwner() => Owner.ReadEntryOwner(this);
-        public async ValueTask<FArchive> ReadAsync(CancellationToken cancellationToken = default) => new FArchive(await Owner.ReadEntryAsync(this, cancellationToken));
+        public IMemoryOwner<byte> ReadBytes() => Owner.ReadEntry(this);
+        public async ValueTask<FArchive> ReadAsync(CancellationToken cancellationToken = default) => new FArchive(await Owner.ReadEntryAsync(this, cancellationToken).ConfigureAwait(false));
 
         private long _offset;
         private long _size;

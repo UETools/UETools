@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using UnrealTools.Core;
 using UnrealTools.Core.Interfaces;
@@ -22,7 +23,7 @@ namespace UnrealTools.Pak
         public static PakVFS OpenAt(string path, IVersionProvider versionProvider)
         {
             if (path is null) throw new ArgumentNullException(nameof(path));
-            if (versionProvider is null) throw new ArgumentNullException(nameof(path));
+            if (versionProvider is null) throw new ArgumentNullException(nameof(versionProvider));
 
             var dir = new DirectoryInfo(path);
             if (!dir.Exists)
@@ -32,9 +33,11 @@ namespace UnrealTools.Pak
             var paks = dir.GetFiles(PakExtensionPattern).Select(f => PakFile.Open(f, provider)).OfType<PakFile>();
             return new PakVFS(paks);
         }
-        public async static ValueTask<PakVFS?> OpenAtAsync(string path)
+        public static ValueTask<PakVFS?> OpenAtAsync(string path, CancellationToken cancellationToken = default) => OpenAtAsync(path, AutomaticVersionProvider.Instance, cancellationToken);
+        public async static ValueTask<PakVFS?> OpenAtAsync(string path, IVersionProvider versionProvider, CancellationToken cancellationToken = default)
         {
             if (path is null) throw new ArgumentNullException(nameof(path));
+            if (versionProvider is null) throw new ArgumentNullException(nameof(versionProvider));
 
             var dir = new DirectoryInfo(path);
             if (!dir.Exists)
@@ -44,7 +47,7 @@ namespace UnrealTools.Pak
 
             if (files.Length > 0)
             {
-                var tasks = files.Select(f => PakFile.OpenAsync(f));
+                var tasks = files.Select(f => PakFile.OpenAsync(f, versionProvider, cancellationToken));
                 var paks = await Task.WhenAll(tasks).ConfigureAwait(false);
                 return new PakVFS(paks.Where(x => x != null));
             }
@@ -59,7 +62,7 @@ namespace UnrealTools.Pak
         public async ValueTask DisposeAsync()
         {
             foreach (var pak in _pakFiles)
-                await pak.DisposeAsync();
+                await pak.DisposeAsync().ConfigureAwait(false);
         }
 
         private const string PakExtensionPattern = "*.pak";
