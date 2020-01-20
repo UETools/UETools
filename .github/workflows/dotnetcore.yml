@@ -1,24 +1,50 @@
-name: UnrealTools
-on: [push]
+name: Build
+
+on:
+  push:
+    branches: master
+    tags: '**'
+  pull_request:
+
 jobs:
   build:
-    runs-on: windows-latest
-    strategy:
-      matrix: 
-        package: [ UnrealTools.TypeFactory, UnrealTools.Core, UnrealTools.Assets, UnrealTools.Pak, UnrealTools.Objects, UnrealTools.KismetVM ]
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
+    - name: Setup .NET Core 3.0
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 3.0.101
+    - name: Build
+      run: dotnet build --configuration Release
+    - name: Test
+      run: dotnet test --no-build --configuration Release
+  pack:
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.event_name == 'push'
+    steps:
+    - uses: actions/checkout@v1
+    - uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 3.0.101
+    - name: Pack
+      run: dotnet pack --output ./artifacts --configuration Release
+    - uses: actions/upload-artifact@v1
+      with:
+        name: artifacts
+        path: ./artifacts
+  publish:
+    runs-on: ubuntu-latest
+    needs: pack
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
+    steps:
     - uses: NuGet/setup-nuget@v1.0.2
     - name: Add nuget source
       run: nuget sources add -name "github" -Source "https://nuget.pkg.github.com/UnrealTools/index.json" -Username jesterret -Password ${{ secrets.GITHUB_TOKEN }}
-    - uses: actions/setup-dotnet@v1
+    - uses: actions/download-artifact@v1
       with:
-        dotnet-version: 3.1.100
-    - name: build
-      run: |
-        dotnet build src/UnrealTools.sln --configuration Release 
-        dotnet pack src/UnrealTools.sln --configuration Release
-    - name: Push package
-      run: |
-        cd bin/${{ matrix.package }}/Release
-        nuget push -Source "github" *.nupkg
+        name: artifacts
+        path: ./artifacts
+    - name: Publish packages
+      run: nuget push ./artifacts/**.nupkg -Source "github"
