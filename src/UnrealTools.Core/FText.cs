@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using UnrealTools.Core.Enums;
 using UnrealTools.Core.HistoryTypes;
 using UnrealTools.Core.Interfaces;
@@ -38,7 +39,13 @@ namespace UnrealTools.Core
                     Debug.WriteLine($"HistoryType unrecognized: {HistoryType}");
             }
         }
-        public override string ToString() => _history.ToString();
+        public override string ToString()
+        {
+            if (_history is null)
+                NotDeserializedException.Throw();
+
+            return _history.ToString();
+        }
 
         // TODO: Static methods for history types
         public static FText GetEmpty() => new FText();

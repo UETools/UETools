@@ -42,7 +42,12 @@ namespace UnrealTools.Core.HistoryTypes
             }
         }
 
-        public override string ToString() => Value is null ? throw new NotDeserializedException() : Value.ToString()!;
+        public override string ToString()
+        { 
+            if (Value is null) 
+                NotDeserializedException.Throw(); 
+            return Value.ToString()!; 
+        }
 
         private FormatArgumentType _type;
     }

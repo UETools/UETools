@@ -26,13 +26,14 @@ namespace UnrealTools.Objects.Classes
 
         public override void ReadTo(IndentedTextWriter writer)
         {
+            if (_namespace is null || _keySourceStringMap is null || _keysToMetaData is null)
+                NotDeserializedException.Throw();
+
             base.ReadTo(writer);
             writer.WriteLine();
             writer.WriteLine($"{nameof(StringTable)} content");
             writer.WriteLine();
 
-            if (_namespace is null || _keySourceStringMap is null || _keysToMetaData is null)
-                throw new NotDeserializedException();
 
             writer.WriteLine($"BEGIN {_namespace}");
             writer.Indent++;

@@ -18,9 +18,11 @@ namespace UnrealTools.Core.HistoryTypes
             .ToDictionary(
                 x => x,
                 x => Factory.CreateInstanceFunction<FTextHistory>(
-                    x.GetAttribute<LinkedTypeAttribute, TextHistoryType>().LinkedType
+                    x.GetAttribute<LinkedTypeAttribute, TextHistoryType>()!.LinkedType
                     )
                 )
             );
+
+        public override string ToString() => string.Empty;
     }
 }

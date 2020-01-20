@@ -13,33 +13,30 @@ using UnrealTools.TypeFactory;
 
 namespace UnrealTools.Objects.Property
 {
-    internal sealed class ArrayProperty : UProperty<IList>
+    internal sealed class ArrayProperty : PropertyCollectionBase<IList>
     {
-        public int Count => _value.Count;
-
         public override void Deserialize(FArchive reader, PropertyTag tag)
         {
-            reader.Read(out int count);
+            base.Deserialize(reader, tag);
             var info = tag;
             if (tag.InnerTypeEnum == PropertyTag.PropertyType.StructProperty)
+            {
                 reader.Read(out info);
+                info.ArraySize = tag.ArraySize;
+            }
 
             if ((tag.InnerTypeEnum == PropertyTag.PropertyType.ByteProperty && tag.EnumName is null) || tag.InnerTypeEnum == PropertyTag.PropertyType.BoolProperty)
             {
-                reader.Read(out Memory<byte> bytes, count);
+                reader.Read(out Memory<byte> bytes, Count);
                 _value = bytes.ToArray();
             }
             else
             {
                 if (tag.InnerTypeEnum.TryGetAttribute(out LinkedTypeAttribute? attrib))
                 {
-                    var array = new List<IProperty>(count);
+                    var array = new List<IProperty>(Count);
                     var func = PropertyFactory.Get(attrib.LinkedType);
-
-                    if (count == 1 && tag.InnerTypeEnum == PropertyTag.PropertyType.StructProperty && info.StructName == "ClothLODData")
-                        Debugger.Break();
-
-                    for (var i = 0; i < count; i++, info.ArrayIndex = i)
+                    for (var i = 0; i < Count; i++)
                     {
                         var prop = func();
                         prop.Deserialize(reader, info);
@@ -55,26 +52,7 @@ namespace UnrealTools.Objects.Property
             if (_value is byte[] bytes)
                 writer.WriteLine(new StringBuilder().Append("[ ").AppendJoin(", ", bytes).Append(" ]"));
             else
-            {
-                var count = Count;
-                if (count == 0)
-                {
-                    writer.WriteLine("[ ]");
-                    return;
-                }
-
-                writer.WriteLine('[');
-                writer.Indent++;
-                for(int i = 0; i < count; i++)
-                {
-                    var it = _value[i];
-                    ReadObject(writer, it);
-                    if (i != count - 1)
-                        writer.WriteLine(", ");
-                }
-                writer.Indent--;
-                writer.WriteLine(']');
-            }
+                base.ReadTo(writer);
         }
     }
 }

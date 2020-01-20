@@ -28,7 +28,7 @@ namespace UnrealTools.Core.HistoryTypes
             {
                 // TODO: Formatting
                 if (_sourceValue is null)
-                    throw new NotDeserializedException();
+                    NotDeserializedException.Throw();
 
                 switch (SourceValue.Value)
                 {

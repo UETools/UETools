@@ -1,4 +1,6 @@
-﻿namespace UnrealTools.KismetVM.Enums
+﻿using UnrealTools.Core;
+
+namespace UnrealTools.KismetVM.Enums
 {
     internal enum EBlueprintTextLiteralType : byte
     {

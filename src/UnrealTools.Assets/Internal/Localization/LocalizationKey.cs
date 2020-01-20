@@ -27,7 +27,7 @@ namespace UnrealTools.Assets.Internal.Localization
         public bool Equals([AllowNull] string other)
         {
             if (other is null) return false;
-            if (_value is null) throw new NotDeserializedException();
+            if (_value is null) NotDeserializedException.Throw();
 
             return _value.ToString() == other;
         }
@@ -35,7 +35,7 @@ namespace UnrealTools.Assets.Internal.Localization
         public bool Equals([AllowNull] LocalizationKey other)
         {
             if (other is null) return false;
-            if (_value is null) throw new NotDeserializedException();
+            if (_value is null) NotDeserializedException.Throw();
 
             return _value == other._value;
         }

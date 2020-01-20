@@ -1,10 +1,10 @@
 ﻿using System.CodeDom.Compiler;
 using System.Diagnostics;
-using System.IO;
 using UnrealTools.Core;
 using UnrealTools.Core.Interfaces;
+using UnrealTools.Objects.Interfaces;
 
-namespace UnrealTools.Objects.Interfaces
+namespace UnrealTools.Objects.Property
 {
     [DebuggerDisplay("{_value}", Type = "Property")]
     abstract class UProperty<T> : IProperty, IUnrealReadable where T : notnull

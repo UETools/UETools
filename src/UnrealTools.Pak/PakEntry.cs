@@ -90,7 +90,6 @@ namespace UnrealTools.Pak
         private long _offset;
         private long _size;
         private long _uncompressedSize;
-        private ECompressionFlags _compressionMethod;
 
         private int _compressionIndex;
 

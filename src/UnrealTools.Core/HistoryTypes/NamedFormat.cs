@@ -15,7 +15,7 @@
             public override string ToString()
             {
                 if (_format is null || _argument is null)
-                    throw new NotDeserializedException();
+                    NotDeserializedException.Throw();
 
                 return _argument.Replace(_format.ToString());
             }

@@ -23,7 +23,7 @@ namespace UnrealTools.Core.HistoryTypes
         public string Replace(string sourceValue)
         {
             if (_argumentName is null || _argumentValue is null)
-                throw new NotDeserializedException();
+                NotDeserializedException.Throw();
 
             return sourceValue.Replace(_argumentName.ToString(), _argumentValue.ToString());
         }

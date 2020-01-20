@@ -8,13 +8,15 @@ namespace UnrealTools.Objects.Structures
         public void Deserialize(FArchive reader)
         {
             reader.Read(out _value);
-            // customVersion here
-            reader.Read(out _uid);
-            //reader.Read(out Guid _guid);
+            if (!reader.EOF())
+                reader.Read(out _uid);
+            if (!reader.EOF())
+                reader.Read(out _guid);
         }
         public override string ToString() => _value.ToString();
 
         private FName _value;
         private short _uid;
+        private System.Guid _guid;
     }
 }

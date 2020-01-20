@@ -25,7 +25,7 @@ namespace UnrealTools.Core.HistoryTypes
                 if (_locNamespace is null || _locKey is null)
                 {
                     if (_value is null)
-                        throw new NotDeserializedException();
+                        NotDeserializedException.Throw();
 
                     return _value.ToString();
                 }

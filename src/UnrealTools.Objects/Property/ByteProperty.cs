@@ -7,7 +7,7 @@ namespace UnrealTools.Objects.Property
     {
         public override void Deserialize(FArchive reader, PropertyTag tag)
         {
-            if (tag.EnumName.IsNone())
+            if (tag.EnumName!.IsNone())
             {
                 reader.Read(out byte underlying);
                 _value = underlying;

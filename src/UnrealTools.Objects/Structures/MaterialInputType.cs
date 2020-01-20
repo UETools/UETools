@@ -15,7 +15,7 @@ namespace UnrealTools.Objects.Structures
             reader.ReadUnsafe(out _const);
         }
 
-        public override string ToString() => _useConst ? _const.ToString() : base.ToString();
+        public override string ToString() => (_useConst ? _const.ToString() : base.ToString())!;
 
         private bool _useConst;
         private T _const;

@@ -18,7 +18,7 @@ namespace UnrealTools.Core.HistoryTypes
             public override string ToString()
             {
                 if (_text is null)
-                    throw new NotDeserializedException();
+                    NotDeserializedException.Throw();
 
                 return _transform switch
                 {

@@ -9,14 +9,29 @@ using UnrealTools.Objects.Interfaces;
 
 namespace UnrealTools.Objects.Property
 {
-    abstract class PropertyCollectionBase<T> : UProperty<T> where T : ICollection
+    abstract class PropertyCollectionBase<T> : UProperty<T> where T : notnull, IEnumerable
     {
-        public int Count => _value.Count;
+        public int Count => _count;
 
+        public override void Deserialize(FArchive reader, PropertyTag tag)
+        {
+            reader.Read(out _count);
+            tag.ArraySize = _count;
+        }
+        protected virtual void WriteInnerItems(IndentedTextWriter writer)
+        {
+            var it = _value.GetEnumerator();
+            for (var i = 0; it.MoveNext(); i++)
+            {
+                ReadObject(writer, it.Current);
+
+                if (i != _count - 1)
+                    writer.WriteLine(", ");
+            }
+        }
         public override void ReadTo(IndentedTextWriter writer)
         {
-            var count = Count;
-            if (count == 0)
+            if (_count == 0)
             {
                 writer.WriteLine("[ ]");
                 return;
@@ -24,15 +39,15 @@ namespace UnrealTools.Objects.Property
 
             writer.WriteLine('[');
             writer.Indent++;
-            for (int i = 0; i < count; i++)
+            var it = _value.GetEnumerator();
+            for (var i = 0; it.MoveNext(); i++)
             {
-                var it = _value;
-                ReadObject(writer, it);
-                if (i != count - 1)
-                    writer.WriteLine(", ");
+                WriteInnerItems(writer);
             }
             writer.Indent--;
             writer.WriteLine(']');
         }
+
+        private int _count;
     }
 }

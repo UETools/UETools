@@ -35,7 +35,7 @@ namespace UnrealTools.Assets
         public void ReadTo(IndentedTextWriter writer)
         {
             if (_localizationTable is null)
-                throw new NotDeserializedException();
+                NotDeserializedException.Throw();
 
             _localizationTable.ReadTo(writer);
         }

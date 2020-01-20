@@ -7,6 +7,12 @@ namespace UnrealTools.Core.HistoryTypes
     {
         internal sealed class AsDate : FTextHistory
         {
+            public AsDate() { }
+            public AsDate(DateTime date)
+            {
+                _sourceDateTime = (ulong)date.ToUniversalTime().Date.Ticks;
+                _dateStyle = DateTimeStyle.Default;
+            }
             public override void Deserialize(FArchive reader)
             {
                 base.Deserialize(reader);

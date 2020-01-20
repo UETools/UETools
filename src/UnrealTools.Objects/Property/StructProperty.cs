@@ -21,19 +21,11 @@ namespace UnrealTools.Objects.Property
         public override void Deserialize(FArchive reader, PropertyTag tag)
         {
             var structType = tag.StructName?.ToString();
-            if (structType == "SmartName")
-            {
-                IUnrealStruct val = tag.Size switch
-                {
-                    8 => new SmartNameShort(),
-                    10 => new SmartName(),
-                    26 => new SmartNameGuid()
-                };
-                val.Deserialize(reader);
-                _value = val;
-                
-            }
-            else if (structType != null && Structures.TryGetValue(structType, out var factory))
+
+            if (tag.ArraySize is null)
+                reader = reader.Slice(tag.Size);
+
+            if (structType != null && Structures.TryGetValue(structType, out var factory))
             {
                 var val = factory();
                 val.Deserialize(reader);
@@ -45,13 +37,15 @@ namespace UnrealTools.Objects.Property
             {
                 try
                 {
-                    _value = new TaggedObject(reader);
+                    var obj = new TaggedObject();
+                    _value = obj;
+                    obj.Deserialize(reader);
+                    
                 }
                 catch
                 {
                     Console.WriteLine(structType);
                     _unsuccessfulStruct = $"{{ {structType} needs native deserialization }}";
-                    reader.Seek(tag.PropertyEnd);
                 }
             }
         }

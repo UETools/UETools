@@ -17,7 +17,7 @@ namespace UnrealTools.Core.HistoryTypes
             public override string ToString()
             {
                 if (_format is null || _arguments is null)
-                    throw new NotDeserializedException();
+                    NotDeserializedException.Throw();
 
                 return string.Format(_format.ToString(), _arguments.ToArray());
             }

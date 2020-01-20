@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Reflection;
@@ -12,36 +13,13 @@ namespace UnrealTools.Objects
     {
         private static TypeCollector<IProperty> TypeCollector = new TypeCollector<IProperty>(Path.GetDirectoryName(Assembly.GetCallingAssembly().Location)!, true);
         private static TypeFactory<IProperty> TypeFactory = TypeCollector.ToFactory();
-        private static bool HasType(string value, [NotNullWhen(true)] out Type? type)
-        {
-            type = TypeCollector.typesCollection.Find(x => x.Name == value);
-            return type != null;
-        }
-
+        
         public static IProperty Get(FArchive reader, PropertyTag tag)
         {
-            if (HasType(tag.Type.Name.Value, out var type))
-            {
-                var factory = TypeFactory.factories;
-                if (factory.TryGetValue(tag.Type.ToString(), out var func))
-                {
-                    var it = func();
-                    it.Deserialize(reader, tag);
-                    return it;
-                }
-                else if(type.IsGenericType)
-                {
-                    if (!type.IsConstructedGenericType && HasType(tag.InnerType.ToString(), out var inner))
-                    {
-                        type = type.MakeGenericType(inner);
-                    }
-                    var fun = Factory.CreateInstanceFunction<IProperty>(type);
-                    var it = fun();
-                    it.Deserialize(reader, tag);
-                    return it;
-                }
-            }
-            return null;
+            var factory = TypeFactory.factories;
+            var it = factory[tag.Type.ToString()]();
+            it.Deserialize(reader, tag);
+            return it;
         }
 
         internal static Func<IProperty> Get(Type type)

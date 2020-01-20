@@ -25,7 +25,7 @@ namespace UnrealTools.Core
         public override string ToString()
         {
             if (Value is null)
-                throw new NotDeserializedException();
+                NotDeserializedException.Throw();
 
             return Value;
         }

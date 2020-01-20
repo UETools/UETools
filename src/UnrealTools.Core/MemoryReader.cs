@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Buffers;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -40,9 +41,11 @@ namespace UnrealTools.Core
         public Memory<byte> GetBuffer() => Buffer;
         public Span<byte> GetSpanBuffer() => Buffer.Span;
 
-
         public Memory<byte> ReadBytes(int count)
         {
+            if (Buffer.Length < IntPosition + count)
+                ThrowEndOfStream();
+
             var data = Buffer.Slice(IntPosition, count);
             Position += count;
             return data;
@@ -87,6 +90,9 @@ namespace UnrealTools.Core
         private T ReadValue<T>() where T : struct => MemoryMarshal.Read<T>(ReadSpanBytes(Unsafe.SizeOf<T>()));
 
         public void Dispose() => _owner?.Dispose();
+
+        [DoesNotReturn]
+        private static void ThrowEndOfStream() => throw new EndOfStreamException();
 
         private readonly Memory<byte> _buffer;
         private readonly IMemoryOwner<byte>? _owner;
