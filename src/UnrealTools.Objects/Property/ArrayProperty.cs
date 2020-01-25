@@ -20,10 +20,7 @@ namespace UnrealTools.Objects.Property
             base.Deserialize(reader, tag);
             var info = tag;
             if (tag.InnerTypeEnum == PropertyTag.PropertyType.StructProperty)
-            {
                 reader.Read(out info);
-                info.ArraySize = tag.ArraySize;
-            }
 
             if ((tag.InnerTypeEnum == PropertyTag.PropertyType.ByteProperty && tag.EnumName is null) || tag.InnerTypeEnum == PropertyTag.PropertyType.BoolProperty)
             {

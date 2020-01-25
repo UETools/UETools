@@ -13,11 +13,7 @@ namespace UnrealTools.Objects.Property
     {
         public int Count => _count;
 
-        public override void Deserialize(FArchive reader, PropertyTag tag)
-        {
-            reader.Read(out _count);
-            tag.ArraySize = _count;
-        }
+        public override void Deserialize(FArchive reader, PropertyTag tag) => reader.Read(out _count);
         protected virtual void WriteInnerItems(IndentedTextWriter writer)
         {
             var it = _value.GetEnumerator();

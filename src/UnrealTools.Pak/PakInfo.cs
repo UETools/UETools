@@ -10,13 +10,18 @@ using UnrealTools.Pak.Enums;
 
 namespace UnrealTools.Pak
 {
-    public sealed partial class PakInfo : IUnrealDeserializable
+    internal sealed partial class PakInfo : IUnrealDeserializable
     {
         public bool IsUnrealPak => _magic == PakFile.Magic;
+        public bool IsEncrypted => _encryptedIndex != 0;
         public FArchive ReadIndex(Stream stream)
         {
             var memory = PakMemoryPool.Shared.Rent((int)_indexSize);
             stream.ReadWholeBuf(_indexOffset, memory.Memory.Span);
+
+            if (IsEncrypted && _aesProvider != null)
+                _aesProvider.Decrypt(memory.Memory);
+
             return new FArchive(memory)
             {
                 AssetVersion = (int)_version,
@@ -30,14 +35,15 @@ namespace UnrealTools.Pak
             if (!val.IsCompletedSuccessfully)
                 await val.ConfigureAwait(false);
 
+            if (IsEncrypted && _aesProvider != null)
+                _aesProvider.Decrypt(memory.Memory);
+
             return new FArchive(memory)
             {
                 AssetVersion = (int)_version,
                 AssetSubversion = GetPakSubversion(),
             };
         }
-
-        private const int CompressionMethodNameLen = 32;
 
         // TODO: Add stuff based on the backwards incompatible changes to pak format
         private int GetPakSubversion() => _infoSize switch
@@ -47,7 +53,13 @@ namespace UnrealTools.Pak
         };
 
         private PakInfo(PakInfoSize infoSize) => _infoSize = infoSize;
-        public PakInfo(Memory<byte> data) : this((PakInfoSize)data.Length) => Deserialize(new FArchive(data));
+        internal PakInfo(Memory<byte> data) : this((PakInfoSize)data.Length) => Deserialize(new FArchive(data));
+        internal PakInfo(Memory<byte> data, AesPakCryptoProvider? aesProvider) : this((PakInfoSize)data.Length)
+        {
+            _aesProvider = aesProvider;
+            using var ar = new FArchive(data);
+            Deserialize(ar);
+        }
 
         public void Deserialize(FArchive reader)
         {
@@ -98,5 +110,8 @@ namespace UnrealTools.Pak
         private List<FName> _compressionMethods = new List<FName>();
 
         private PakInfoSize _infoSize;
+        private AesPakCryptoProvider? _aesProvider;
+
+        private const int CompressionMethodNameLen = 32;
     }
 }

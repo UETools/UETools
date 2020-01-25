@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using UnrealTools.Core;
 using UnrealTools.Core.Interfaces;
+using UnrealTools.Pak.Interfaces;
 
 namespace UnrealTools.Pak
 {
@@ -19,39 +20,28 @@ namespace UnrealTools.Pak
             AbsoluteIndex = new Dictionary<string, PakEntry>(_pakFiles.SelectMany(f => f.AbsoluteIndex));
         }
 
-        public static PakVFS OpenAt(string path) => OpenAt(path, AutomaticVersionProvider.Instance);
-        public static PakVFS OpenAt(string path, IVersionProvider versionProvider)
+        public static PakVFS OpenAt(string path, IVersionProvider? versionProvider = null, IAesKeyProvider? keyProvider = null)
         {
-            if (path is null) throw new ArgumentNullException(nameof(path));
-            if (versionProvider is null) throw new ArgumentNullException(nameof(versionProvider));
-
+            if (path is null) 
+                throw new ArgumentNullException(nameof(path));
             var dir = new DirectoryInfo(path);
             if (!dir.Exists)
                 throw new DirectoryNotFoundException();
 
-            var provider = versionProvider;
-            var paks = dir.GetFiles(PakExtensionPattern).Select(f => PakFile.Open(f, provider)).OfType<PakFile>();
+            var paks = dir.GetFiles(PakExtensionPattern).Select(f => PakFile.Open(f, versionProvider, keyProvider)).OfType<PakFile>();
             return new PakVFS(paks);
         }
-        public static ValueTask<PakVFS?> OpenAtAsync(string path, CancellationToken cancellationToken = default) => OpenAtAsync(path, AutomaticVersionProvider.Instance, cancellationToken);
-        public async static ValueTask<PakVFS?> OpenAtAsync(string path, IVersionProvider versionProvider, CancellationToken cancellationToken = default)
+        public async static ValueTask<PakVFS> OpenAtAsync(string path, IVersionProvider? versionProvider = null, IAesKeyProvider? keyProvider = null, CancellationToken cancellationToken = default)
         {
             if (path is null) throw new ArgumentNullException(nameof(path));
-            if (versionProvider is null) throw new ArgumentNullException(nameof(versionProvider));
-
             var dir = new DirectoryInfo(path);
             if (!dir.Exists)
                 throw new DirectoryNotFoundException();
 
             var files = dir.GetFiles(PakExtensionPattern);
-
-            if (files.Length > 0)
-            {
-                var tasks = files.Select(f => PakFile.OpenAsync(f, versionProvider, cancellationToken));
-                var paks = await Task.WhenAll(tasks).ConfigureAwait(false);
-                return new PakVFS(paks.Where(x => x != null));
-            }
-            return null;
+            var tasks = files.Select(f => PakFile.OpenAsync(f, versionProvider, cancellationToken: cancellationToken));
+            var paks = await Task.WhenAll(tasks).ConfigureAwait(false);
+            return new PakVFS(paks.Where(x => x != null));
         }
 
         public void Dispose()

@@ -21,10 +21,6 @@ namespace UnrealTools.Objects.Property
         public override void Deserialize(FArchive reader, PropertyTag tag)
         {
             var structType = tag.StructName?.ToString();
-
-            if (tag.ArraySize is null)
-                reader = reader.Slice(tag.Size);
-
             if (structType != null && Structures.TryGetValue(structType, out var factory))
             {
                 var val = factory();

@@ -26,7 +26,6 @@ namespace UnrealTools.Objects
         public PropertyType TypeEnum => _typeEnum;
         public PropertyType InnerTypeEnum => _innerTypeEnum;
         public PropertyType ValueTypeEnum => _valueTypeEnum;
-        internal int? ArraySize { get; set; }
 
         public long PropertyEnd { get; private set; }
 
