@@ -13,6 +13,16 @@ namespace UnrealTools.Pak
     public sealed class PakVFS : IDisposable, IAsyncDisposable
     {
         public Dictionary<string, PakEntry> AbsoluteIndex { get; }
+        public PakFileIndex<PakEntry> Index 
+        { 
+            get
+            {
+                if(_index is null)
+                    _index = PakFileIndex<PakEntry>.Parse(AbsoluteIndex);
+
+                return _index;
+            }
+        }
 
         private PakVFS(IEnumerable<PakFile> files)
         {
@@ -58,5 +68,6 @@ namespace UnrealTools.Pak
         private const string PakExtensionPattern = "*.pak";
 
         private readonly List<PakFile> _pakFiles;
+        private PakFileIndex<PakEntry>? _index;
     }
 }
