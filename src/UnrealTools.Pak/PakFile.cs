@@ -98,7 +98,7 @@ namespace UnrealTools.Pak
                 AbsoluteIndex.Add(filePath, entry);
             }
         }
-        private async Task InitializeAsync(PakInfo info, CancellationToken cancellationToken = default)
+        private async ValueTask InitializeAsync(PakInfo info, CancellationToken cancellationToken = default)
         {
             var reader = await info.ReadIndexAsync(FileStream, cancellationToken: cancellationToken).ConfigureAwait(false);
             reader.Read(out FString mountPoint);
@@ -144,7 +144,10 @@ namespace UnrealTools.Pak
             if (ReadPakInfo(fileStream, aesProvider, out var info))
             {
                 var file = new PakFile(fileInfo, fileStream, versionProvider, aesProvider);
-                await file.InitializeAsync(info, cancellationToken).ConfigureAwait(false);
+                var task = file.InitializeAsync(info, cancellationToken);
+                if(!task.IsCompletedSuccessfully)
+                    await task.ConfigureAwait(false);
+
                 return file;
             }
 
@@ -153,7 +156,7 @@ namespace UnrealTools.Pak
 
         private static bool ReadPakInfo(FileStream fileStream, AesPakCryptoProvider? _aesProvider, [NotNullWhen(true)] out PakInfo? info)
         {
-            var values = Enum.GetValues(typeof(PakInfoSize)).Cast<int>().ToArray();
+            var values = Enum.GetValues(typeof(PakInfoSize)).Cast<int>();
             var len = fileStream.Length;
             var maxSize = (int)Math.Min(values.Max(), len);
             using var data = PakMemoryPool.Shared.Rent(maxSize);
