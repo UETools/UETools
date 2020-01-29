@@ -32,6 +32,8 @@ namespace UnrealTools.Assets.Internal.Registry
                 reader.Read(out _chunkIDs);
             else if (reader.Version >= UE4Version.VER_UE4_ADDED_CHUNKID_TO_ASSETDATA_AND_UPACKAGE)
                 reader.Read(out _chunkIDs, 1);
+            else
+                _chunkIDs = new List<int>();
 
             if (reader.Version >= UE4Version.VER_UE4_COOKED_ASSETS_IN_EDITOR_SUPPORT)
                 reader.ReadUnsafe(out _packageFlags);

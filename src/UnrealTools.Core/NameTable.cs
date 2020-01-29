@@ -5,7 +5,7 @@ using UnrealTools.Core.Interfaces;
 namespace UnrealTools.Core
 {
     [UnrealTable("Names")]
-    public sealed class NameTable : UnrealTable<FString>, IUnrealDeserializable
+    public sealed class NameTable : UnrealTable<FString>
     {
         public NameTable() { }
         public NameTable(int length) : base(length) { }

@@ -8,7 +8,7 @@ using UnrealTools.Objects.Enums;
 namespace UnrealTools.Objects.Package
 {
     [UnrealTable(TableName)]
-    public sealed class ExportTable : UnrealTable<ObjectExport>, IUnrealDeserializable
+    public sealed class ExportTable : UnrealTable<ObjectExport>
     {
         internal const string TableName = "Exports";
         public ExportTable() : base() { }

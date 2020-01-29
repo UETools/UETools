@@ -4,7 +4,7 @@ using UnrealTools.Core.Interfaces;
 namespace UnrealTools.Objects.Package
 {
     [UnrealTable(TableName)]
-    public sealed class ImportTable : UnrealTable<ObjectImport>, IUnrealDeserializable
+    public sealed class ImportTable : UnrealTable<ObjectImport>
     {
         internal const string TableName = "Imports";
         public ImportTable() : base() { }

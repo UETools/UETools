@@ -4,8 +4,10 @@ Set of libraries for reading the Unreal Engine 4 binary asset format.
 
 Example usage:
 ```cs
+using UnrealTools.Core.Enums;
 using UnrealTools.Pak;
 using UnrealTools.Assets;
+
 class Program
 {
     static void Main(string[] args)

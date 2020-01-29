@@ -6,7 +6,7 @@ namespace UnrealTools.Core
     /// <summary>
     /// Unreal Engine 4 serialization of MD5 hash
     /// </summary>
-    public class MD5Hash : IUnrealDeserializable
+    public struct MD5Hash : IUnrealDeserializable
     {
         /// <summary>
         /// Deserializes hash data from the stream.

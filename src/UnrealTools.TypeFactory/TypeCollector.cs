@@ -43,8 +43,8 @@ namespace UnrealTools.TypeFactory
             catch (Exception ex)
             {
                 Debug.WriteLine(ex);
+                throw;
             }
-            return null;
         }
 
         private void GetAssemblyTypes(Assembly assembly, bool collectGenerics) => typesCollection.AddRange(assembly.GetTypes()

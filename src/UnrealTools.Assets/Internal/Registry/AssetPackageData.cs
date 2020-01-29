@@ -18,6 +18,6 @@ namespace UnrealTools.Assets.Internal.Registry
 
         private long _diskSize;
         private Guid _packageGuid;
-        private MD5Hash _hash = null!;
+        private MD5Hash _hash;
     }
 }

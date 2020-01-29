@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using UnrealTools.Core.Interfaces;
 using UnrealTools.Core.Interfaces.Generic;
 
 namespace UnrealTools.Core
@@ -14,7 +15,7 @@ namespace UnrealTools.Core
     /// </remarks>
     /// <typeparam name="T">Type of items stored in the table.</typeparam>
     [DebuggerDisplay("{Items.Count} items")]
-    public abstract class UnrealTable<T> : IUnrealTable<T> where T : notnull
+    public abstract class UnrealTable<T> : IUnrealDeserializable, IUnrealTable<T> where T : notnull
     {
         /// <summary>
         /// <see cref="List{T}"/> of elements exposed by the table.
