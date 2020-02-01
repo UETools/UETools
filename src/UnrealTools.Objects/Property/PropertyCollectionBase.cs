@@ -35,11 +35,7 @@ namespace UnrealTools.Objects.Property
 
             writer.WriteLine('[');
             writer.Indent++;
-            var it = _value.GetEnumerator();
-            for (var i = 0; it.MoveNext(); i++)
-            {
-                WriteInnerItems(writer);
-            }
+            WriteInnerItems(writer);
             writer.Indent--;
             writer.WriteLine(']');
         }
