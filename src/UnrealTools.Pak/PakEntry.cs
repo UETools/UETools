@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Buffers;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using UnrealTools.Core;
@@ -29,7 +31,7 @@ namespace UnrealTools.Pak
         private uint CompressionBlockSize => _compressionBlockSize;
 
         // TODO: Consider creating PakCompressedBlockCollection that resolves relativity, or lack of thereof
-        public List<PakCompressedBlock> CompressionBlocks => _compressionBlocks; 
+        public List<PakCompressedBlock> CompressionBlocks => _compressionBlocks;
 
         public PakEntry(PakFile pakFile) => Owner = pakFile;
 
@@ -86,6 +88,49 @@ namespace UnrealTools.Pak
         public FArchive Read() => new FArchive(Owner.ReadEntry(this));
         public IMemoryOwner<byte> ReadBytes() => Owner.ReadEntry(this);
         public async ValueTask<FArchive> ReadAsync(CancellationToken cancellationToken = default) => new FArchive(await Owner.ReadEntryAsync(this, cancellationToken).ConfigureAwait(false));
+
+        internal IMemoryOwner<byte> Read(Stream source)
+        {
+            var mem = PakMemoryPool.Shared.Rent((int)TotalSize);
+            Read(source, mem.Memory);
+            return mem;
+        }
+        internal async ValueTask<IMemoryOwner<byte>> ReadAsync(Stream source, CancellationToken cancellationToken = default)
+        {
+            var mem = PakMemoryPool.Shared.Rent((int)TotalSize);
+            var task = ReadAsync(source, mem.Memory, cancellationToken);
+            if (!task.IsCompletedSuccessfully)
+                await task.ConfigureAwait(false);
+
+            return mem;
+        }
+
+        private void Read(Stream source, Memory<byte> destination)
+        {
+            var size = (int)_size;
+            source.ReadWholeBuf(Offset + EntryHeaderSize, destination.Span.Slice(0, size));
+            LinkedEntry?.Read(source, destination.Slice(size));
+        }
+        private async ValueTask ReadAsync(Stream source, Memory<byte> destination, CancellationToken cancellationToken = default)
+        {
+            var size = (int)_size;
+            var task = source.ReadWholeBufAsync(Offset + EntryHeaderSize, destination.Slice(0, size), cancellationToken);
+            if (!task.IsCompletedSuccessfully)
+                await task.ConfigureAwait(false);
+            if (LinkedEntry is null)
+                return;
+
+            var linked = LinkedEntry.ReadAsync(source, destination.Slice(size), cancellationToken);
+            if (linked.IsCompletedSuccessfully)
+                await linked.ConfigureAwait(false);
+        }
+
+        internal long TotalSize => LinkedEntry is null ? _size : _size + LinkedEntry.TotalSize;
+        internal long TotalUncompressedSize => LinkedEntry is null ? _uncompressedSize : _uncompressedSize + LinkedEntry.TotalUncompressedSize;
+        internal IEnumerable<PakCompressedBlock> TotalBlocks
+            => LinkedEntry is null
+            ? _compressionBlocks.Select(x => x.AbsoluteTo(EntryHeaderSize))
+            : _compressionBlocks.Select(x => x.AbsoluteTo(EntryHeaderSize)).Concat(LinkedEntry.TotalBlocks.Select(x => x.AbsoluteTo(-_size)));
 
         private long _offset;
         private long _size;
