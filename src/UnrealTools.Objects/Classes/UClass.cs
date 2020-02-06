@@ -25,6 +25,7 @@ namespace UnrealTools.Objects.Classes
 
         public override void Deserialize(FArchive reader)
         {
+            base.Deserialize(reader);
             reader.Read(out _funcMap);
             reader.ReadUnsafe(out _flags);
 
