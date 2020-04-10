@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\UETools.Core\UETools.Core.csproj" />
+    <ProjectReference Include="..\UETools.Objects\UETools.Objects.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Internal\VorbisBank\" />
+  </ItemGroup>
+
+</Project>
