@@ -8,9 +8,9 @@
     <LangVersion>preview</LangVersion>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
  
-    <Company>UnrealTools</Company>
-    <Authors>UnrealTools</Authors>
-    <RepositoryUrl>https://github.com/UnrealTools/UnrealTools</RepositoryUrl>
+    <Company>UETools</Company>
+    <Authors>UETools</Authors>
+    <RepositoryUrl>https://github.com/UETools/UETools</RepositoryUrl>
     <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
