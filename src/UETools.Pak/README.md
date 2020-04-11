@@ -1,3 +1,3 @@
-# UnrealTools.Pak
+# UETools.Pak
 
 Implements deserialization of UE4 Pak files and accessing its entries.
