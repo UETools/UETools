@@ -8,20 +8,22 @@ namespace UETools.Pak
     [DebuggerDisplay("{(int)_compressionStart}..{(int)_compressionEnd}")]
     public struct PakCompressedBlock : IUnrealDeserializable, IEquatable<PakCompressedBlock>
     {
+        public PakCompressedBlock(long start, long end)
+        {
+            _compressionStart = start;
+            _compressionEnd = end;
+        }
+
         public long Start => _compressionStart;
+        public long End => _compressionEnd;
         public void Deserialize(FArchive reader)
         {
             reader.Read(out _compressionStart);
             reader.Read(out _compressionEnd);
         }
 
-        public readonly PakCompressedBlock AbsoluteTo(long offset)
-        {
-            var b = new PakCompressedBlock();
-            b._compressionStart = _compressionStart - offset;
-            b._compressionEnd = _compressionEnd - offset;
-            return b;
-        }
+        public readonly PakCompressedBlock OffsetBy(long offset) 
+            => new PakCompressedBlock(_compressionStart - offset, _compressionEnd - offset);
 
         private long _compressionStart;
         private long _compressionEnd;

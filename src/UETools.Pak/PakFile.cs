@@ -33,6 +33,7 @@ namespace UETools.Pak
         private PakFile(string fileName, long size, Stream sourceStream, IVersionProvider? versionProvider = null, AesPakCryptoProvider? aesProvider = null)
         {
             FileName = fileName;
+            Size = size;
             SourceStream = sourceStream;
             _aesProvider = aesProvider;
             _versionProvider = versionProvider ?? AutomaticVersionProvider.Instance;
@@ -41,14 +42,14 @@ namespace UETools.Pak
         public IMemoryOwner<byte> ReadEntry(PakEntry entry)
         {
             var buf = entry.Read(SourceStream);
-            if (entry.IsEncrypted)
+            if (entry.IsAnyEncrypted)
             {
                 if (_aesProvider is null)
                     throw new PakEncryptedException("Pak file contains encrypted entries. AES encryption key is necessary for reading this asset.");
 
-                _aesProvider.Decrypt(buf.Memory);
+                _aesProvider.DecryptEntry(buf.Memory, entry);
             }
-            if (entry.IsCompressed)
+            if (entry.IsAnyCompressed)
             {
                 var decompressed = UnrealCompression.Decompress(buf.Memory, entry);
                 buf.Dispose();
@@ -61,14 +62,14 @@ namespace UETools.Pak
         {
             var taskData = entry.ReadAsync(SourceStream, cancellationToken);
             var buf = taskData.IsCompletedSuccessfully ? taskData.Result : await taskData.ConfigureAwait(false);
-            if (entry.IsEncrypted)
+            if (entry.IsAnyEncrypted)
             {
                 if (_aesProvider is null)
                     throw new PakEncryptedException("Pak file contains encrypted entries. AES encryption key is necessary for reading this asset.");
 
-                _aesProvider.Decrypt(buf.Memory);
+                _aesProvider.DecryptEntry(buf.Memory, entry);
             }
-            if (entry.IsCompressed)
+            if (entry.IsAnyCompressed)
             {
                 var decompressTask = UnrealCompression.DecompressAsync(buf.Memory, entry, cancellationToken);
                 var result = decompressTask.IsCompletedSuccessfully ? decompressTask.Result : await decompressTask.ConfigureAwait(false);
@@ -127,18 +128,25 @@ namespace UETools.Pak
                 AbsoluteIndex.Add(filePath, entry);
             }
 
+            // TODO: Change this to something working better
             foreach(var kv in AbsoluteIndex)
             {
+                var val = kv.Value;
+                if (kv.Value.IsCompressed)
+                    val.CompressionBlocks.OffsetBy((int)val.EntryHeaderSize);
+
                 if (kv.Key.EndsWith(".uasset"))
                 {
                     var expPath = Path.ChangeExtension(kv.Key, ".uexp");
                     if (AbsoluteIndex.TryGetValue(expPath, out var exports))
                     {
-                        kv.Value.LinkedEntry = exports;
+                        val.LinkedEntry = exports;
+                        exports.CompressionBlocks.OffsetBy(-(int)(val.Size));
                         var bulkPath = Path.ChangeExtension(kv.Key, ".ubulk");
                         if (AbsoluteIndex.TryGetValue(bulkPath, out var bulk))
                         {
                             exports.LinkedEntry = bulk;
+                            bulk.CompressionBlocks.OffsetBy(-(int)(exports.Size + val.Size));
                         }
                     }
                 }

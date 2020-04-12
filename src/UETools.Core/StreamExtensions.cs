@@ -21,10 +21,21 @@ namespace UETools.Core
                 offset += read;
             }
         }
-        public static void ReadWholeBuf(this Stream stream, byte[] buf)
+        public static void ReadWholeBuf(this Stream stream, byte[] buf) => stream.ReadCount(buf, buf.Length);
+        public static void ReadWholeBuf(this Stream stream, long offset, in Span<byte> buf) => stream.ReadWholeBuf(offset, SeekOrigin.Begin, buf);
+        public static void ReadWholeBuf(this Stream stream, long offset, SeekOrigin origin, in Span<byte> buf)
         {
-            int remaining = buf.Length;
-            var offset = 0;
+            stream.Seek(offset, origin);
+            stream.ReadWholeBuf(buf);
+        }
+        public static void ReadCount(this Stream stream, byte[] buf, int count) => stream.ReadCount(buf, 0, buf.Length, count);
+        public static void ReadCount(this Stream stream, byte[] buf, int bufOffset, int bufCount, int count)
+        {
+            if (count > bufCount)
+                throw new ArgumentOutOfRangeException(nameof(count));
+
+            var remaining = count;
+            var offset = bufOffset;
             while (remaining > 0)
             {
                 var read = stream.Read(buf, offset, remaining);
@@ -34,12 +45,6 @@ namespace UETools.Core
                 remaining -= read;
                 offset += read;
             }
-        }
-        public static void ReadWholeBuf(this Stream stream, long offset, in Span<byte> buf) => stream.ReadWholeBuf(offset, SeekOrigin.Begin, buf);
-        public static void ReadWholeBuf(this Stream stream, long offset, SeekOrigin origin, in Span<byte> buf)
-        {
-            stream.Seek(offset, origin);
-            stream.ReadWholeBuf(buf);
         }
 
         public static async ValueTask ReadWholeBufAsync(this Stream stream, Memory<byte> buf, CancellationToken cancellationToken = default)
@@ -63,6 +68,24 @@ namespace UETools.Core
         {
             stream.Seek(offset, SeekOrigin.Begin);
             return stream.ReadWholeBufAsync(buf, cancellationToken);
+        }
+        public static ValueTask ReadCountAsync(this Stream stream, byte[] buf, int count, CancellationToken cancellationToken = default) => stream.ReadCountAsync(buf, 0, buf.Length, count, cancellationToken);
+        public static async ValueTask ReadCountAsync(this Stream stream, byte[] buf, int bufOffset, int bufCount, int count, CancellationToken cancellationToken = default)
+        {
+            if (count > bufCount || count > bufCount - bufOffset)
+                throw new ArgumentOutOfRangeException(nameof(count));
+
+            var remaining = count;
+            var offset = bufOffset;
+            while (remaining > 0)
+            {
+                var read = await stream.ReadAsync(buf, offset, remaining, cancellationToken);
+                if (read <= 0)
+                    throw new EndOfStreamException($"End of stream reached, {remaining} bytes left to read");
+
+                remaining -= read;
+                offset += read;
+            }
         }
     }
 }

@@ -17,7 +17,9 @@ namespace UETools.Pak
                 stream.Write(header);
             else
             {
-                if (stream.ReadByte() != header[0] || stream.ReadByte() != header[1])
+                Span<byte> bytes = stackalloc byte[2];
+                stream.Read(bytes);
+                if (!bytes.SequenceEqual(header))
                     throw new InvalidDataException("Not a zlib stream.");
             }
             _deflateStream = new DeflateStream(stream, mode);

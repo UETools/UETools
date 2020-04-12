@@ -28,6 +28,41 @@ namespace UETools.Pak
             _encryptor = _aesProvider.CreateEncryptor();
         }
 
+        public void DecryptEntry(Memory<byte> buffer, PakEntry entry)
+        {
+            if (MemoryMarshal.TryGetArray<byte>(buffer, out var segment))
+            {
+                DecryptEntry(segment.Array!, segment.Offset, segment.Count, entry);
+            }
+            else
+            {
+                var pool = ArrayPool<byte>.Shared.Rent(buffer.Length);
+                buffer.CopyTo(pool);
+                DecryptEntry(pool, 0, buffer.Length, entry);
+                pool.CopyTo(buffer);
+                ArrayPool<byte>.Shared.Return(pool);
+            }
+        }
+        public void DecryptEntry(byte[] array, int offset, int count, PakEntry entry)
+        {
+            if (entry.IsEncrypted)
+            {
+                var cnt = Math.Min(count, (int)entry.Size);
+                // Aes implementation doesn't need TransformFinalBlock, where it actually allocates array to return
+                var blockSize = _decryptor.InputBlockSize;
+                while (count > 0)
+                {
+                    var read = _decryptor.TransformBlock(array, offset, Math.Min(blockSize, cnt), array, offset);
+                    cnt -= read;
+                    offset += read;
+                }
+            }
+            count -= (int)entry.Size;
+            if (entry.LinkedEntry is PakEntry linked)
+            {
+                DecryptEntry(array, offset, count, entry);
+            }
+        }
         public void Decrypt(Memory<byte> buffer)
         {
             if (MemoryMarshal.TryGetArray<byte>(buffer, out var segment))
@@ -37,21 +72,8 @@ namespace UETools.Pak
             else
             {
                 var pool = ArrayPool<byte>.Shared.Rent(buffer.Length);
+                buffer.CopyTo(pool);
                 Decrypt(pool, 0, buffer.Length);
-                pool.CopyTo(buffer);
-                ArrayPool<byte>.Shared.Return(pool);
-            }
-        }
-        public void Encrypt(Memory<byte> buffer)
-        {
-            if (MemoryMarshal.TryGetArray<byte>(buffer, out var segment))
-            {
-                Encrypt(segment.Array!, segment.Offset, segment.Count);
-            }
-            else
-            {
-                var pool = ArrayPool<byte>.Shared.Rent(buffer.Length);
-                Encrypt(pool, 0, buffer.Length);
                 pool.CopyTo(buffer);
                 ArrayPool<byte>.Shared.Return(pool);
             }
@@ -65,6 +87,21 @@ namespace UETools.Pak
                 var read = _decryptor.TransformBlock(array, offset, Math.Min(blockSize, count), array, offset);
                 count -= read;
                 offset += read;
+            }
+        }
+        public void Encrypt(Memory<byte> buffer)
+        {
+            if (MemoryMarshal.TryGetArray<byte>(buffer, out var segment))
+            {
+                Encrypt(segment.Array!, segment.Offset, segment.Count);
+            }
+            else
+            {
+                var pool = ArrayPool<byte>.Shared.Rent(buffer.Length);
+                buffer.CopyTo(pool);
+                Encrypt(pool, 0, buffer.Length);
+                pool.CopyTo(buffer);
+                ArrayPool<byte>.Shared.Return(pool);
             }
         }
         public void Encrypt(byte[] array, int offset, int count)

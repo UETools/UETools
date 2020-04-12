@@ -30,7 +30,6 @@ namespace UETools.Pak
         public long UncompressedSize => _uncompressedSize;
         private uint CompressionBlockSize => _compressionBlockSize;
 
-        // TODO: Consider creating PakCompressedBlockCollection that resolves relativity, or lack of thereof
         public List<PakCompressedBlock> CompressionBlocks => _compressionBlocks;
 
         public PakEntry(PakFile pakFile) => Owner = pakFile;
@@ -127,10 +126,8 @@ namespace UETools.Pak
 
         internal long TotalSize => LinkedEntry is null ? _size : _size + LinkedEntry.TotalSize;
         internal long TotalUncompressedSize => LinkedEntry is null ? _uncompressedSize : _uncompressedSize + LinkedEntry.TotalUncompressedSize;
-        internal IEnumerable<PakCompressedBlock> TotalBlocks
-            => LinkedEntry is null
-            ? _compressionBlocks.Select(x => x.AbsoluteTo(EntryHeaderSize))
-            : _compressionBlocks.Select(x => x.AbsoluteTo(EntryHeaderSize)).Concat(LinkedEntry.TotalBlocks.Select(x => x.AbsoluteTo(-_size)));
+        internal bool IsAnyCompressed => LinkedEntry is null ? IsCompressed : IsCompressed || LinkedEntry.IsAnyCompressed;
+        internal bool IsAnyEncrypted => LinkedEntry is null ? IsEncrypted : IsEncrypted || LinkedEntry.IsAnyEncrypted;
 
         private long _offset;
         private long _size;
