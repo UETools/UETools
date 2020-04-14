@@ -3,7 +3,7 @@ using UETools.Core.Enums;
 using UETools.Objects.Enums;
 using UETools.Objects.Package;
 
-namespace UETools.Objects.Classes
+namespace UETools.Objects.Classes.Internal
 {
     internal class UFunction : UStruct
     {

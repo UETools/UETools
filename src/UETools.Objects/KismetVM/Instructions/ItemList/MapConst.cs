@@ -5,7 +5,7 @@ using UETools.Objects.Package;
 
 namespace UETools.Objects.KismetVM.Instructions
 {
-    internal sealed class MapConst : ListToken
+    internal sealed class MapConst : CollectionToken
     {
         public override EExprToken Expr => EExprToken.EX_MapConst;
 

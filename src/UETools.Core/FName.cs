@@ -46,7 +46,7 @@ namespace UETools.Core
         private bool IsStringNone() => Name == string.Empty || Name == "None";
 
         public override int GetHashCode() => HashCode.Combine(Name, Index);
-        public bool Equals(FName other) => IsIndexNone() ? other.Equals(Name) : Index == other.Index && _comparisionId == other._comparisionId;
+        public bool Equals(FName other) => IsIndexNone() || other.IsIndexNone() ? other.Equals(Name) : Index == other.Index && _comparisionId == other._comparisionId;
         public bool Equals(FString other) => other.Equals(Name);
         public bool Equals(string other) => other == Name;
         public override bool Equals(object? obj) => obj switch

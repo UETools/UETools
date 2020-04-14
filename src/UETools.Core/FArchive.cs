@@ -12,6 +12,8 @@ namespace UETools.Core
     /// </summary>
     public partial class FArchive : IDisposable
     {
+        public FArchive FindParent() => Parent is null ? this : Parent.FindParent();
+        private FArchive Parent { get; set; }
         /// <summary>
         /// Version of the asset, separate from serialized UObject <see cref="Version"/>.
         /// </summary>
@@ -71,18 +73,33 @@ namespace UETools.Core
         /// <returns><see langword="true"/> if <see cref="Length()"/> is greater than current stream position; otherwise <see langword="false"/>.</returns>
         public bool EOF() => Tell() >= Length();
 
-        public FArchive Slice(int length) => new FArchive(Stream.ReadBytes(length))
+
+        public FArchive Slice(long offset)
         {
+            Stream.Seek(offset, SeekOrigin.Begin);
+            return new FArchive(Stream)
+            {
+                Parent = this,
+                Tables = this.Tables,
+                Version = this.Version,
+                AssetVersion = this.AssetVersion,
+                AssetSubversion = this.AssetSubversion,
+                Localization = this.Localization,
+            };
+        }
+        public FArchive SubStream(int length) => new FArchive(Stream.ReadBytes(length))
+        {
+            Parent = this,
             Tables = this.Tables,
             Version = this.Version,
             AssetVersion = this.AssetVersion,
             AssetSubversion = this.AssetSubversion,
             Localization = this.Localization,
         };
-        public FArchive Slice(long offset, int length)
+        public FArchive SubStream(long offset, int length)
         {
             Stream.Seek(offset, SeekOrigin.Begin);
-            return Slice(length);
+            return SubStream(length);
         }
 
         /// <summary>

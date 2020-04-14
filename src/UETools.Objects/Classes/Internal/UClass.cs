@@ -5,7 +5,7 @@ using UETools.Core.Interfaces;
 using UETools.Objects.Enums;
 using UETools.Objects.Package;
 
-namespace UETools.Objects.Classes
+namespace UETools.Objects.Classes.Internal
 {
     internal class UClass : UStruct
     {

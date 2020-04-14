@@ -31,9 +31,9 @@ namespace UETools.Objects.Property
                 _unsuccessfulStruct = $"{structType}: {BitConverter.ToString(reader.Read(out byte[] _, tag.Size))}";
             else
             {
+                var obj = new TaggedObject();
                 try
                 {
-                    var obj = new TaggedObject();
                     _value = obj;
                     obj.Deserialize(reader);
                     

@@ -26,8 +26,8 @@ namespace UETools.Objects.Enums
         /// </summary>
         RF_MarkAsNative = 0x00000004,
         /// <summary>
-        /// Object is transactional
-        /// .</summary>
+        /// Object is transactional.
+        /// </summary>
         RF_Transactional = 0x00000008,
         /// <summary>
         /// This object is its class's default object.

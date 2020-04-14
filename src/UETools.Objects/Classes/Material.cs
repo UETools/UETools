@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using UETools.Core;
+using UETools.Objects.Classes.Internal;
 
 namespace UETools.Objects.Classes
 {

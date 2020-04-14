@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using UETools.Core;
 using UETools.Core.Interfaces;
+using UETools.Objects.Classes.Internal;
 
 namespace UETools.Objects.Classes
 {

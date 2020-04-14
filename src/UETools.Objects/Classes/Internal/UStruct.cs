@@ -1,8 +1,9 @@
 ﻿using System.Linq;
 using UETools.Core;
+using UETools.Objects.KismetVM;
 using UETools.Objects.Package;
 
-namespace UETools.Objects.Classes
+namespace UETools.Objects.Classes.Internal
 {
     internal class UStruct : UField
     {
@@ -21,7 +22,8 @@ namespace UETools.Objects.Classes
             reader.Read(out _scriptByteCodeOnDiskSize);
             if (_scriptByteCodeSize > 0)
             {
-                reader.Skip(_scriptByteCodeOnDiskSize);
+                var xxx = new BlueprintReader();
+                xxx.Deserialize(reader);
             }
         }
 

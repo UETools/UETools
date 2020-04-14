@@ -4,7 +4,7 @@ using UETools.Core;
 
 namespace UETools.Objects.KismetVM.Instructions
 {
-    internal sealed class SetMap : ListToken
+    internal sealed class SetMap : CollectionToken
     {
         public override EExprToken Expr => EExprToken.EX_SetMap;
 

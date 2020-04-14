@@ -24,7 +24,7 @@ namespace UETools.Objects.Package
         public ObjectResource GetOutermost(FArchive asset) => asset.ImpExp(_outerIndex)?.GetOutermost(asset) ?? this;
 
         public abstract void Fix(FArchive reader);
-        public abstract TaggedObject? Read(FArchive reader);
+        public abstract TaggedObject? Read(FArchive? reader);
         public abstract string GetClassName();
 
         protected PackageIndex _outerIndex;

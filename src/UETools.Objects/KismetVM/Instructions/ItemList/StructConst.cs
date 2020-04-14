@@ -5,7 +5,7 @@ using UETools.Objects.Package;
 
 namespace UETools.Objects.KismetVM.Instructions
 {
-    internal sealed class StructConst : ListToken
+    internal sealed class StructConst : CollectionToken
     {
         public override EExprToken Expr => EExprToken.EX_StructConst;
 

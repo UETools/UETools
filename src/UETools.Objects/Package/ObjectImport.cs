@@ -22,7 +22,7 @@ namespace UETools.Objects.Package
             GetOuter(Outer, reader);
             _fullNameBuilder.Append(ObjectName);
         }
-        public override TaggedObject? Read(FArchive reader) => null;
+        public override TaggedObject? Read(FArchive? reader) => null;
         public override string GetClassName() => _className;
 
 

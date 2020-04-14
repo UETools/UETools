@@ -24,7 +24,7 @@ namespace UETools.Objects.Classes
         {
             foreach (var tag in PropertyTag.ReadToEnd(reader))
             {
-                Vars.Add(new TaggedItem(tag.Name, PropertyFactory.Get(reader.Slice(tag.Size), tag)));
+                Vars.Add(new TaggedItem(tag.Name, PropertyFactory.Get(reader.SubStream(tag.Size), tag)));
                 if(reader.Tell() != tag.PropertyEnd)
                 {
                     Console.WriteLine($"Needed to move by {tag.PropertyEnd - reader.Tell()} for {tag.Name} {(tag.TypeEnum == PropertyTag.PropertyType.StructProperty ? tag.StructName : tag.Type)}");

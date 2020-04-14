@@ -1,6 +1,6 @@
 ﻿using UETools.Core;
 
-namespace UETools.Objects.Classes
+namespace UETools.Objects.Classes.Internal
 {
     public class UObject : TaggedObject
     {

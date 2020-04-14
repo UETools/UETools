@@ -1,6 +1,6 @@
 ﻿namespace UETools.Objects.KismetVM.Instructions
 {
-    internal abstract class ListToken : Token
+    internal abstract class CollectionToken : Token
     {
     }
 }

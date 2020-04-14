@@ -2,7 +2,7 @@
 using UETools.Core.Enums;
 using UETools.Objects.Package;
 
-namespace UETools.Objects.Classes
+namespace UETools.Objects.Classes.Internal
 {
     class UField : UObject
     {

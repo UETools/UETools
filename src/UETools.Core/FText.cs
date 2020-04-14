@@ -54,6 +54,11 @@ namespace UETools.Core
             var history = new FTextHistory.Base(value);
             return new FText(history);
         }
+        public static FText FromDate(DateTime date)
+        {
+            var history = new FTextHistory.AsDate(date);
+            return new FText(history);
+        }
         public static FText FromStringTable()
         {
             var history = new FTextHistory.StringTableEntry();

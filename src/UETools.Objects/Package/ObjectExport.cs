@@ -13,9 +13,12 @@ namespace UETools.Objects.Package
         public ObjectResource? DefaultObject { get; private set; }
         public ObjectResource? Class { get; private set; }
         public ObjectResource? Super { get; private set; }
+        public bool IsDefaultObject { get; private set; }
+        public bool IsArchetypeObject { get; private set; }
         public TaggedObject? Object => _deserialized;
         internal EObjectFlags ObjectFlags => _objectFlags;
         internal bool IsAsset => _bIsAsset;
+        internal bool WasPrinted { get; set; }
 
         public void Deserialize(FArchive reader)
         {
@@ -31,6 +34,8 @@ namespace UETools.Objects.Package
             reader.Read(out _objectName);
 
             reader.ReadUnsafe(out _objectFlags);
+            IsDefaultObject = (_objectFlags & EObjectFlags.RF_Standalone) != 0 && (_objectFlags & EObjectFlags.RF_Public) != 0;
+            IsArchetypeObject = (_objectFlags & EObjectFlags.RF_ArchetypeObject) != 0;
 
             if (version < UE4Version.VER_UE4_64BIT_EXPORTMAP_SERIALSIZES)
             {
@@ -83,14 +88,14 @@ namespace UETools.Objects.Package
             Super = reader.ImpExp(_superIndex);
             DefaultObject = reader.ImpExp(_templateIndex);
 
-            _deserialized = Read(reader);
+             _deserialized = Read(reader);
         }
-        public override TaggedObject? Read(FArchive reader)
+        public override TaggedObject? Read(FArchive? reader)
         {
-            if (reader is null) throw new ArgumentNullException(nameof(reader));
-
-            if (_deserialized is null)
-                _deserialized = TaggedObject.Create(reader.Slice(_serialOffset, (int)_serialSize), GetClassName());
+            if (_deserialized is null && reader is { })
+            {
+                _deserialized = TaggedObject.Create(reader.Slice(_serialOffset), GetClassName());
+            }
 
             return _deserialized;
         }

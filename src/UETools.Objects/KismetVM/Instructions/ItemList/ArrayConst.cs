@@ -5,7 +5,7 @@ using UETools.Objects.Package;
 
 namespace UETools.Objects.KismetVM.Instructions
 {
-    internal sealed class ArrayConst : ListToken
+    internal sealed class ArrayConst : CollectionToken
     {
         public override EExprToken Expr => EExprToken.EX_ArrayConst;
 
