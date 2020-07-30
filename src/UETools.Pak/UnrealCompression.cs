@@ -73,9 +73,7 @@ namespace UETools.Pak
             var decompressed = PakMemoryPool.Shared.Rent((int)entry.TotalUncompressedSize);
             if (MemoryMarshal.TryGetArray<byte>(compressed, out var src) && MemoryMarshal.TryGetArray<byte>(decompressed.Memory, out var dst))
             {
-                var task = DecompressAsync(src.Array!, src.Offset, src.Count, dst.Array!, dst.Offset, dst.Count, entry, cancellationToken);
-                if (!task.IsCompletedSuccessfully)
-                    await task.ConfigureAwait(false);
+                await DecompressAsync(src.Array!, src.Offset, src.Count, dst.Array!, dst.Offset, dst.Count, entry, cancellationToken).ConfigureAwait(false);
             }
             else
             {
@@ -84,19 +82,17 @@ namespace UETools.Pak
             }
             return decompressed;
         }
-        public static ValueTask DecompressAsync(byte[] source, int srcOffset, int srcCount, byte[] destination, int dstOffset, int dstCount, PakEntry entry, CancellationToken cancellationToken = default)
+        public static async ValueTask DecompressAsync(byte[] source, int srcOffset, int srcCount, byte[] destination, int dstOffset, int dstCount, PakEntry entry, CancellationToken cancellationToken = default)
         {
             using var mem = new MemoryStream(source, srcOffset, srcCount);
-            return DecompressEntryAsync(mem, destination, dstOffset, dstCount, entry, cancellationToken: cancellationToken);
+            await DecompressEntryAsync(mem, destination, dstOffset, dstCount, entry, cancellationToken: cancellationToken).ConfigureAwait(false);
         }
         private static async ValueTask DecompressEntryAsync(MemoryStream mem, byte[] destination, int dstOffset, int dstCount, PakEntry entry, int progress = 0, CancellationToken cancellationToken = default)
         {
             if (entry.IsCompressed is false)
             {
                 var size = (int)entry.Size;
-                var task = mem.ReadCountAsync(destination, dstOffset + progress, dstCount - progress, size, cancellationToken);
-                if (!task.IsCompletedSuccessfully)
-                    await task.ConfigureAwait(false);
+                await mem.ReadCountAsync(destination, dstOffset + progress, dstCount - progress, size, cancellationToken).ConfigureAwait(false);
                 progress = size;
             }
             else
@@ -120,9 +116,7 @@ namespace UETools.Pak
             }
             if (entry.LinkedEntry is PakEntry linked)
             {
-                var task = DecompressEntryAsync(mem, destination, dstOffset, dstCount, linked, progress);
-                if (!task.IsCompletedSuccessfully)
-                    await task.ConfigureAwait(false);
+                await DecompressEntryAsync(mem, destination, dstOffset, dstCount, linked, progress).ConfigureAwait(false);
             }
         }
     }

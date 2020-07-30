@@ -31,9 +31,7 @@ namespace UETools.Pak
         public async ValueTask<FArchive> ReadIndexAsync(Stream stream, CancellationToken cancellationToken = default)
         {
             var memory = PakMemoryPool.Shared.Rent((int)_indexSize);
-            var val = stream.ReadWholeBufAsync(_indexOffset, memory.Memory, cancellationToken);
-            if (!val.IsCompletedSuccessfully)
-                await val.ConfigureAwait(false);
+            await stream.ReadWholeBufAsync(_indexOffset, memory.Memory, cancellationToken).ConfigureAwait(false);
 
             if (IsEncrypted && _aesProvider != null)
                 _aesProvider.Decrypt(memory.Memory);

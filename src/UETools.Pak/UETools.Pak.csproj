@@ -4,11 +4,7 @@
     <TargetFramework>netcoreapp3.0</TargetFramework>
     <Nullable>enable</Nullable>
   </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Ionic.Zlib.Core" Version="1.0.0" />
-  </ItemGroup>
-
+	
   <ItemGroup>
     <ProjectReference Include="..\UETools.Core\UETools.Core.csproj" />
   </ItemGroup>

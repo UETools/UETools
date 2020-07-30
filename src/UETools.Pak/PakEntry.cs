@@ -97,10 +97,7 @@ namespace UETools.Pak
         internal async ValueTask<IMemoryOwner<byte>> ReadAsync(Stream source, CancellationToken cancellationToken = default)
         {
             var mem = PakMemoryPool.Shared.Rent((int)TotalSize);
-            var task = ReadAsync(source, mem.Memory, cancellationToken);
-            if (!task.IsCompletedSuccessfully)
-                await task.ConfigureAwait(false);
-
+            await ReadAsync(source, mem.Memory, cancellationToken).ConfigureAwait(false);
             return mem;
         }
 
@@ -113,15 +110,11 @@ namespace UETools.Pak
         private async ValueTask ReadAsync(Stream source, Memory<byte> destination, CancellationToken cancellationToken = default)
         {
             var size = (int)_size;
-            var task = source.ReadWholeBufAsync(Offset + EntryHeaderSize, destination.Slice(0, size), cancellationToken);
-            if (!task.IsCompletedSuccessfully)
-                await task.ConfigureAwait(false);
+            await source.ReadWholeBufAsync(Offset + EntryHeaderSize, destination.Slice(0, size), cancellationToken).ConfigureAwait(false);
             if (LinkedEntry is null)
                 return;
 
-            var linked = LinkedEntry.ReadAsync(source, destination.Slice(size), cancellationToken);
-            if (linked.IsCompletedSuccessfully)
-                await linked.ConfigureAwait(false);
+            await LinkedEntry.ReadAsync(source, destination.Slice(size), cancellationToken).ConfigureAwait(false);
         }
 
         internal long TotalSize => LinkedEntry is null ? _size : _size + LinkedEntry.TotalSize;

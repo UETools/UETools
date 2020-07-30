@@ -53,8 +53,7 @@ namespace UETools.Core
             var offset = 0;
             while (remaining > 0)
             {
-                var task = stream.ReadAsync(buf.Slice(offset), cancellationToken);
-                var read = task.IsCompletedSuccessfully ? task.Result : await task.ConfigureAwait(false);
+                var read = await stream.ReadAsync(buf.Slice(offset), cancellationToken).ConfigureAwait(false);
                 if (read <= 0)
                     throw new EndOfStreamException($"End of stream reached, {remaining} bytes left to read");
 
@@ -63,8 +62,8 @@ namespace UETools.Core
 
             }
         }
-        public static ValueTask ReadWholeBufAsync(this Stream stream, long offset, in Memory<byte> buf, CancellationToken cancellationToken = default) => stream.ReadWholeBufAsync(offset, SeekOrigin.Begin, buf, cancellationToken);
-        public static ValueTask ReadWholeBufAsync(this Stream stream, long offset, SeekOrigin origin, in Memory<byte> buf, CancellationToken cancellationToken = default)
+        public static ValueTask ReadWholeBufAsync(this Stream stream, long offset, Memory<byte> buf, CancellationToken cancellationToken = default) => stream.ReadWholeBufAsync(offset, SeekOrigin.Begin, buf, cancellationToken);
+        public static ValueTask ReadWholeBufAsync(this Stream stream, long offset, SeekOrigin origin, Memory<byte> buf, CancellationToken cancellationToken = default)
         {
             stream.Seek(offset, SeekOrigin.Begin);
             return stream.ReadWholeBufAsync(buf, cancellationToken);
@@ -79,7 +78,7 @@ namespace UETools.Core
             var offset = bufOffset;
             while (remaining > 0)
             {
-                var read = await stream.ReadAsync(buf, offset, remaining, cancellationToken);
+                var read = await stream.ReadAsync(buf, offset, remaining, cancellationToken).ConfigureAwait(false);
                 if (read <= 0)
                     throw new EndOfStreamException($"End of stream reached, {remaining} bytes left to read");
 

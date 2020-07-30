@@ -60,8 +60,7 @@ namespace UETools.Pak
         }
         public async ValueTask<IMemoryOwner<byte>> ReadEntryAsync(PakEntry entry, CancellationToken cancellationToken = default)
         {
-            var taskData = entry.ReadAsync(SourceStream, cancellationToken);
-            var buf = taskData.IsCompletedSuccessfully ? taskData.Result : await taskData.ConfigureAwait(false);
+            var buf = await entry.ReadAsync(SourceStream, cancellationToken).ConfigureAwait(false);
             if (entry.IsAnyEncrypted)
             {
                 if (_aesProvider is null)
@@ -71,8 +70,7 @@ namespace UETools.Pak
             }
             if (entry.IsAnyCompressed)
             {
-                var decompressTask = UnrealCompression.DecompressAsync(buf.Memory, entry, cancellationToken);
-                var result = decompressTask.IsCompletedSuccessfully ? decompressTask.Result : await decompressTask.ConfigureAwait(false);
+                var result = await UnrealCompression.DecompressAsync(buf.Memory, entry, cancellationToken).ConfigureAwait(false);
                 buf.Dispose();
                 return result;
             }
@@ -107,11 +105,7 @@ namespace UETools.Pak
             return false;
         }
         private void Initialize(PakInfo info) => ProcessIndex(info.ReadIndex(SourceStream));
-        private async ValueTask InitializeAsync(PakInfo info, CancellationToken cancellationToken = default)
-        {
-            var task = info.ReadIndexAsync(SourceStream, cancellationToken: cancellationToken);
-            ProcessIndex(task.IsCompletedSuccessfully ? task.Result : await task.ConfigureAwait(false));
-        }
+        private async ValueTask InitializeAsync(PakInfo info, CancellationToken cancellationToken = default) => ProcessIndex(await info.ReadIndexAsync(SourceStream, cancellationToken: cancellationToken).ConfigureAwait(false));
         private void ProcessIndex(FArchive reader)
         {
             reader.Read(out FString mountPoint);
@@ -183,10 +177,7 @@ namespace UETools.Pak
             if (ReadPakInfo(fileStream, fileStream.Length, aesProvider, out var info))
             {
                 var file = new PakFile(fileInfo.Name, fileStream.Length, fileStream, versionProvider, aesProvider);
-                var task = file.InitializeAsync(info, cancellationToken);
-                if(!task.IsCompletedSuccessfully)
-                    await task.ConfigureAwait(false);
-
+                await file.InitializeAsync(info, cancellationToken).ConfigureAwait(false);
                 return file;
             }
 
@@ -202,10 +193,7 @@ namespace UETools.Pak
         private async ValueTask<IMemoryOwner<byte>> ReadStreamAsync(long offset, long size, CancellationToken cancellationToken)
         {
             var data = PakMemoryPool.Shared.Rent((int)size);
-            var result = SourceStream.ReadWholeBufAsync(offset, data.Memory, cancellationToken);
-            if (!result.IsCompletedSuccessfully)
-                await result.ConfigureAwait(false);
-
+            await SourceStream.ReadWholeBufAsync(offset, data.Memory, cancellationToken).ConfigureAwait(false);
             return data;
         }
 

@@ -31,9 +31,7 @@ namespace UETools.Pak
         private async ValueTask<IMemoryOwner<byte>> ReadBufAsync(CancellationToken cancellationToken = default)
         {
             var data = PakMemoryPool.Shared.Rent((int)_fileStream.Length);
-            var task = _fileStream.ReadWholeBufAsync(data.Memory, cancellationToken);
-            if (!task.IsCompletedSuccessfully)
-                await task.ConfigureAwait(false);
+            await _fileStream.ReadWholeBufAsync(data.Memory, cancellationToken).ConfigureAwait(false);
             return data;
         }
 
