@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.0</TargetFramework>
     <Nullable>enable</Nullable>
+	<PackageDescription>Implementation of PAK virtual file system access, asset extraction, decryption and decompression.</PackageDescription>
   </PropertyGroup>
 	
   <ItemGroup>

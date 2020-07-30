@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.0</TargetFramework>
     <Nullable>enable</Nullable>
+	<PackageDescription>Implementation of serializers Unreal Engine 4 object model, encoded data, Blueprint code, etc.</PackageDescription>
   </PropertyGroup>
 
   <ItemGroup>
