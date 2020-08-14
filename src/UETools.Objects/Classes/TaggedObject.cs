@@ -71,9 +71,9 @@ namespace UETools.Objects.Classes
                     return obj;
                 }
             }
-            catch
+            catch(Exception ex)
             {
-                Console.WriteLine($"Class {typename}");
+                Debug.WriteLine($"Class {typename}");
             }
             return null;
         }
