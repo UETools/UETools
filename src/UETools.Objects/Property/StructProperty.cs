@@ -2,6 +2,7 @@
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using UETools.Core;
@@ -18,32 +19,37 @@ namespace UETools.Objects.Property
         private static IReadOnlyDictionary<string, Func<IUnrealStruct>> Structures { get; } = new ReadOnlyDictionary<string, Func<IUnrealStruct>>(new TypeCollector<IUnrealStruct>(Path.GetDirectoryName(Assembly.GetCallingAssembly().Location)!).ToFactory().factories);
 
         private string? _unsuccessfulStruct;
-        public override void Deserialize(FArchive reader, PropertyTag tag)
+        public override FArchive Serialize(FArchive reader, PropertyTag tag)
         {
             var structType = tag.StructName?.ToString();
             if (structType != null && Structures.TryGetValue(structType, out var factory))
             {
                 var val = factory();
-                val.Deserialize(reader);
+                val.Serialize(reader);
                 _value = val;
             }
             else if (tag.Size <= 8)
-                _unsuccessfulStruct = $"{structType}: {BitConverter.ToString(reader.Read(out byte[] _, tag.Size))}";
+            {
+                byte[]? bytes = default;
+                reader.Read(ref bytes, tag.Size);
+                _unsuccessfulStruct = $"{structType}: {BitConverter.ToString(bytes)}";
+            }
             else
             {
                 var obj = new TaggedObject();
                 try
                 {
                     _value = obj;
-                    obj.Deserialize(reader);
-                    
+                    obj.Serialize(reader);
+
                 }
                 catch
                 {
-                    Console.WriteLine(structType);
                     _unsuccessfulStruct = $"{{ {structType} needs native deserialization }}";
+                    Debug.WriteLine(_unsuccessfulStruct);
                 }
             }
+            return reader;
         }
 
         public override void ReadTo(IndentedTextWriter writer)

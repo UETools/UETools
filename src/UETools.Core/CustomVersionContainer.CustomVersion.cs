@@ -5,7 +5,7 @@ namespace UETools.Core
 {
     public partial class CustomVersionContainer
     {
-        public class CustomVersion : IUnrealDeserializable
+        public class CustomVersion : IUnrealSerializable
         {
             public Guid Key => _key;
             public int Version => _version;
@@ -21,27 +21,23 @@ namespace UETools.Core
                 _version = version;
                 FriendlyName = friendlyName;
             }
-            public void Deserialize(FArchive reader)
-            {
-                reader.Read(out _key);
-                reader.Read(out _version);
-            }
+            public FArchive Serialize(FArchive reader)
+                => reader.Read(ref _key)
+                         .Read(ref _version);
 
             private Guid _key;
             private int _version;
         }
-        class GuidCustomVersion : IUnrealDeserializable
+        class GuidCustomVersion : IUnrealSerializable
         {
             public Guid Key => _key;
             public int Version => _version;
             public FString FriendlyName => _friendlyName;
 
-            public void Deserialize(FArchive reader)
-            {
-                reader.Read(out _key);
-                reader.Read(out _version);
-                reader.Read(out _friendlyName);
-            }
+            public FArchive Serialize(FArchive reader) 
+                => reader.Read(ref _key)
+                         .Read(ref _version)
+                         .Read(ref _friendlyName);
 
             public static implicit operator CustomVersion(GuidCustomVersion ver) => new CustomVersion(ver.Key, ver.Version, ver.FriendlyName);
 
@@ -49,7 +45,7 @@ namespace UETools.Core
             private int _version;
             private FString _friendlyName = null!;
         }
-        class EnumCustomVersion : IUnrealDeserializable
+        class EnumCustomVersion : IUnrealSerializable
         {
             private Guid TagGuid
             {
@@ -62,11 +58,9 @@ namespace UETools.Core
             }
             public int Tag => _tag;
             public int Version => _version;
-            public void Deserialize(FArchive reader)
-            {
-                reader.Read(out _tag);
-                reader.Read(out _version);
-            }
+            public FArchive Serialize(FArchive reader) 
+                => reader.Read(ref _tag)
+                         .Read(ref _version);
 
             public static implicit operator CustomVersion(EnumCustomVersion ver) => new CustomVersion(ver.TagGuid, ver.Version, "EnumTag" + ver.Tag);
 

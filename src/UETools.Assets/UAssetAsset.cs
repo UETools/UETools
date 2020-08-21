@@ -10,40 +10,40 @@ using UETools.Objects.Package;
 namespace UETools.Assets
 {
     [UnrealAssetFile(".uasset")]
-    public sealed class UAssetAsset : IUnrealDeserializable, IUnrealReadable
+    public sealed class UAssetAsset : IUnrealSerializable, IUnrealReadable
     {
         public bool IsValid => _summary.IsAssetFile;
 
-        public void Deserialize(FArchive reader)
+        public FArchive Serialize(FArchive reader)
         {
-            reader.Read(out _summary);
+            reader.Read(ref _summary);
             if (!IsValid)
-                return;
+                return reader;
 
             reader.Seek(_summary.NameOffset);
             _nameMap = new NameTable(_summary.NameCount);
-            _nameMap.Deserialize(reader);
+            _nameMap.Serialize(reader);
 
             reader.Seek(_summary.ImportOffset);
             _imports = new ImportTable(_summary.ImportCount);
-            _imports.Deserialize(reader);
+            _imports.Serialize(reader);
 
             reader.Seek(_summary.ExportOffset);
             _exports = new ExportTable(_summary.ExportCount);
-            _exports.Deserialize(reader);
+            _exports.Serialize(reader);
 
             reader.Seek(_summary.SoftPackageReferencesOffset);
-            reader.Read(out _stringAssetReferences, _summary.SoftPackageReferencesCount);
+            reader.Read(ref _stringAssetReferences, _summary.SoftPackageReferencesCount);
 
             reader.Seek(_summary.GatherableTextDataOffset);
-            reader.Read(out _gatherableTextDataMap, _summary.GatherableTextDataCount);
+            reader.Read(ref _gatherableTextDataMap, _summary.GatherableTextDataCount);
 
             foreach (var imp in _imports.Items)
                 imp.Fix(reader);
             foreach (var exp in _exports.Items)
                 exp.Fix(reader);
 
-            return;
+            return reader;
         }
 
         public IEnumerable<ObjectExport> GetAssets() => _exports.GetAssets();

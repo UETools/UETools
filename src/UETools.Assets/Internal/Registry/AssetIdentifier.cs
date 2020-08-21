@@ -6,7 +6,7 @@ using UETools.Core.Interfaces;
 namespace UETools.Assets.Internal.Registry
 {
     [DebuggerDisplay("{PackageName.Name.ToString()}")]
-    public partial class AssetIdentifier : IUnrealDeserializable
+    public partial class AssetIdentifier : IUnrealSerializable
     {
         [DisallowNull]
         public FName? PackageName
@@ -49,18 +49,20 @@ namespace UETools.Assets.Internal.Registry
             }
         }
 
-        public void Deserialize(FArchive reader)
+        public FArchive Serialize(FArchive archive)
         {
-            reader.ReadUnsafe(out _fieldBits);
+            archive.ReadUnsafe(ref _fieldBits);
 
             if ((_fieldBits & IdentifierField.PackageName) != 0)
-                reader.Read(out _packageName);
+                archive.Read(ref _packageName);
             if ((_fieldBits & IdentifierField.AssetType) != 0)
-                reader.Read(out _primaryAssetType);
+                archive.Read(ref _primaryAssetType);
             if ((_fieldBits & IdentifierField.ObjectName) != 0)
-                reader.Read(out _objectName);
+                archive.Read(ref _objectName);
             if ((_fieldBits & IdentifierField.ValueName) != 0)
-                reader.Read(out _valueName);
+                archive.Read(ref _valueName);
+
+            return archive;
         }
 
         private IdentifierField _fieldBits;

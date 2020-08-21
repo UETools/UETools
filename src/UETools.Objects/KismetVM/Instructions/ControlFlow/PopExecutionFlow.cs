@@ -8,7 +8,7 @@ namespace UETools.Objects.KismetVM.Instructions
     {
         public override EExprToken Expr => EExprToken.EX_PopExecutionFlow;
 
-        public override void Deserialize(FArchive reader) => base.Deserialize(reader);
+        public override FArchive Serialize(FArchive reader) => base.Serialize(reader);
 
         public override void ReadTo(TextWriter writer)
         {

@@ -5,36 +5,42 @@ using UETools.Core.Interfaces;
 
 namespace UETools.Assets.Internal.Asset
 {
-    internal partial class LocMetadataValue : IUnrealDeserializable
+    internal partial class LocMetadataValue : IUnrealSerializable
     {
-        public void Deserialize(FArchive reader)
+        // TODO: FIX
+        public FArchive Serialize(FArchive reader)
         {
-            reader.ReadUnsafe(out _metaDataType);
+            reader.ReadUnsafe(ref _metaDataType);
             switch (_metaDataType)
             {
                 case ELocMetadataType.Boolean:
                     {
-                        reader.Read(out bool b);
+                        bool b = false;
+                        reader.Read(ref b);
                     }
                     break;
                 case ELocMetadataType.String:
                     {
-                        reader.Read(out FString b);
+                        FString? b = default;
+                        reader.Read(ref b);
                     }
                     break;
                 case ELocMetadataType.Array:
                     {
-                        reader.Read(out List<LocMetadataValue> ar);
+                        List<LocMetadataValue>? ar = default;
+                        reader.Read(ref ar);
                     }
                     break;
                 case ELocMetadataType.Object:
                     {
-                        reader.Read(out LocMetadataObject b);
+                        LocMetadataObject? b = default;
+                        reader.Read(ref b);
                     }
                     break;
                 default:
                     throw new NotImplementedException($"{_metaDataType} not implemented.");
             }
+            return reader;
         }
 
         ELocMetadataType _metaDataType;

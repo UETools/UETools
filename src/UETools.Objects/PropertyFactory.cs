@@ -18,7 +18,7 @@ namespace UETools.Objects
         {
             var factory = TypeFactory.factories;
             var it = factory[tag.Type.ToString()]();
-            it.Deserialize(reader, tag);
+            it.Serialize(reader, tag);
             return it;
         }
 

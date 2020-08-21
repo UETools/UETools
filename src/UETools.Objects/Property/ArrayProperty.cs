@@ -15,16 +15,17 @@ namespace UETools.Objects.Property
 {
     internal sealed class ArrayProperty : PropertyCollectionBase<IList>
     {
-        public override void Deserialize(FArchive reader, PropertyTag tag)
+        public override FArchive Serialize(FArchive reader, PropertyTag tag)
         {
-            base.Deserialize(reader, tag);
+            base.Serialize(reader, tag);
             var info = tag;
             if (tag.InnerTypeEnum == PropertyTag.PropertyType.StructProperty)
-                reader.Read(out info);
+                reader.Read(ref info);
 
             if ((tag.InnerTypeEnum == PropertyTag.PropertyType.ByteProperty && tag.EnumName is null) || tag.InnerTypeEnum == PropertyTag.PropertyType.BoolProperty)
             {
-                reader.Read(out Memory<byte> bytes, Count);
+                byte[]? bytes = default;
+                reader.Read(ref bytes, Count);
                 _value = bytes.ToArray();
             }
             else
@@ -36,12 +37,13 @@ namespace UETools.Objects.Property
                     for (var i = 0; i < Count; i++)
                     {
                         var prop = func();
-                        prop.Deserialize(reader, info);
+                        prop.Serialize(reader, info);
                         array.Add(prop);
                     }
                     _value = array;
                 }
             }
+            return reader;
         }
 
         public override void ReadTo(IndentedTextWriter writer)

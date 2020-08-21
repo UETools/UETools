@@ -11,13 +11,14 @@ namespace UETools.Objects.KismetVM.Instructions
         public ObjectReference Field { get => _field; set => _field = value; }
         public Token ContextExpression { get; private set; } = null!;
 
-        public override void Deserialize(FArchive reader)
+        public override FArchive Serialize(FArchive reader)
         {
-            base.Deserialize(reader);
+            base.Serialize(reader);
             ObjectExpression = Token.Read(reader);
-            reader.Read(out _skipCount);
-            reader.Read(out _field);
+            reader.Read(ref _skipCount)
+                  .Read(ref _field);
             ContextExpression = Token.Read(reader);
+            return reader;
         }
         public override void ReadTo(TextWriter writer)
         {

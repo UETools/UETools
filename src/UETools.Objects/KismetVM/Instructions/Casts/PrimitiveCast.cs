@@ -10,11 +10,12 @@ namespace UETools.Objects.KismetVM.Instructions
         public ECastToken CastTo { get => _castTo; set => _castTo = value; }
         public Token CastExpression { get; private set; } = null!;
 
-        public override void Deserialize(FArchive reader)
+        public override FArchive Serialize(FArchive archive)
         {
-            base.Deserialize(reader);
-            reader.ReadUnsafe(out _castTo);
-            CastExpression = Token.Read(reader);
+            base.Serialize(archive)
+                .ReadUnsafe(ref _castTo);
+            CastExpression = Token.Read(archive);
+            return archive;
         }
 
         public override void ReadTo(TextWriter writer)

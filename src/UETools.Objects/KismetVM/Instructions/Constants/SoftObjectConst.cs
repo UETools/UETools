@@ -6,10 +6,11 @@ namespace UETools.Objects.KismetVM.Instructions
     {
         public override EExprToken Expr => EExprToken.EX_SoftObjectConst;
 
-        public override void Deserialize(FArchive reader)
+        public override FArchive Serialize(FArchive reader)
         {
-            base.Deserialize(reader);
+            base.Serialize(reader);
             _value = Token.Read(reader);
+            return reader;
         }
     }
 }

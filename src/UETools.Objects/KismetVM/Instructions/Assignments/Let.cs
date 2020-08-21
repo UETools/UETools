@@ -7,10 +7,10 @@ namespace UETools.Objects.KismetVM.Instructions
     {
         public override EExprToken Expr => EExprToken.EX_Let;
 
-        public override void Deserialize(FArchive reader)
+        public override FArchive Serialize(FArchive archive)
         {
-            reader.Read(out _property);
-            base.Deserialize(reader);
+            archive.Read(ref _property);
+            return base.Serialize(archive);
         }
 
         ObjectReference _property = null!;

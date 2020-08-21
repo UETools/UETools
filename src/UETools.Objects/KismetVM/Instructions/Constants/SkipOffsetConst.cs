@@ -10,11 +10,9 @@ namespace UETools.Objects.KismetVM.Instructions
 
         public CodeSkipSize Skip => _skip;
 
-        public override void Deserialize(FArchive reader)
-        {
-            base.Deserialize(reader);
-            reader.Read(out _skip);
-        }
+        public override FArchive Serialize(FArchive reader) 
+            => base.Serialize(reader)
+                   .Read(ref _skip);
 
         public override void ReadTo(TextWriter writer)
         {

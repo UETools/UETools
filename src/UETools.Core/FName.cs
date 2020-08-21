@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using UETools.Core.Interfaces;
 
 namespace UETools.Core
 {
     [DebuggerDisplay("{Name.ToString()}")]
-    public class FName : IUnrealDeserializable, IEquatable<FName>, IEquatable<FString>, IEquatable<string>
+    public class FName : IUnrealSerializable, IEquatable<FName>, IEquatable<FString>, IEquatable<string>
     {
         /// <summary>
         /// Invalid index, signifies uninitialized FName.
@@ -25,11 +26,10 @@ namespace UETools.Core
         public FName(string name) : this(new FString(name)) { }
         public FName() : this(new FString()) { }
 
-        public void Deserialize(FArchive reader)
+        public FArchive Serialize(FArchive reader)
         {
-            reader.Read(out _displayId);
-            reader.Read(out _comparisionId);
-
+            reader.Read(ref _displayId)
+                  .Read(ref _comparisionId);
             if (reader.GetTable<FString>("Names") is NameTable table)
             {
                 var items = table.Items;
@@ -40,15 +40,23 @@ namespace UETools.Core
             }
             else
                 throw new UnrealException($"{nameof(NameTable)} not serialized before {nameof(FName)} access.");
+
+            return reader;
         }
         public bool IsNone() => IsIndexNone() || IsStringNone();
         private bool IsIndexNone() => Index == INDEX_NONE;
         private bool IsStringNone() => Name == string.Empty || Name == "None";
 
         public override int GetHashCode() => HashCode.Combine(Name, Index);
-        public bool Equals(FName other) => IsIndexNone() || other.IsIndexNone() ? other.Equals(Name) : Index == other.Index && _comparisionId == other._comparisionId;
-        public bool Equals(FString other) => other.Equals(Name);
-        public bool Equals(string other) => other == Name;
+        public bool Equals([AllowNull] FName other)
+        {
+            if (other is null)
+                return false;
+
+            return IsIndexNone() || other.IsIndexNone() ? other.Equals(Name) : Index == other.Index && _comparisionId == other._comparisionId;
+        }
+        public bool Equals([AllowNull] FString other) => Name.Equals(other);
+        public bool Equals([AllowNull] string other) => Name.Equals(other);
         public override bool Equals(object? obj) => obj switch
         {
             FName other => Equals(other),

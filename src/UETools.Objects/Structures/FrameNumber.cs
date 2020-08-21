@@ -5,7 +5,8 @@ namespace UETools.Objects.Structures
 {
     public struct FrameNumber : IUnrealStruct
     {
-        public void Deserialize(FArchive reader) => reader.Read(out _value);
+        public FArchive Serialize(FArchive reader) => reader.Read(ref _value);
+
         int _value;
     }
 }

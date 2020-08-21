@@ -6,17 +6,20 @@ namespace UETools.Core
     /// <summary>
     /// Unreal Engine 4 serialization of MD5 hash
     /// </summary>
-    public struct MD5Hash : IUnrealDeserializable
+    public struct MD5Hash : IUnrealSerializable
     {
         /// <summary>
         /// Deserializes hash data from the stream.
         /// </summary>
         /// <param name="reader">Stream of binary data to read from.</param>
-        public void Deserialize(FArchive reader)
+        public FArchive Serialize(FArchive reader)
         {
-            reader.Read(out bool isValid);
+            var isValid = !_bytes.IsEmpty;
+            reader.Read(ref isValid);
             if (isValid)
-                reader.Read(out _bytes, 16);
+                reader.Read(ref _bytes, 16);
+
+            return reader;
         }
         /// <summary>
         /// Get <see cref="System.Security.Cryptography.MD5"/> as a bytestring.

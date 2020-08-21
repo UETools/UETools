@@ -4,42 +4,61 @@ using UETools.Core.Interfaces;
 
 namespace UETools.Core.HistoryTypes
 {
-    class FFormatArgumentValue : IUnrealDeserializable
+    class FFormatArgumentValue : IUnrealSerializable
     {
         public object Value { get; private set; } = null!;
 
-        public void Deserialize(FArchive reader)
+        public FArchive Serialize(FArchive reader)
         {
-            reader.ReadUnsafe(out _type);
+            reader.ReadUnsafe(ref _type);
             switch (_type)
             {
                 case FormatArgumentType.Int:
-                    reader.Read(out long ivalue);
-                    Value = ivalue;
-                    break;
+                    {
+                        long value = default!;
+                        reader.Read(ref value);
+                        Value = value;
+                        break;
+                    }
                 case FormatArgumentType.UInt:
-                    reader.Read(out ulong uivalue);
-                    Value = uivalue;
-                    break;
+                    {
+                        ulong value = default!;
+                        reader.Read(ref value);
+                        Value = value;
+                        break;
+                    }
                 case FormatArgumentType.Float:
-                    reader.Read(out float fvalue);
-                    Value = fvalue;
-                    break;
+                    {
+                        float value = default!;
+                        reader.Read(ref value);
+                        Value = value;
+                        break;
+                    }
                 case FormatArgumentType.Double:
-                    reader.Read(out double dvalue);
-                    Value = dvalue;
-                    break;
+                    {
+                        double value = default!;
+                        reader.Read(ref value);
+                        Value = value;
+                        break;
+                    }
                 case FormatArgumentType.Text:
-                    reader.Read(out FText tvalue);
-                    Value = tvalue;
-                    break;
+                    {
+                        FText value = default!;
+                        reader.Read(ref value);
+                        Value = value;
+                        break;
+                    }
                 case FormatArgumentType.Gender:
-                    reader.ReadUnsafe(out TextGender evalue);
-                    Value = evalue;
-                    break;
+                    {
+                        TextGender value = default!;
+                        reader.ReadUnsafe(ref value);
+                        Value = value;
+                        break;
+                    }
                 default:
                     throw new NotImplementedException();
             }
+            return reader;
         }
 
         public override string ToString()

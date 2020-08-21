@@ -8,9 +8,9 @@ using UETools.TypeFactory;
 
 namespace UETools.Core.HistoryTypes
 {
-    internal partial class FTextHistory : IUnrealDeserializable
+    internal abstract partial class FTextHistory : IUnrealSerializable
     {
-        public virtual void Deserialize(FArchive reader) { }
+        public abstract FArchive Serialize(FArchive reader);
 
         internal static IReadOnlyDictionary<TextHistoryType, Func<FTextHistory>> HistoryTypes { get; } = new ReadOnlyDictionary<TextHistoryType, Func<FTextHistory>>(
             Enum.GetValues(typeof(TextHistoryType))

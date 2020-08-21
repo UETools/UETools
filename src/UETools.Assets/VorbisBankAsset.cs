@@ -10,11 +10,9 @@ namespace UETools.Assets
 {
     // TODO: Implement
     [UnrealAssetFile(".bnk")]
-    class VorbisBankAsset : IUnrealDeserializable, IUnrealReadable
+    class VorbisBankAsset : IUnrealSerializable, IUnrealReadable
     {
-        public void Deserialize(FArchive reader)
-        {
-        }
+        public FArchive Serialize(FArchive reader) => reader;
 
         public void ReadTo(IndentedTextWriter writer)
         {

@@ -11,7 +11,7 @@ namespace UETools.Objects.Property
     {
         object IProperty.Value { get => _value; set => _value = (T)value; }
 
-        public abstract void Deserialize(FArchive reader, PropertyTag tag);
+        public abstract FArchive Serialize(FArchive reader, PropertyTag tag);
 
         public virtual void ReadTo(IndentedTextWriter writer) => ReadObject(writer, _value);
 

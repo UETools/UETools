@@ -3,12 +3,12 @@
     /// <summary>
     /// Provides an interface for deserialization of the Unreal Engine binary data to implementing object.
     /// </summary>
-    public interface IUnrealDeserializable
+    public interface IUnrealSerializable
     {
         /// <summary>
-        /// Deserialize to object from binary data.
+        /// Serialize  object with specified <paramref name="archive"/>.
         /// </summary>
-        /// <param name="reader">Stream of binary data.</param>
-        void Deserialize(FArchive reader);
+        /// <param name="archive">Stream of binary data.</param>
+        FArchive Serialize(FArchive archive);
     }
 }

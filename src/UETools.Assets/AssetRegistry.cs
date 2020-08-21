@@ -9,7 +9,7 @@ using UETools.Core.Interfaces;
 namespace UETools.Assets
 {
     [UnrealAssetFile(FileName, false)]
-    public sealed class AssetRegistry : IUnrealDeserializable
+    public sealed class AssetRegistry : IUnrealSerializable
     {
         private static Guid AssetRegistryVersionGuid = new Guid(0x717F9EE7, 0x493A, 0xE9B0, 0x32, 0x91, 0xB3, 0x88, 0x07, 0x81, 0x38, 0x1B);
 
@@ -21,7 +21,7 @@ namespace UETools.Assets
 
         /// <inheritdoc />
         /// <exception cref="UnrealException">Thrown when <see cref="FArchive.Version"/> is not set.</exception>
-        public void Deserialize(FArchive reader)
+        public FArchive Serialize(FArchive reader)
         {
             if (reader.Version == 0)
                 throw new UnrealException("FArchive.Version is uninitialized, needs to be set for cooked assets.");
@@ -31,31 +31,37 @@ namespace UETools.Assets
             // AssetData format was changed from FStrings to FNames
             if (_version >= EAssetRegistryVersion.ChangedAssetData)
             {
-                reader.Read(out long StringTableOffset);
+                long stringTableOffset = 0;
+                reader.Read(ref stringTableOffset);
                 var currentOffset = reader.Tell();
-                reader.Seek(StringTableOffset);
-                reader.Read(out NameTable _);
+                reader.Seek(stringTableOffset);
+                NameTable? names = default;
+                reader.Read(ref names);
                 reader.Seek(currentOffset);
-                reader.Read(out List<AssetData> assets);
+                List<AssetData>? assets = default;
+                reader.Read(ref assets);
                 _assets = new List<IAssetData>(assets);
             }
             else
             {
-                reader.Read(out List<AssetDataOldFormat> assets);
+                List<AssetDataOldFormat>? assets = default;
+                reader.Read(ref assets);
                 _assets = new List<IAssetData>(assets);
             }
 
             // TODO: Fixup the dependencies indexes into the references to actual dependency
-            reader.Read(out _assetDependencies);
-            reader.Read(out _packageData);
+            reader.Read(ref _assetDependencies)
+                  .Read(ref _packageData);
+            return reader;
         }
 
         private void ReadVersion(FArchive reader)
         {
-            reader.Read(out Guid guid);
+            Guid guid = default;
+            reader.Read(ref guid);
             if (guid == AssetRegistryVersionGuid)
             {
-                reader.ReadUnsafe(out _version);
+                reader.ReadUnsafe(ref _version);
             }
             else
             {

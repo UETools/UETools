@@ -7,6 +7,6 @@
         // UE4.21
         Sizev8 = Size + (32 * 4),
         // UE4.23 pak version was not incremented with backwards incompatible change
-        Sizev8a = Sizev8 + (32 * 5),
+        Sizev8a = Size + (32 * 5),
     }
 }

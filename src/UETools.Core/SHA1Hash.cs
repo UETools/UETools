@@ -6,13 +6,13 @@ namespace UETools.Core
     /// <summary>
     /// Unreal Engine 4 serialization of SHA1 hash
     /// </summary>
-    public struct SHA1Hash : IUnrealDeserializable
+    public struct SHA1Hash : IUnrealSerializable
     {
         /// <summary>
         /// Deserializes hash data from the stream.
         /// </summary>
         /// <param name="reader">Stream of binary data to read from.</param>
-        public void Deserialize(FArchive reader) => reader.Read(out _bytes, 20);
+        public FArchive Serialize(FArchive reader) => reader.Read(ref _bytes, 20);
 
         /// <summary>
         /// Get <see cref="System.Security.Cryptography.SHA1"/> as a bytestring.

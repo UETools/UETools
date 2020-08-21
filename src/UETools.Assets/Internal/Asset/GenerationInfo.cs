@@ -3,13 +3,11 @@ using UETools.Core.Interfaces;
 
 namespace UETools.Assets.Internal.Asset
 {
-    internal struct GenerationInfo : IUnrealDeserializable
+    internal struct GenerationInfo : IUnrealSerializable
     {
-        public void Deserialize(FArchive reader)
-        {
-            reader.Read(out _exportCount);
-            reader.Read(out _nameCount);
-        }
+        public FArchive Serialize(FArchive reader) 
+            => reader.Read(ref _exportCount)
+                     .Read(ref _nameCount);
 
         private int _exportCount;
         private int _nameCount;

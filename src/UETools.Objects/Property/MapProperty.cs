@@ -15,25 +15,27 @@ namespace UETools.Objects.Property
 {
     internal sealed class MapProperty : PropertyCollectionBase<Dictionary<IProperty, IProperty>>
     {
-        public override void Deserialize(FArchive reader, PropertyTag tag)
+        public override FArchive Serialize(FArchive reader, PropertyTag tag)
         {
             if (tag.InnerTypeEnum.TryGetAttribute(out LinkedTypeAttribute? innerType) && tag.ValueTypeEnum.TryGetAttribute(out LinkedTypeAttribute? valueType))
             {
-                reader.Read(out int unknown);
-                base.Deserialize(reader, tag);
+                int unknown = 0;
+                reader.Read(ref unknown);
+                base.Serialize(reader, tag);
                 var dict = new Dictionary<IProperty, IProperty>(Count);
                 var funcKey = PropertyFactory.Get(innerType.LinkedType);
                 var valueKey = PropertyFactory.Get(valueType.LinkedType);
                 for(int i = 0; i < Count; i++)
                 {
                     var key = funcKey();
-                    key.Deserialize(reader, tag);
+                    key.Serialize(reader, tag);
                     var value = valueKey();
-                    value.Deserialize(reader, tag);
+                    value.Serialize(reader, tag);
                     dict.Add(key, value);
                 }
                 _value = dict;
             }
+            return reader;
         }
 
         protected override void WriteInnerItems(IndentedTextWriter writer)

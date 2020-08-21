@@ -108,17 +108,20 @@ namespace UETools.Pak
         private async ValueTask InitializeAsync(PakInfo info, CancellationToken cancellationToken = default) => ProcessIndex(await info.ReadIndexAsync(SourceStream, cancellationToken: cancellationToken).ConfigureAwait(false));
         private void ProcessIndex(FArchive reader)
         {
-            reader.Read(out FString mountPoint);
+            FString? mountPoint = default;
+            int entryCount = 0;
+            reader.Read(ref mountPoint)
+                  .Read(ref entryCount);
             MountPoint = mountPoint.ToString().Replace("../../../", null);
-            reader.Read(out int NumEntries);
-            AbsoluteIndex = new Dictionary<string, PakEntry>(NumEntries);
+            AbsoluteIndex = new Dictionary<string, PakEntry>(entryCount);
 
-            for (var i = 0; i < NumEntries; i++)
+            for (var i = 0; i < entryCount; i++)
             {
-                reader.Read(out FString fileName);
+                FString? fileName = default;
+                reader.Read(ref fileName);
                 var filePath = Path.Combine(MountPoint, fileName.ToString());
                 var entry = new PakEntry(this);
-                entry.Deserialize(reader);
+                entry.Serialize(reader);
                 AbsoluteIndex.Add(filePath, entry);
             }
 

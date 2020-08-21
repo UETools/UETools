@@ -3,23 +3,21 @@ using UETools.Core.Interfaces;
 
 namespace UETools.Assets.Internal.Asset
 {
-    internal class TextSourceSiteContext : IUnrealDeserializable
+    internal class TextSourceSiteContext : IUnrealSerializable
     {
-        public void Deserialize(FArchive reader)
-        {
-            reader.Read(out _keyName);
-            reader.Read(out _siteDescription);
-            reader.Read(out _isEditorOnly);
-            reader.Read(out _isOptional);
-            reader.Read(out _infoMetaData);
-            reader.Read(out _keyMetaData);
-        }
+        public FArchive Serialize(FArchive reader) 
+            => reader.Read(ref _keyName)
+                     .Read(ref _siteDescription)
+                     .Read(ref _isEditorOnly)
+                     .Read(ref _isOptional)
+                     .Read(ref _infoMetaData)
+                     .Read(ref _keyMetaData);
 
         private bool _isOptional;
         private bool _isEditorOnly;
         private FString _keyName = null!;
         private FString _siteDescription = null!;
-        LocMetadataObject _infoMetaData = null!;
-        LocMetadataObject _keyMetaData = null!;
+        private LocMetadataObject _infoMetaData = null!;
+        private LocMetadataObject _keyMetaData = null!;
     }
 }

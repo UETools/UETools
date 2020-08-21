@@ -11,7 +11,7 @@ namespace UETools.Core
     /// </summary>
     /// <remarks><see langword="string"/> class implementation doesn't contain parameterless constructor, which made this class necessary.</remarks>
     [DebuggerDisplay("{Value}")]
-    public sealed partial class FString : IUnrealDeserializable, IEnumerable<char>, IEquatable<FString>, IEquatable<string>, IComparable<string>, IComparable
+    public sealed partial class FString : IUnrealSerializable, IEnumerable<char>, IEquatable<FString>, IEquatable<string>, IComparable<string>, IComparable
     {
         /// <summary>
         /// Deserialized value of the string instance.
@@ -40,11 +40,9 @@ namespace UETools.Core
         public FString(string value) => _value = value;
 
         /// <inheritdoc />
-        public void Deserialize(FArchive reader)
-        {
-            reader.Read(out _length);
-            reader.Read(out _value, _length);
-        }
+        public FArchive Serialize(FArchive reader) 
+            => reader.Read(ref _length)
+                     .Read(ref _value, _length);
 
         private int ByteCount => Length * CharSize;
         private int CharSize
@@ -61,6 +59,6 @@ namespace UETools.Core
 
         private int _length;
         private int? _charSize;
-        private string _value;
+        private string _value = null!;
     }
 }

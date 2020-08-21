@@ -8,12 +8,10 @@ namespace UETools.Objects.Structures
     [StructLayout(LayoutKind.Explicit)]
     public struct Vector : IUnrealStruct, IEquatable<Vector>
     {
-        public void Deserialize(FArchive reader)
-        {
-            reader.Read(out _x);
-            reader.Read(out _y);
-            reader.Read(out _z);
-        }
+        public FArchive Serialize(FArchive reader) 
+            => reader.Read(ref _x)
+                     .Read(ref _y)
+                     .Read(ref _z);
 
         public override string ToString() => $"{{ X: {_x}, Y: {_y}, Z: {_z} }}";
         public override bool Equals(object? obj) => obj switch

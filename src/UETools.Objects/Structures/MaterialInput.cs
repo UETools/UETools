@@ -5,16 +5,14 @@ namespace UETools.Objects.Structures
 {
     class MaterialInput : IUnrealStruct
     {
-        public virtual void Deserialize(FArchive reader)
-        {
-            reader.Read(out _inputName);
-            reader.Read(out _mask);
-            reader.Read(out _maskR);
-            reader.Read(out _maskG);
-            reader.Read(out _maskB);
-            reader.Read(out _maskA);
-            reader.Read(out _expressionName);
-        }
+        public virtual FArchive Serialize(FArchive reader) 
+            => reader.Read(ref _inputName)
+                     .Read(ref _mask)
+                     .Read(ref _maskR)
+                     .Read(ref _maskG)
+                     .Read(ref _maskB)
+                     .Read(ref _maskA)
+                     .Read(ref _expressionName);
 
         public override string ToString() => $"{_expressionName}: {_inputName}";
 

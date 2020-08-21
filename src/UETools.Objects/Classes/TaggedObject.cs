@@ -14,23 +14,24 @@ using TaggedItem = System.Collections.Generic.KeyValuePair<string, UETools.Objec
 namespace UETools.Objects.Classes
 {
     using TaggedItemsList = List<TaggedItem>;
-    public class TaggedObject : IUnrealDeserializable, IUnrealReadable
+    public class TaggedObject : IUnrealSerializable, IUnrealReadable
     {
         public TaggedObject() { }
-        public TaggedObject(FArchive reader) => Deserialize(reader);
+        public TaggedObject(FArchive reader) => Serialize(reader);
         public TaggedItemsList Vars { get; } = new TaggedItemsList();
         public IProperty this[string key] => Vars.Find(kv => kv.Key == key).Value;
-        public virtual void Deserialize(FArchive reader)
+        public virtual FArchive Serialize(FArchive reader)
         {
             foreach (var tag in PropertyTag.ReadToEnd(reader))
             {
                 Vars.Add(new TaggedItem(tag.Name, PropertyFactory.Get(reader.SubStream(tag.Size), tag)));
                 if(reader.Tell() != tag.PropertyEnd)
                 {
-                    Console.WriteLine($"Needed to move by {tag.PropertyEnd - reader.Tell()} for {tag.Name} {(tag.TypeEnum == PropertyTag.PropertyType.StructProperty ? tag.StructName : tag.Type)}");
+                    Debug.WriteLine($"Needed to move by {tag.PropertyEnd - reader.Tell()} for {tag.Name} {(tag.TypeEnum == PropertyTag.PropertyType.StructProperty ? tag.StructName : tag.Type)}");
                     reader.Seek(tag.PropertyEnd);
                 }
             }
+            return reader;
         }
 
         public virtual void ReadTo(IndentedTextWriter writer)
@@ -61,13 +62,13 @@ namespace UETools.Objects.Classes
                 if (Classes.TryGetValue(typename, out var func))
                 {
                     var x = func();
-                    x.Deserialize(reader);
+                    x.Serialize(reader);
                     return x;
                 }
                 else
                 {
                     var obj = new TaggedObject();
-                    obj.Deserialize(reader);
+                    obj.Serialize(reader);
                     return obj;
                 }
             }

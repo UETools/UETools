@@ -3,7 +3,7 @@ using UETools.Core.Interfaces;
 
 namespace UETools.Assets.Internal.Asset
 {
-    public class EngineVersion : IUnrealDeserializable
+    public class EngineVersion : IUnrealSerializable
     {
         public EngineVersion() { }
         public EngineVersion(ushort major, ushort minor, ushort patch, uint changelist, string branch)
@@ -15,14 +15,12 @@ namespace UETools.Assets.Internal.Asset
             _branch = branch;
         }
 
-        public void Deserialize(FArchive reader)
-        {
-            reader.Read(out _major);
-            reader.Read(out _minor);
-            reader.Read(out _patch);
-            reader.Read(out _changelist);
-            reader.Read(out _branch);
-        }
+        public FArchive Serialize(FArchive reader) 
+            => reader.Read(ref _major)
+                     .Read(ref _minor)
+                     .Read(ref _patch)
+                     .Read(ref _changelist)
+                     .Read(ref _branch);
 
         private ushort _major;
         private ushort _minor;

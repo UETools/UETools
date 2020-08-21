@@ -8,29 +8,26 @@ namespace UETools.Objects.Structures
 {
     public struct FontData : IUnrealStruct
     {
-        public void Deserialize(FArchive reader)
+        public FArchive Serialize(FArchive reader)
         {
-            reader.Read(out _bIsCooked);
+            reader.Read(ref _bIsCooked);
             if (_bIsCooked)
             {
-                reader.Read(out _fontFaceAsset);
+                reader.Read(ref _fontFaceAsset);
 
                 if(_fontFaceAsset.Resource is null)
                 {
-                    reader.Read(out _fontFileName);
-                    reader.ReadUnsafe(out _hinting);
-                    reader.ReadUnsafe(out _loadingPolicy);
+                    reader.Read(ref _fontFileName);
+                    reader.ReadUnsafe(ref _hinting);
+                    reader.ReadUnsafe(ref _loadingPolicy);
                 }
 
-                reader.Read(out _subFaceIndex);
+                reader.Read(ref _subFaceIndex);
             }
             else
                 Debugger.Break();
-        }
 
-        public override string? ToString()
-        {
-            return base.ToString();
+            return reader;
         }
 
         private bool _bIsCooked;

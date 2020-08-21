@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 //using UnrealTools.CodeGen.Attributes;
 using UETools.Core.Interfaces;
@@ -14,69 +15,79 @@ namespace UETools.Core
         /// </summary>
         /// <param name="item">List of deserialized elements.</param>
         //[SpecializeMethod(typeof(bool), typeof(sbyte), typeof(byte), typeof(short), typeof(ushort), typeof(int), typeof(uint), typeof(long), typeof(ulong), typeof(float), typeof(double), typeof(Guid), typeof(decimal))]//, typeof(string))]
-        public List<T> Read<T>(out List<T> item)
-            where T : IUnrealDeserializable?, new() 
-            => Read(out item, Read(out int _));
+        public FArchive Read<T>([AllowNull] ref List<T> item)
+            where T : IUnrealSerializable?, new() 
+            => Read(ref item, Read<int>());
         /// <summary>
         /// Deserializes array of elements to the <paramref name="item"/> <see cref="List{T}"/>, using declared <paramref name="length"/>.
         /// </summary>
         /// <param name="item">List of deserialized elements.</param>
         /// <param name="length">Count of elements.</param>
         //[SpecializeMethod(typeof(bool), typeof(sbyte), typeof(byte), typeof(short), typeof(ushort), typeof(int), typeof(uint), typeof(long), typeof(ulong), typeof(float), typeof(double), typeof(Guid), typeof(decimal))]//, typeof(string))]
-        public List<T> Read<T>(out List<T> item, int length) where T : IUnrealDeserializable?, new()
+        public FArchive Read<T>([AllowNull] ref List<T> item, int length) where T : IUnrealSerializable?, new()
         {
             var it = new List<T>(length);
             for (var i = 0; i < length; i++)
             {
-                Read(out T x);
+                T x = default!;
+                Read(ref x);
                 it.Add(x);
             }
-            return item = it;
+            item = it;
+            return this;
         }
 
-        public List<int> Read(out List<int> item) => Read(out item, Read(out int _));
-        public List<int> Read(out List<int> item, int length)
+        public FArchive Read([AllowNull] ref List<int> item) => Read(ref item, Read<int>());
+        public FArchive Read([AllowNull] ref List<int> item, int length)
         {
             var it = new List<int>(length);
             for (var i = 0; i < length; i++)
             {
-                Read(out int x);
+                int x = 0;
+                Read(ref x);
                 it.Add(x);
             }
-            return item = it;
+            item = it;
+            return this;
         }
-        public List<uint> Read(out List<uint> item) => Read(out item, Read(out int _));
-        public List<uint> Read(out List<uint> item, int length)
+        public FArchive Read([AllowNull] ref List<uint> item) => Read(ref item, Read<int>());
+        public FArchive Read([AllowNull] ref List<uint> item, int length)
         {
             var it = new List<uint>(length);
             for (var i = 0; i < length; i++)
             {
-                Read(out uint x);
+                uint x = 0;
+                Read(ref x);
                 it.Add(x);
             }
-            return item = it;
+            item = it;
+            return this;
         }
-        public List<ushort> Read(out List<ushort> item) => Read(out item, Read(out int _));
-        public List<ushort> Read(out List<ushort> item, int length)
+        public FArchive Read([AllowNull] ref List<ushort> item) => Read(ref item, Read<int>());
+        public FArchive Read([AllowNull] ref List<ushort> item, int length)
         {
             var it = new List<ushort>(length);
             for (var i = 0; i < length; i++)
             {
-                Read(out ushort x);
+                ushort x = 0;
+                Read(ref x);
                 it.Add(x);
             }
-            return item = it;
+            item = it;
+            return this;
         }
-        public List<float> Read(out List<float> item) => Read(out item, Read(out int _));
-        public List<float> Read(out List<float> item, int length)
+        public FArchive Read([AllowNull] ref List<float> item) => Read(ref item, Read<int>());
+        public FArchive Read([AllowNull] ref List<float> item, int length)
         {
             var it = new List<float>(length);
             for (var i = 0; i < length; i++)
             {
-                Read(out float x);
+                float x = 0;
+                Read(ref x);
                 it.Add(x);
             }
-            return item = it;
+            item = it;
+            return this;
         }
 
         /// <summary>
@@ -84,10 +95,10 @@ namespace UETools.Core
         /// </summary>
         /// <param name="item">Dictionary of deserialized elements.</param>
         //[SpecializeMethod(typeof(bool), typeof(sbyte), typeof(byte), typeof(short), typeof(ushort), typeof(int), typeof(uint), typeof(long), typeof(ulong), typeof(float), typeof(double), typeof(Guid), typeof(decimal))]//, typeof(string))]
-        public Dictionary<TKey, TValue> Read<TKey, TValue>(out Dictionary<TKey, TValue> item)
-            where TKey : notnull, IUnrealDeserializable, new()
-            where TValue : IUnrealDeserializable?, new()
-            => Read(out item, Read(out int _));
+        public FArchive Read<TKey, TValue>([AllowNull] ref Dictionary<TKey, TValue> item)
+            where TKey : notnull, IUnrealSerializable, new()
+            where TValue : IUnrealSerializable?, new()
+            => Read(ref item, Read<int>());
 
         /// <summary>
         /// Deserializes array of elements to the <paramref name="item"/> <see cref="Dictionary{TKey, TValue}"/>, using declared <paramref name="length"/>.
@@ -95,32 +106,37 @@ namespace UETools.Core
         /// <param name="item">Dictionary of deserialized elements.</param>
         /// <param name="length">Count of elements.</param>
         //[SpecializeMethod(typeof(bool), typeof(sbyte), typeof(byte), typeof(short), typeof(ushort), typeof(int), typeof(uint), typeof(long), typeof(ulong), typeof(float), typeof(double), typeof(Guid), typeof(decimal))]//, typeof(string))]
-        public Dictionary<TKey, TValue> Read<TKey, TValue>(out Dictionary<TKey, TValue> item, int length)
-            where TKey : notnull, IUnrealDeserializable, new()
-            where TValue : IUnrealDeserializable?, new()
+        public FArchive Read<TKey, TValue>([AllowNull] ref Dictionary<TKey, TValue> item, int length)
+            where TKey : notnull, IUnrealSerializable, new()
+            where TValue : IUnrealSerializable?, new()
         {
             var it = new Dictionary<TKey, TValue>(length);
             for (var i = 0; i < length; i++)
             {
-                Read(out TKey x);
-                Read(out TValue y);
+                TKey x = default!; 
+                TValue y = default!;
+                Read(ref x);
+                Read(ref y);
                 it.Add(x, y);
             }
-            return item = it;
+            item = it;
+            return this;
         }
 
-        public Dictionary<ushort, ushort> Read(out Dictionary<ushort, ushort> item)
-            => Read(out item, Read(out int _));
-        public Dictionary<ushort, ushort> Read(out Dictionary<ushort, ushort> item, int length)
+        public FArchive Read([AllowNull] ref Dictionary<ushort, ushort> item)
+            => Read(ref item, Read<int>());
+        public FArchive Read([AllowNull] ref Dictionary<ushort, ushort> item, int length)
         {
             var it = new Dictionary<ushort, ushort>(length);
             for (var i = 0; i < length; i++)
             {
-                Read(out ushort x);
-                Read(out ushort y);
+                ushort x = 0, y = 0;
+                Read(ref x);
+                Read(ref y);
                 it.Add(x, y);
             }
-            return item = it;
+            item = it;
+            return this;
         }
     }
 }

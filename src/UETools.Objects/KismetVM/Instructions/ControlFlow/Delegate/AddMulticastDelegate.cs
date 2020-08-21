@@ -11,11 +11,12 @@ namespace UETools.Objects.KismetVM.Instructions
         public Token FirstExpr { get; private set; } = null!;
         public Token SecondExpr { get; private set; } = null!;
 
-        public override void Deserialize(FArchive reader)
+        public override FArchive Serialize(FArchive reader)
         {
-            base.Deserialize(reader);
+            base.Serialize(reader);
             FirstExpr = Token.Read(reader);
             SecondExpr = Token.Read(reader);
+            return reader;
         }
 
         public override void ReadTo(TextWriter writer)

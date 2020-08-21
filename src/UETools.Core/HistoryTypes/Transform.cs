@@ -7,13 +7,9 @@ namespace UETools.Core.HistoryTypes
     {
         internal sealed class Transform : FTextHistory
         {
-            public override void Deserialize(FArchive reader)
-            {
-                base.Deserialize(reader);
-
-                reader.Read(out _text);
-                reader.ReadUnsafe(out _transform);
-            }
+            public override FArchive Serialize(FArchive reader) 
+                => reader.Read(ref _text)
+                         .ReadUnsafe(ref _transform);
 
             public override string ToString()
             {

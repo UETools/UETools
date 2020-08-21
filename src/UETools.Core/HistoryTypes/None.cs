@@ -4,6 +4,7 @@
     {
         internal sealed class None : FTextHistory
         {
+            public override FArchive Serialize(FArchive reader) => reader;
             public override string ToString() => string.Empty;
         }
     }

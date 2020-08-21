@@ -5,18 +5,21 @@ namespace UETools.Objects.Property
 {
     internal sealed class ByteProperty : UProperty<object>
     {
-        public override void Deserialize(FArchive reader, PropertyTag tag)
+        public override FArchive Serialize(FArchive reader, PropertyTag tag)
         {
             if (tag.EnumName!.IsNone())
             {
-                reader.Read(out byte underlying);
+                byte underlying = 0;
+                reader.Read(ref underlying);
                 _value = underlying;
             }
             else
             {
-                reader.Read(out FName name);
+                FName? name = default;
+                reader.Read(ref name);
                 _value = name;
             }
+            return reader;
         }
     }
 }

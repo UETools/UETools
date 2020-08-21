@@ -6,11 +6,13 @@ namespace UETools.Objects.KismetVM.Instructions
     {
         public override EExprToken Expr => EExprToken.EX_IntConstByte;
 
-        public override void Deserialize(FArchive reader)
+        public override FArchive Serialize(FArchive reader)
         {
-            base.Deserialize(reader);
-            reader.Read(out byte val);
+            base.Serialize(reader);
+            byte val = 0;
+            reader.Read(ref val);
             _value = val;
+            return reader;
         }
     }
 }

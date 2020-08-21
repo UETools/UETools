@@ -7,19 +7,20 @@ namespace UETools.Objects.Classes.Internal
 {
     internal class UFunction : UStruct
     {
-        public override void Deserialize(FArchive reader)
+        public override FArchive Serialize(FArchive reader)
         {
-            base.Deserialize(reader);
-            reader.ReadUnsafe(out _functionFlags);
+            base.Serialize(reader)
+                .ReadUnsafe(ref _functionFlags);
 
             if ((_functionFlags & EFunctionFlags.Net) != 0)
-                reader.Read(out _repOffset);
+                reader.Read(ref _repOffset);
 
             if (reader.Version >= UE4Version.VER_UE4_SERIALIZE_BLUEPRINT_EVENTGRAPH_FASTCALLS_IN_UFUNCTION)
             {
-                reader.Read(out _eventGraphFunction);
-                reader.Read(out _eventGraphCallOffset);
+                reader.Read(ref _eventGraphFunction)
+                      .Read(ref _eventGraphCallOffset);
             }
+            return reader;
         }
 
 

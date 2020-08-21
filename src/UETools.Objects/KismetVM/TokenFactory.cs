@@ -11,11 +11,12 @@ namespace UETools.Objects.KismetVM
     {
         public static Token Read(FArchive reader)
         {
-            reader.ReadUnsafe(out EExprToken currentToken);
+            EExprToken currentToken = default;
+            reader.ReadUnsafe(ref currentToken);
             if (EnumTypes.TryGetValue(currentToken, out var type))
             {
                 var tok = type();
-                tok.Deserialize(reader);
+                tok.Serialize(reader);
                 return tok;
             }
             throw new NotImplementedException($"Unknown opcode {currentToken}");

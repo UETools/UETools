@@ -6,11 +6,9 @@ namespace UETools.Objects.Structures
 {
     public struct TwoVectors : IUnrealStruct, IEquatable<TwoVectors>
     {
-        public void Deserialize(FArchive reader)
-        {
-            reader.Read(out _v1);
-            reader.Read(out _v2);
-        }
+        public FArchive Serialize(FArchive reader) 
+            => reader.Read(ref _v1)
+                     .Read(ref _v2);
 
         public override string ToString() => $"{{ V1: {_v1}, V2: {_v2} }}";
         public override bool Equals(object? obj) => obj switch

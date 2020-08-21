@@ -6,11 +6,11 @@ namespace UETools.Objects.Structures
 {
     struct SoftClassPath : IUnrealStruct
     {
-        public void Deserialize(FArchive reader)
+        public FArchive Serialize(FArchive reader)
         {
             if (reader.Version < UE4Version.VER_UE4_ADDED_SOFT_OBJECT_PATH)
             {
-                reader.Read(out _path);
+                reader.Read(ref _path);
                 _value = _path;
 
                 // TODO: Convert path to FName value
@@ -24,9 +24,10 @@ namespace UETools.Objects.Structures
             }
             else
             {
-                reader.Read(out _value);
-                reader.Read(out _subPathString);
+                reader.Read(ref _value);
+                reader.Read(ref _subPathString);
             }
+            return reader;
         }
 
         public override string ToString() => _value.ToString();

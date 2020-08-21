@@ -10,13 +10,15 @@ namespace UETools.Objects.Package
         public ImportTable() : base() { }
         public ImportTable(int length) : base(length) { }
 
-        public override void Deserialize(FArchive reader)
+        public override FArchive Serialize(FArchive reader)
         {
-            base.Deserialize(reader);
+            base.Serialize(reader);
             if (ItemCount.HasValue)
-                reader.Read(out _entries, ItemCount.Value);
+                reader.Read(ref _entries, ItemCount.Value);
             else
-                reader.Read(out _entries);
+                reader.Read(ref _entries);
+
+            return reader;
         }
     }
 }

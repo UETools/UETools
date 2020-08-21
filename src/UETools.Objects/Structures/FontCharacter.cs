@@ -5,15 +5,13 @@ namespace UETools.Objects.Structures
 {
     public struct FontCharacter : IUnrealStruct
     {
-        public void Deserialize(FArchive reader)
-        {
-            reader.Read(out _startU);
-            reader.Read(out _startV);
-            reader.Read(out _uSize);
-            reader.Read(out _vSize);
-            reader.Read(out _textureIndex);
-            reader.Read(out _verticalOffset);
-        }
+        public FArchive Serialize(FArchive reader) 
+            => reader.Read(ref _startU)
+                     .Read(ref _startV)
+                     .Read(ref _uSize)
+                     .Read(ref _vSize)
+                     .Read(ref _textureIndex)
+                     .Read(ref _verticalOffset);
 
         public override string? ToString()
         {

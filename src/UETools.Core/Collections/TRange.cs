@@ -5,13 +5,11 @@ using UETools.Core.Interfaces;
 
 namespace UETools.Core.Collections
 {
-    public struct TRange<T> : IUnrealDeserializable where T : IUnrealDeserializable?, new()
+    public struct TRange<T> : IUnrealSerializable where T : IUnrealSerializable?, new()
     {
-        public void Deserialize(FArchive reader)
-        {
-            reader.Read(out _lowerBound);
-            reader.Read(out _upperBound);
-        }
+        public FArchive Serialize(FArchive reader)
+            => reader.Read(ref _lowerBound)
+                     .Read(ref _upperBound);
 
         TRangeBound _lowerBound;
         TRangeBound _upperBound;
@@ -22,13 +20,12 @@ namespace UETools.Core.Collections
             Inclusive,
             Open,
         }
-        struct TRangeBound : IUnrealDeserializable
+
+        struct TRangeBound : IUnrealSerializable
         {
-            public void Deserialize(FArchive reader)
-            {
-                reader.ReadUnsafe(out _type);
-                reader.Read(out _value);
-            }
+            public FArchive Serialize(FArchive reader) 
+                => reader.ReadUnsafe(ref _type)
+                         .Read(ref _value);
 
             ERangeBoundTypes _type;
             T _value;
