@@ -77,6 +77,9 @@ namespace UETools.Pak
             if (_version < PakVersion.EncryptionKeyGuid)
                 _encryptionIndexGuid = default;
 
+            if (_version >= PakVersion.FrozenIndex)
+                reader.Read(ref _indexIsFrozen);
+
             if (_version < PakVersion.FNameBasedCompressionMethod)
             {
                 _compressionMethods.Add("Zlib");

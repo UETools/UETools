@@ -6,7 +6,10 @@ using UETools.Objects.Interfaces;
 
 namespace UETools.Objects.Structures
 {
-    sealed class ClothLODData : TaggedObject, IUnrealStruct
+    class ClothLODDataCommon : ClothLODData 
+    { 
+    }
+    class ClothLODData : TaggedObject, IUnrealStruct
     {
         public override FArchive Serialize(FArchive reader) 
             => base.Serialize(reader)
