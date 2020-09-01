@@ -6,13 +6,9 @@ namespace UETools.Core.HistoryTypes
     {
         internal sealed class OrderedFormat : FTextHistory
         {
-            public override void Deserialize(FArchive reader)
-            {
-                base.Deserialize(reader);
-
-                reader.Read(out _format);
-                reader.Read(out _arguments);
-            }
+            public override FArchive Serialize(FArchive archive)
+                => archive.Read(ref _format)
+                          .Read(ref _arguments);
 
             public override string ToString()
             {

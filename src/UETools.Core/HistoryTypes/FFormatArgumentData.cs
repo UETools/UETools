@@ -5,19 +5,20 @@ using UETools.Core.Interfaces;
 namespace UETools.Core.HistoryTypes
 {
     [DebuggerDisplay("{_argumentName.ToString()}: {_argumentValue.ToString()}")]
-    class FFormatArgumentData : IUnrealDeserializable
+    class FFormatArgumentData : IUnrealSerializable
     {
-        public void Deserialize(FArchive reader)
+        public FArchive Serialize(FArchive archive)
         {
-            if (reader.Version >= UE4Version.VER_UE4_K2NODE_VAR_REFERENCEGUIDS)
+            if (archive.Version >= UE4Version.VER_UE4_K2NODE_VAR_REFERENCEGUIDS)
             {
-                reader.Read(out FString _arg);
+                FString? _arg = default;
+                archive.Read(ref _arg);
                 _argumentName = FText.FromString(_arg);
             }
             else
-                reader.Read(out _argumentName);
+                archive.Read(ref _argumentName);
 
-            reader.Read(out _argumentValue);
+            return archive.Read(ref _argumentValue);
         }
 
         public string Replace(string sourceValue)

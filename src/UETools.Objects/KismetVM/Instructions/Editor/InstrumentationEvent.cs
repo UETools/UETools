@@ -9,11 +9,9 @@ namespace UETools.Objects.KismetVM.Instructions
 
         public EScriptInstrumentation EventType => _eventType;
 
-        public override void Deserialize(FArchive reader)
-        {
-            base.Deserialize(reader);
-            reader.ReadUnsafe(out _eventType);
-        }
+        public override FArchive Serialize(FArchive archive)
+            => base.Serialize(archive)
+                   .ReadUnsafe(ref _eventType);
 
         public override void ReadTo(TextWriter writer) => writer.WriteLine(EventType);
 

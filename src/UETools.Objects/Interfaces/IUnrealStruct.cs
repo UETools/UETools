@@ -2,7 +2,7 @@
 
 namespace UETools.Objects.Interfaces
 {
-    interface IUnrealStruct : IUnrealDeserializable
+    interface IUnrealStruct : IUnrealSerializable
     {
     }
 }

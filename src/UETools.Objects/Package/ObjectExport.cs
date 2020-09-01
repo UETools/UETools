@@ -8,7 +8,7 @@ using UETools.Objects.Enums;
 
 namespace UETools.Objects.Package
 {
-    public partial class ObjectExport : ObjectResource, IUnrealDeserializable
+    public partial class ObjectExport : ObjectResource, IUnrealSerializable
     {
         public ObjectResource? DefaultObject { get; private set; }
         public ObjectResource? Class { get; private set; }
@@ -20,56 +20,58 @@ namespace UETools.Objects.Package
         internal bool IsAsset => _bIsAsset;
         internal bool WasPrinted { get; set; }
 
-        public void Deserialize(FArchive reader)
+        public FArchive Serialize(FArchive archive)
         {
-            var version = reader.Version;
+            var version = archive.Version;
 
-            reader.Read(out _classIndex);
-            reader.Read(out _superIndex);
+            archive.Read(ref _classIndex)
+                   .Read(ref _superIndex);
 
             if (version >= UE4Version.VER_UE4_TemplateIndex_IN_COOKED_EXPORTS)
-                reader.Read(out _templateIndex);
+                archive.Read(ref _templateIndex);
 
-            reader.Read(out _outerIndex);
-            reader.Read(out _objectName);
-
-            reader.ReadUnsafe(out _objectFlags);
+            archive.Read(ref _outerIndex)
+                   .Read(ref _objectName)
+                   .ReadUnsafe(ref _objectFlags);
             IsDefaultObject = (_objectFlags & EObjectFlags.RF_Standalone) != 0 && (_objectFlags & EObjectFlags.RF_Public) != 0;
             IsArchetypeObject = (_objectFlags & EObjectFlags.RF_ArchetypeObject) != 0;
 
             if (version < UE4Version.VER_UE4_64BIT_EXPORTMAP_SERIALSIZES)
             {
-                reader.Read(out int size);
-                reader.Read(out int offset);
+                int size = 0, offset = 0;
+                archive.Read(ref size)
+                       .Read(ref offset);
                 _serialSize = size;
                 _serialOffset = offset;
             }
             else
             {
-                reader.Read(out _serialSize);
-                reader.Read(out _serialOffset);
+                archive.Read(ref _serialSize)
+                       .Read(ref _serialOffset);
             }
 
-            reader.Read(out _bForcedExport);
-            reader.Read(out _bNotForClient);
-            reader.Read(out _bNotForServer);
-            reader.Read(out _packageGuid);
-            reader.ReadUnsafe(out _packageFlags);
+            archive.Read(ref _bForcedExport)
+                   .Read(ref _bNotForClient)
+                   .Read(ref _bNotForServer)
+                   .Read(ref _packageGuid)
+                   .ReadUnsafe(ref _packageFlags);
 
             if (version >= UE4Version.VER_UE4_LOAD_FOR_EDITOR_GAME)
-                reader.Read(out _bNotAlwaysLoadedForEditorGame);
+                archive.Read(ref _bNotAlwaysLoadedForEditorGame);
 
             if (version >= UE4Version.VER_UE4_COOKED_ASSETS_IN_EDITOR_SUPPORT)
-                reader.Read(out _bIsAsset);
+                archive.Read(ref _bIsAsset);
 
             if (version >= UE4Version.VER_UE4_PRELOAD_DEPENDENCIES_IN_COOKED_EXPORTS)
             {
-                reader.Read(out _firstExportDependency);
-                reader.Read(out _serializationBeforeSerializationDependencies);
-                reader.Read(out _createBeforeSerializationDependencies);
-                reader.Read(out _serializationBeforeCreateDependencies);
-                reader.Read(out _createBeforeCreateDependencies);
+                archive.Read(ref _firstExportDependency)
+                       .Read(ref _serializationBeforeSerializationDependencies)
+                       .Read(ref _createBeforeSerializationDependencies)
+                       .Read(ref _serializationBeforeCreateDependencies)
+                       .Read(ref _createBeforeCreateDependencies);
             }
+
+            return archive;
         }
 
         public override void Fix(FArchive reader)

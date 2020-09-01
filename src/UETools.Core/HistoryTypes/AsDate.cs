@@ -13,16 +13,14 @@ namespace UETools.Core.HistoryTypes
                 _sourceDateTime = (ulong)date.ToUniversalTime().Date.Ticks;
                 _dateStyle = DateTimeStyle.Default;
             }
-            public override void Deserialize(FArchive reader)
+            public override FArchive Serialize(FArchive archive)
             {
-                base.Deserialize(reader);
+                archive.Read(ref _sourceDateTime)
+                      .ReadUnsafe(ref _dateStyle);
+                if (archive.Version >= UE4Version.VER_UE4_FTEXT_HISTORY_DATE_TIMEZONE)
+                    archive.Read(ref _timeZone);
 
-                reader.Read(out _sourceDateTime);
-                reader.ReadUnsafe(out _dateStyle);
-                if (reader.Version >= UE4Version.VER_UE4_FTEXT_HISTORY_DATE_TIMEZONE)
-                    reader.Read(out _timeZone);
-
-                reader.Read(out _cultureName);
+                return archive.Read(ref _cultureName);
             }
 
             public override string ToString()

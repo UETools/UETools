@@ -4,18 +4,19 @@ using UETools.Core.Interfaces;
 
 namespace UETools.Assets.Internal.Registry
 {
-    public partial class AssetDependencies : IUnrealDeserializable
+    public partial class AssetDependencies : IUnrealSerializable
     {
-        public void Deserialize(FArchive reader)
+        public FArchive Serialize(FArchive archive)
         {
-            reader.Read(out List<int> depCounts, (int)EAssetRegistryDependency.MaxCount);
-
-            reader.Read(out _hardDependencies, depCounts[(int)EAssetRegistryDependency.Hard]);
-            reader.Read(out _softDependencies, depCounts[(int)EAssetRegistryDependency.Soft]);
-            reader.Read(out _searchableNameDependencies, depCounts[(int)EAssetRegistryDependency.SearchableName]);
-            reader.Read(out _softManageDependencies, depCounts[(int)EAssetRegistryDependency.SoftManage]);
-            reader.Read(out _hardManageDependencies, depCounts[(int)EAssetRegistryDependency.HardManage]);
-            reader.Read(out _noneDependencies, depCounts[(int)EAssetRegistryDependency.None]);
+            List<int>? depCounts = default;
+            return archive.Read(ref depCounts, (int)EAssetRegistryDependency.MaxCount)
+                
+                  .Read(ref _hardDependencies, depCounts[(int)EAssetRegistryDependency.Hard])
+                  .Read(ref _softDependencies, depCounts[(int)EAssetRegistryDependency.Soft])
+                  .Read(ref _searchableNameDependencies, depCounts[(int)EAssetRegistryDependency.SearchableName])
+                  .Read(ref _softManageDependencies, depCounts[(int)EAssetRegistryDependency.SoftManage])
+                  .Read(ref _hardManageDependencies, depCounts[(int)EAssetRegistryDependency.HardManage])
+                  .Read(ref _noneDependencies, depCounts[(int)EAssetRegistryDependency.None]);
         }
 
         private List<int> _hardDependencies = null!;

@@ -13,12 +13,13 @@ namespace UETools.Objects.KismetVM.Instructions
         public Token FirstExpr { get; set; } = null!;
         public TokenList Params { get; } = new TokenList();
 
-        public override void Deserialize(FArchive reader)
+        public override FArchive Serialize(FArchive archive)
         {
-            base.Deserialize(reader);
-            reader.Read(out _callTo);
-            FirstExpr = Token.Read(reader);
-            Params.ReadUntil(reader, EExprToken.EX_EndFunctionParms);
+            base.Serialize(archive)
+                .Read(ref _callTo);
+            FirstExpr = Token.Read(archive);
+            Params.ReadUntil(archive, EExprToken.EX_EndFunctionParms);
+            return archive;
         }
 
         public override void ReadTo(TextWriter writer)

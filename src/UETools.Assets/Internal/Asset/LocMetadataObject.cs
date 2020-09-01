@@ -4,9 +4,9 @@ using UETools.Core.Interfaces;
 
 namespace UETools.Assets.Internal.Asset
 {
-    internal class LocMetadataObject : IUnrealDeserializable
+    internal class LocMetadataObject : IUnrealSerializable
     {
-        public void Deserialize(FArchive reader) => reader.Read(out _values);
+        public FArchive Serialize(FArchive archive) => archive.Read(ref _values);
 
         private Dictionary<FString, LocMetadataValue> _values = null!;
     }

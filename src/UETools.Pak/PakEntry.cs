@@ -15,7 +15,7 @@ namespace UETools.Pak
     /// <summary>
     /// Virtual file system entry in pak file.
     /// </summary>
-    public partial class PakEntry : IUnrealDeserializable, IEntry
+    public class PakEntry : IUnrealSerializable, IEntry
     {
         private PakFile Owner { get; }
         internal PakEntry LinkedEntry { get; set; } = null!;
@@ -34,27 +34,29 @@ namespace UETools.Pak
 
         public PakEntry(PakFile pakFile) => Owner = pakFile;
 
-        public void Deserialize(FArchive reader)
+        public FArchive Serialize(FArchive archive)
         {
-            var start = reader.Tell();
-            var pakVersion = (PakVersion)reader.AssetVersion;
-            reader.Read(out _offset);
-            reader.Read(out _size);
-            reader.Read(out _uncompressedSize);
+            var start = archive.Tell();
+            var pakVersion = (PakVersion)archive.AssetVersion;
+            archive.Read(ref _offset)
+                   .Read(ref _size)
+                   .Read(ref _uncompressedSize);
             if (pakVersion >= PakVersion.FNameBasedCompressionMethod)
             {
                 // backwards incompatible 4.22
-                if (reader.AssetSubversion == 1)
+                if (archive.AssetSubversion == 1)
                 {
-                    reader.Read(out byte index);
+                    var index = (byte)_compressionIndex;
+                    archive.Read(ref index);
                     _compressionIndex = index;
                 }
                 else
-                    reader.Read(out _compressionIndex);
+                    archive.Read(ref _compressionIndex);
             }
             else
             {
-                reader.ReadUnsafe(out ECompressionFlags legacyFlags);
+                ECompressionFlags legacyFlags = default;
+                archive.ReadUnsafe(ref legacyFlags);
                 if (legacyFlags == ECompressionFlags.COMPRESS_None)
                     _compressionIndex = 0;
                 else if ((legacyFlags & ECompressionFlags.COMPRESS_ZLIB) != 0)
@@ -69,19 +71,22 @@ namespace UETools.Pak
 
             if (pakVersion < PakVersion.NoTimestamps)
             {
-                reader.Read(out long _); // FDateTime Timestamp
+                long timestamp = 0;
+                archive.Read(ref timestamp); // FDateTime Timestamp
             }
 
-            reader.Read(out _hash);
+            archive.Read(ref _hash);
             if (pakVersion >= PakVersion.CompressionEncryption)
             {
                 if (_compressionIndex != 0)
-                    reader.Read(out _compressionBlocks);
+                    archive.Read(ref _compressionBlocks!);
 
-                reader.ReadUnsafe(out _flags);
-                reader.Read(out _compressionBlockSize);
+                archive.ReadUnsafe(ref _flags)
+                       .Read(ref _compressionBlockSize);
             }
-            EntryHeaderSize = reader.Tell() - start;
+            EntryHeaderSize = archive.Tell() - start;
+
+            return archive;
         }
 
         public FArchive Read() => new FArchive(Owner.ReadEntry(this));

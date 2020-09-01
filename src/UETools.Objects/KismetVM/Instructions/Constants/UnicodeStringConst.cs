@@ -12,8 +12,7 @@ namespace UETools.Objects.KismetVM.Instructions
             var bytes = new List<short>();
             do
             {
-                reader.Read(out short b);
-                bytes.Add(b);
+                bytes.Add(reader.Read<short>());
             } while (bytes.Last() != 0);
             str = string.Create(bytes.Count - 1, bytes, (chars, b) =>
             {
@@ -25,10 +24,11 @@ namespace UETools.Objects.KismetVM.Instructions
 
         }
 
-        public override void Deserialize(FArchive reader)
+        public override FArchive Serialize(FArchive archive)
         {
-            base.Deserialize(reader);
-            ReadString16(reader, out _value);
+            base.Serialize(archive);
+            ReadString16(archive, out _value);
+            return archive;
         }
     }
 }

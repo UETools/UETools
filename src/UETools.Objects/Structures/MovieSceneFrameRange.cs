@@ -6,7 +6,8 @@ namespace UETools.Objects.Structures
 {
     public struct MovieSceneFrameRange : IUnrealStruct
     {
-        public void Deserialize(FArchive reader) => reader.Read(out _range);
+        public FArchive Serialize(FArchive archive) => archive.Read(ref _range);
+
         private TRange<FrameNumber> _range;
     } 
 }

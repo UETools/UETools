@@ -4,9 +4,9 @@ using UETools.Core.Interfaces;
 
 namespace UETools.Core.Collections
 {
-    class TArray<T> : List<T>, IUnrealDeserializable
+    class TArray<T> : List<T>, IUnrealSerializable
     {
-        public void Deserialize(FArchive reader)
+        public FArchive Serialize(FArchive archive)
         {
             throw new NotImplementedException();
         }

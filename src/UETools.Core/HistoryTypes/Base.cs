@@ -6,36 +6,36 @@ namespace UETools.Core.HistoryTypes
     {
         internal sealed class Base : FTextHistory
         {
-            public Base() : this(null!) { }
+            public FString? Value { get => _value; set => _value = value; }
+            public FString? Key { get => _key; set => _key = value; }
+            public FString? Namespace { get => _namespace; set => _namespace = value; }
+
+            public Base() { }
             public Base(FString value) : this(value, null!, null!) { }
-            public Base(FString value, FString localizationNamespace, FString localizationKey) => (_locNamespace, _locKey, _value) = (localizationNamespace, localizationKey, value);
+            public Base(FString value, FString localizationNamespace, FString localizationKey) => (_namespace, _key, _value) = (localizationNamespace, localizationKey, value);
 
-            public override void Deserialize(FArchive reader)
+            public override FArchive Serialize(FArchive archive)
             {
-                base.Deserialize(reader);
+                archive.Read(ref _namespace)
+                       .Read(ref _key)
+                       .Read(ref _value);
 
-                reader.Read(out _locNamespace);
-                reader.Read(out _locKey);
-                reader.Read(out _value); 
-                _localizedString = reader.Localization?.Get(_locNamespace, _locKey);
+                _localizedString = archive.Localization?.Get(_namespace, _key);
+
+                return archive;
             }
 
             public override string ToString()
             {
-                if (_locNamespace is null || _locKey is null)
-                {
-                    if (_value is null)
-                        NotDeserializedException.Throw();
-
-                    return _value.ToString();
-                }
+                if (_value is null)
+                    NotDeserializedException.Throw();
 
                 return _localizedString ?? _value.ToString();
             }
 
-            private FString _locNamespace = null!;
-            private FString _locKey = null!;
-            private FString _value = null!;
+            private FString? _namespace;
+            private FString? _key;
+            private FString? _value;
             private string? _localizedString;
         }
     }

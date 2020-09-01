@@ -3,13 +3,11 @@ using UETools.Core.Interfaces;
 
 namespace UETools.Assets.Internal.Asset
 {
-    internal class TextSourceData : IUnrealDeserializable
+    internal class TextSourceData : IUnrealSerializable
     {
-        public void Deserialize(FArchive reader)
-        {
-            reader.Read(out _sourceString);
-            reader.Read(out _sourceStringMetaData);
-        }
+        public FArchive Serialize(FArchive archive)
+            => archive.Read(ref _sourceString)
+                      .Read(ref _sourceStringMetaData);
 
         private FString _sourceString = null!;
         private LocMetadataObject _sourceStringMetaData = null!;

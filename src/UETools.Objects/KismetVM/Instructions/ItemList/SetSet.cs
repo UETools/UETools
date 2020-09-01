@@ -12,12 +12,13 @@ namespace UETools.Objects.KismetVM.Instructions
         public int Count => _count;
         public TokenList Items { get; } = new TokenList();
 
-        public override void Deserialize(FArchive reader)
+        public override FArchive Serialize(FArchive archive)
         {
-            base.Deserialize(reader);
-            SetToken = Token.Read(reader);
-            reader.Read(out _count);
-            Items.ReadUntil(reader, EExprToken.EX_EndSet);
+            base.Serialize(archive);
+            SetToken = Token.Read(archive);
+            archive.Read(ref _count);
+            Items.ReadUntil(archive, EExprToken.EX_EndSet);
+            return archive;
         }
 
         public override void ReadTo(TextWriter writer)

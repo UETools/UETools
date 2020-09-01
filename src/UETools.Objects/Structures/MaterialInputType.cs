@@ -8,12 +8,10 @@ namespace UETools.Objects.Structures
 {
     class MaterialInputType<T> : ExpressionInput where T : unmanaged
     {
-        public override void Deserialize(FArchive reader)
-        {
-            base.Deserialize(reader);
-            reader.Read(out _useConst);
-            reader.ReadUnsafe(out _const);
-        }
+        public override FArchive Serialize(FArchive archive)
+            => base.Serialize(archive)
+                   .Read(ref _useConst)
+                   .ReadUnsafe(ref _const);
 
         public override string ToString() => (_useConst ? _const.ToString() : base.ToString())!;
 

@@ -11,19 +11,21 @@ namespace UETools.Objects.KismetVM.Instructions
         public CodeSkipSize AfterSkip { get => _afterSkip; set => _afterSkip = value; }
         public Token IndexExpression { get; private set; } = null!;
 
-        public override void Deserialize(FArchive reader)
+        public override FArchive Serialize(FArchive archive)
         {
-            base.Deserialize(reader);
-            reader.Read(out _numCases);
-            reader.Read(out _afterSkip);
-            IndexExpression = Token.Read(reader);
+            base.Serialize(archive)
+                .Read(ref _numCases)
+                .Read(ref _afterSkip);
+            IndexExpression = Token.Read(archive);
             for (int i = 0; i < NumCases; i++)
             {
-                var label = Token.Read(reader);
-                reader.Read(out CodeSkipSize _nextCaseOffset);
-                var term = Token.Read(reader);
+                var label = Token.Read(archive);
+                CodeSkipSize _nextCaseOffset = default;
+                archive.Read(ref _nextCaseOffset);
+                var term = Token.Read(archive);
             }
-            var defaultCase = Token.Read(reader);
+            var defaultCase = Token.Read(archive);
+            return archive;
         }
 
         public override void ReadTo(TextWriter writer)

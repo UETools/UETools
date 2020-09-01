@@ -15,7 +15,7 @@ namespace UETools.Core
     /// </remarks>
     /// <typeparam name="T">Type of items stored in the table.</typeparam>
     [DebuggerDisplay("{Items.Count} items")]
-    public abstract class UnrealTable<T> : IUnrealDeserializable, IUnrealTable<T> where T : notnull
+    public abstract class UnrealTable<T> : IUnrealSerializable, IUnrealTable<T> where T : notnull
     {
         /// <summary>
         /// <see cref="List{T}"/> of elements exposed by the table.
@@ -51,18 +51,20 @@ namespace UETools.Core
         /// <remarks>
         /// Should be called in derived class as it adds the class instance to <see cref="FArchive.Tables"/>.
         /// </remarks>
-        /// <param name="reader">Stream of binary data to read from.</param>
-        public virtual void Deserialize(FArchive reader)
+        /// <param name="archive">Stream of binary data to read from.</param>
+        public virtual FArchive Serialize(FArchive archive)
         {
             if (GetType().GetCustomAttributes(typeof(UnrealTableAttribute), false).First() is UnrealTableAttribute attr)
-                reader.Tables.TryAdd(attr.Name, this);
+                archive.Tables.TryAdd(attr.Name, this);
+
+            return archive;
         }
 
         private static void ThrowNotImplemented(string className)
             => throw new NotImplementedException($"UnrealTable deriving class {className} is not defining {nameof(UnrealTableAttribute)}, or isn't marked sealed.");
 
         /// <summary>
-        /// Field to support deserialization by <see cref="FArchive.Read{T}(out List{T})"/> calls in deriving classes.
+        /// Field to support deserialization by <see cref="FArchive.Read{T}(ref List{T})"/> calls in deriving classes.
         /// </summary>
         protected List<T> _entries = new List<T>();
     }

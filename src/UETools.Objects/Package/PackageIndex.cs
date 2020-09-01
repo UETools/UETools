@@ -4,9 +4,9 @@ using UETools.Core.Interfaces;
 
 namespace UETools.Objects.Package
 {
-    public struct PackageIndex : IUnrealDeserializable, IEquatable<PackageIndex>, IEquatable<int>
+    public struct PackageIndex : IUnrealSerializable, IEquatable<PackageIndex>, IEquatable<int>
     {
-        public void Deserialize(FArchive reader) => reader.Read(out _value);
+        public FArchive Serialize(FArchive archive) => archive.Read(ref _value);
 
         internal ObjectResource? Resolve(FArchive reader)
         {

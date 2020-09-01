@@ -7,6 +7,6 @@ namespace UETools.Objects.Interfaces
     {
         object Value { get; set; }
 
-        void Deserialize(FArchive reader, PropertyTag tag);
+        FArchive Serialize(FArchive reader, PropertyTag tag);
     }
 }

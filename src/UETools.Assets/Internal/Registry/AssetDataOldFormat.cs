@@ -8,7 +8,7 @@ using UETools.Core.Interfaces;
 
 namespace UETools.Assets.Internal.Registry
 {
-    public class AssetDataOldFormat : IAssetData, IAssetData<FString>, IUnrealDeserializable
+    public class AssetDataOldFormat : IAssetData, IAssetData<FString>, IUnrealSerializable
     {
         public FName ObjectPath { get => _objectPath; set => _objectPath = value.Name; }
         public FName PackagePath { get => _packagePath; set => _packagePath = value.Name; }
@@ -29,27 +29,27 @@ namespace UETools.Assets.Internal.Registry
         public List<int> ChunkIDs => _chunkIDs;
         public EPackageFlags PackageFlags => _packageFlags;
 
-        public void Deserialize(FArchive reader)
+        public FArchive Serialize(FArchive archive)
         {
-            reader.Read(out _objectPath);
-            reader.Read(out _packagePath);
-            reader.Read(out _assetClass);
-            reader.Read(out _groupNames);
+            archive.Read(ref _objectPath)
+                   .Read(ref _packagePath)
+                   .Read(ref _assetClass)
+                   .Read(ref _groupNames)
+                   .Read(ref _packageName)
+                   .Read(ref _assetName)
+                   .Read(ref _tagsAndValues);
 
-            reader.Read(out _packageName);
-            reader.Read(out _assetName);
-
-            reader.Read(out _tagsAndValues);
-
-            if (reader.Version >= UE4Version.VER_UE4_CHANGED_CHUNKID_TO_BE_AN_ARRAY_OF_CHUNKIDS)
-                reader.Read(out _chunkIDs);
-            else if (reader.Version >= UE4Version.VER_UE4_ADDED_CHUNKID_TO_ASSETDATA_AND_UPACKAGE)
-                reader.Read(out _chunkIDs, 1);
+            if (archive.Version >= UE4Version.VER_UE4_CHANGED_CHUNKID_TO_BE_AN_ARRAY_OF_CHUNKIDS)
+                archive.Read(ref _chunkIDs);
+            else if (archive.Version >= UE4Version.VER_UE4_ADDED_CHUNKID_TO_ASSETDATA_AND_UPACKAGE)
+                archive.Read(ref _chunkIDs, 1);
             else
                 _chunkIDs = new List<int>();
 
-            if (reader.Version >= UE4Version.VER_UE4_COOKED_ASSETS_IN_EDITOR_SUPPORT)
-                reader.ReadUnsafe(out _packageFlags);
+            if (archive.Version >= UE4Version.VER_UE4_COOKED_ASSETS_IN_EDITOR_SUPPORT)
+                archive.ReadUnsafe(ref _packageFlags);
+
+            return archive;
         }
 
         private FString _objectPath = null!;

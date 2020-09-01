@@ -12,11 +12,12 @@ namespace UETools.Objects.KismetVM.Instructions
         public ObjectReference Property => _property;
         public Token StructExpression { get; private set; } = null!;
 
-        public override void Deserialize(FArchive reader)
+        public override FArchive Serialize(FArchive archive)
         {
-            base.Deserialize(reader);
-            reader.Read(out _property);
-            StructExpression = Token.Read(reader);
+            base.Serialize(archive)
+                .Read(ref _property);
+            StructExpression = Token.Read(archive);
+            return archive;
         }
 
         public override void ReadTo(TextWriter writer)

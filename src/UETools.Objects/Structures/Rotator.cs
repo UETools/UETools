@@ -6,12 +6,10 @@ namespace UETools.Objects.Structures
 {
     public struct Rotator : IUnrealStruct, IEquatable<Rotator>
     {
-        public void Deserialize(FArchive reader)
-        {
-            reader.Read(out _pitch);
-            reader.Read(out _roll);
-            reader.Read(out _yaw);
-        }
+        public FArchive Serialize(FArchive archive)
+            => archive.Read(ref _pitch)
+                      .Read(ref _roll)
+                      .Read(ref _yaw);
         public override string ToString() => $"{{ Pitch: {_pitch}, Roll: {_roll}, Yaw: {_yaw} }}";
 
         public override bool Equals(object? obj) => obj switch

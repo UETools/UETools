@@ -8,22 +8,20 @@ namespace UETools.Objects.Classes
 {
     sealed class StringTable : UObject
     {
-        class MetaDataMap : IUnrealDeserializable
+        class MetaDataMap : IUnrealSerializable
         {
             public Dictionary<FName, FString> Meta { get => _meta; set => _meta = value; }
 
-            public void Deserialize(FArchive reader) => reader.Read(out _meta);
+            public FArchive Serialize(FArchive archive) => archive.Read(ref _meta);
 
             private Dictionary<FName, FString> _meta = null!;
         }
 
-        public override void Deserialize(FArchive reader)
-        {
-            base.Deserialize(reader);
-            reader.Read(out _namespace);
-            reader.Read(out _keySourceStringMap);
-            reader.Read(out _keysToMetaData);
-        }
+        public override FArchive Serialize(FArchive archive)
+            => base.Serialize(archive)
+                   .Read(ref _namespace)
+                   .Read(ref _keySourceStringMap)
+                   .Read(ref _keysToMetaData);
 
         public override void ReadTo(IndentedTextWriter writer)
         {

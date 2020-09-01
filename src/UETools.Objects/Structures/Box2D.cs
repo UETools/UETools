@@ -7,12 +7,11 @@ namespace UETools.Objects.Structures
     {
         private bool IsValid => _isValid != 0;
 
-        public void Deserialize(FArchive reader)
-        {
-            reader.Read(out _min);
-            reader.Read(out _max);
-            reader.Read(out _isValid);
-        }
+        public FArchive Serialize(FArchive archive)
+            => archive.Read(ref _min)
+                      .Read(ref _max)
+                      .Read(ref _isValid);
+
         public override string ToString() => IsValid ? $"{{ Min: {_min}, Max: {_max} }}" : $"{{ Invalid {nameof(Box2D)} }}";
 
         private Vector2D _min;

@@ -8,7 +8,13 @@ namespace UETools.Objects.Structures
 {
     struct DateTime : IUnrealStruct
     {
-        public void Deserialize(FArchive reader) => _value = new System.DateTime(reader.Read(out long _));
+        public FArchive Serialize(FArchive archive)
+        {
+            long ticks = _value.Ticks;
+            archive.Read(ref ticks);
+            _value = new System.DateTime(ticks);
+            return archive;
+        }
 
         public override string ToString() => _value.ToString();
 

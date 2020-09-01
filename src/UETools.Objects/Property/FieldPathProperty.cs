@@ -3,7 +3,7 @@ using UETools.Objects.Interfaces;
 
 namespace UETools.Objects.Property
 {
-    internal sealed class TextProperty : UProperty<FText>
+    internal sealed class FieldPathProperty : UProperty<FieldPath>
     {
         public override FArchive Serialize(FArchive reader, PropertyTag tag) => reader.Read(ref _value);
     }

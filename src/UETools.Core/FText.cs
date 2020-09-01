@@ -7,37 +7,42 @@ using UETools.Core.Interfaces;
 namespace UETools.Core
 {
     [DebuggerDisplay("FText: {ToString()}")]
-    public sealed class FText : IUnrealDeserializable
+    public sealed class FText : IUnrealSerializable
     {
         public FText() : this(null!) { }
         private FText(FTextHistory history) => _history = history;
 
-        public void Deserialize(FArchive reader)
+        public FArchive Serialize(FArchive archive)
         {
-            reader.ReadUnsafe(out _flags);
-            if (reader.Version < UE4Version.VER_UE4_FTEXT_HISTORY)
+            archive.ReadUnsafe(ref _flags);
+            if (archive.Version < UE4Version.VER_UE4_FTEXT_HISTORY)
             {
-                reader.Read(out FString _value);
-                if (reader.Version >= UE4Version.VER_UE4_ADDED_NAMESPACE_AND_KEY_DATA_TO_FTEXT)
+                var baseHistory = (FTextHistory.Base)_history;
+                FString? _value = baseHistory.Value;
+                archive.Read(ref _value);
+                if (archive.Version >= UE4Version.VER_UE4_ADDED_NAMESPACE_AND_KEY_DATA_TO_FTEXT)
                     _history = new FTextHistory.Base(_value);
                 else
                 {
-                    reader.Read(out FString _namespace);
-                    reader.Read(out FString _key);
+                    FString? _namespace = baseHistory.Namespace, _key = baseHistory.Key;
+                    archive.Read(ref _namespace)
+                          .Read(ref _key);
                     _history = new FTextHistory.Base(_value, _namespace, _key);
                 }
             }
             else
             {
-                reader.ReadUnsafe(out TextHistoryType HistoryType);
+                TextHistoryType HistoryType = TextHistoryType.None;
+                archive.ReadUnsafe(ref HistoryType);
                 if (FTextHistory.HistoryTypes.TryGetValue(HistoryType, out var init))
                 {
                     _history = init();
-                    _history.Deserialize(reader);
+                    _history.Serialize(archive);
                 }
                 else
                     Debug.WriteLine($"HistoryType unrecognized: {HistoryType}");
             }
+            return archive;
         }
         public override string ToString()
         {

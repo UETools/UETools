@@ -9,30 +9,32 @@ using UETools.Objects.Classes.Internal;
 namespace UETools.Objects.Classes
 {
     using TableItems = List<KeyValuePair<string, TaggedObject>>;
-    public sealed class DataTable : UObject, IUnrealDeserializable, IUnrealReadable
+    public sealed class DataTable : UObject, IUnrealSerializable, IUnrealReadable
     {
         public TableItems Rows { get; } = new TableItems();
 
-        public override void Deserialize(FArchive reader)
+        public override FArchive Serialize(FArchive archive)
         {
-            base.Deserialize(reader);
-            ReadRows(reader);
+            base.Serialize(archive);
+            ReadRows(archive);
+            return archive;
         }
 
         private void ReadRows(FArchive reader)
         {
             if (base["RowStruct"] is null)
                 return;
-
-            reader.Read(out int RowCount);
-            for (var i = 0; i < RowCount; i++)
+            int rowCount = 0;
+            reader.Read(ref rowCount);
+            for (var i = 0; i < rowCount; i++)
                 ReadDataTableRow(reader);
         }
 
-        private void ReadDataTableRow(FArchive reader)
+        private void ReadDataTableRow(FArchive archive)
         {
-            reader.Read(out FName RowName);
-            Rows.Add(new KeyValuePair<string, TaggedObject>(RowName, new TaggedObject(reader)));
+            FName? RowName = default;
+            archive.Read(ref RowName);
+            Rows.Add(new KeyValuePair<string, TaggedObject>(RowName, new TaggedObject(archive)));
         }
 
         public override void ReadTo(IndentedTextWriter writer)

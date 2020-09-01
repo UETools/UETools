@@ -65,8 +65,15 @@ namespace UETools.Pak
         public override void CopyTo(Stream destination, int bufferSize) => _deflateStream.CopyTo(destination, bufferSize);
         /// <inheritdoc cref="DeflateStream.CopyToAsync"/>
         public override Task CopyToAsync(Stream destination, int bufferSize, CancellationToken cancellationToken) => _deflateStream.CopyToAsync(destination, bufferSize, cancellationToken);
-        /// <inheritdoc cref="DeflateStream.CopyToAsync"/>
-        protected override void Dispose(bool disposing) => _deflateStream.Dispose();
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                _deflateStream.Dispose();
+            }
+        }
+        /// <inheritdoc cref="DeflateStream.DisposeAsync"/>
+        public override ValueTask DisposeAsync() => _deflateStream.DisposeAsync();
 
         /// <inheritdoc cref="DeflateStream.BeginRead"/>
         public override IAsyncResult BeginRead(byte[] buffer, int offset, int count, AsyncCallback callback, object? state) => _deflateStream.BeginRead(buffer, offset, count, callback, state);

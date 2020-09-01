@@ -3,7 +3,7 @@ using UETools.Core.Interfaces;
 
 namespace UETools.Core.HistoryTypes
 {
-    class FNumberFormattingOptions : IUnrealDeserializable
+    class FNumberFormattingOptions : IUnrealSerializable
     {
         public bool AlwaysSign { get => _alwaysSign; set => _alwaysSign = value; }
         public bool UseGrouping { get => _useGrouping; set => _useGrouping = value; }
@@ -13,17 +13,15 @@ namespace UETools.Core.HistoryTypes
         public int MinimumFractionalDigits { get => _minimumFractionalDigits; set => _minimumFractionalDigits = value; }
         public int MaximumFractionalDigits { get => _maximumFractionalDigits; set => _maximumFractionalDigits = value; }
 
-        public void Deserialize(FArchive reader)
-        {
+        public FArchive Serialize(FArchive archive) =>
             // TODO: Dependent on custom versions
-            //reader.Read(out _alwaysSign);
-            reader.Read(out _useGrouping);
-            reader.ReadUnsafe(out _roundingMode);
-            reader.Read(out _minimumIntegralDigits);
-            reader.Read(out _maximumIntegralDigits);
-            reader.Read(out _minimumFractionalDigits);
-            reader.Read(out _maximumFractionalDigits);
-        }
+            //archive.Read(ref _alwaysSign);
+            archive.Read(ref _useGrouping)
+                   .ReadUnsafe(ref _roundingMode)
+                   .Read(ref _minimumIntegralDigits)
+                   .Read(ref _maximumIntegralDigits)
+                   .Read(ref _minimumFractionalDigits)
+                   .Read(ref _maximumFractionalDigits);
 
         private bool _alwaysSign;
         private bool _useGrouping;

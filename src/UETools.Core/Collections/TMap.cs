@@ -4,9 +4,9 @@ using UETools.Core.Interfaces;
 
 namespace UETools.Core.Collections
 {
-    class TMap<TKey, TValue> : Dictionary<TKey, TValue>, IUnrealDeserializable where TKey : notnull
+    class TMap<TKey, TValue> : Dictionary<TKey, TValue>, IUnrealSerializable where TKey : notnull
     {
-        public void Deserialize(FArchive reader)
+        public FArchive Serialize(FArchive archive)
         {
             throw new NotImplementedException();
         }

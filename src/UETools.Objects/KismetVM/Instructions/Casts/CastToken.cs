@@ -9,11 +9,12 @@ namespace UETools.Objects.KismetVM.Instructions
         public ObjectReference Variable { get => _variable; set => _variable = value; }
         public Token CastExpr { get; private set; } = null!;
 
-        public override void Deserialize(FArchive reader)
+        public override FArchive Serialize(FArchive archive)
         {
-            base.Deserialize(reader);
-            reader.Read(out _variable);
-            CastExpr = Token.Read(reader);
+            base.Serialize(archive)
+                .Read(ref _variable);
+            CastExpr = Token.Read(archive);
+            return archive;
         }
 
         public override void ReadTo(TextWriter writer)

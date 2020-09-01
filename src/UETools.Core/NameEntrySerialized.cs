@@ -3,20 +3,19 @@ using UETools.Core.Interfaces;
 
 namespace UETools.Core
 {
-    internal class NameEntrySerialized : IUnrealDeserializable
+    internal class NameEntrySerialized : IUnrealSerializable
     {
         public FString Name { get => _name; set => _name = value; }
-        public ushort NonCasePreservingHash { get => _nonCasePreservingHash; set => _nonCasePreservingHash = value; }
-        public ushort CasePreservingHash { get => _casePreservingHash; set => _casePreservingHash = value; }
 
-        public void Deserialize(FArchive reader)
+        public FArchive Serialize(FArchive archive)
         {
-            reader.Read(out _name);
-            if (reader.Version >= UE4Version.VER_UE4_NAME_HASHES_SERIALIZED)
+            archive.Read(ref _name);
+            if (archive.Version >= UE4Version.VER_UE4_NAME_HASHES_SERIALIZED)
             {
-                reader.Read(out _nonCasePreservingHash);
-                reader.Read(out _casePreservingHash);
+                archive.Read(ref _nonCasePreservingHash)
+                       .Read(ref _casePreservingHash);
             }
+            return archive;
         }
 
         private FString _name = null!;

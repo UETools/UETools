@@ -10,10 +10,11 @@ namespace UETools.Objects.KismetVM.Instructions
 
         public Token NotExpression { get; private set; } = null!;
 
-        public override void Deserialize(FArchive reader)
+        public override FArchive Serialize(FArchive archive)
         {
-            base.Deserialize(reader);
-            NotExpression = Token.Read(reader);
+            base.Serialize(archive);
+            NotExpression = Token.Read(archive);
+            return archive;
         }
 
         public override void ReadTo(TextWriter writer)

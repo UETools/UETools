@@ -6,20 +6,18 @@ using UETools.Core.Interfaces;
 
 namespace UETools.Assets.Internal.Asset
 {
-    internal class CompressedChunk : IUnrealDeserializable
+    internal class CompressedChunk : IUnrealSerializable
     {
         public int UncompressedOffset { get => _uncompressedOffset; set => _uncompressedOffset = value; }
         public int UncompressedSize { get => _uncompressedSize; set => _uncompressedSize = value; }
         public int CompressedOffset { get => _compressedOffset; set => _compressedOffset = value; }
         public int CompressedSize { get => _compressedSize; set => _compressedSize = value; }
 
-        public void Deserialize(FArchive reader)
-        {
-            reader.Read(out _uncompressedOffset);
-            reader.Read(out _uncompressedSize);
-            reader.Read(out _compressedOffset);
-            reader.Read(out _compressedSize);
-        }
+        public FArchive Serialize(FArchive archive)
+            => archive.Read(ref _uncompressedOffset)
+                      .Read(ref _uncompressedSize)
+                      .Read(ref _compressedOffset)
+                      .Read(ref _compressedSize);
 
         private int _uncompressedOffset;
         private int _uncompressedSize;

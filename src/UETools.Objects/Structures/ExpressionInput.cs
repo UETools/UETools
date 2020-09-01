@@ -4,11 +4,7 @@ namespace UETools.Objects.Structures
 {
     class ExpressionInput : MaterialInput
     {
-        public override void Deserialize(FArchive reader)
-        {
-            reader.Read(out _outputIndex);
-            base.Deserialize(reader);
-        }
+        public override FArchive Serialize(FArchive archive) => base.Serialize(archive.Read(ref _outputIndex));
 
         private int _outputIndex;
     }

@@ -10,7 +10,7 @@ using UETools.Pak.Enums;
 
 namespace UETools.Pak
 {
-    internal sealed partial class PakInfo : IUnrealDeserializable
+    internal sealed partial class PakInfo : IUnrealSerializable
     {
         public bool IsUnrealPak => _magic == PakFile.Magic;
         public bool IsEncrypted => _encryptedIndex != 0;
@@ -51,30 +51,33 @@ namespace UETools.Pak
         };
 
         private PakInfo(PakInfoSize infoSize) => _infoSize = infoSize;
-        internal PakInfo(Memory<byte> data) : this((PakInfoSize)data.Length) => Deserialize(new FArchive(data));
         internal PakInfo(Memory<byte> data, AesPakCryptoProvider? aesProvider) : this((PakInfoSize)data.Length)
         {
             _aesProvider = aesProvider;
             using var ar = new FArchive(data);
-            Deserialize(ar);
+            Serialize(ar);
         }
 
-        public void Deserialize(FArchive reader)
+        public FArchive Serialize(FArchive archive)
         {
-            reader.Read(out _encryptionIndexGuid);
-            reader.Read(out _encryptedIndex);
-            reader.Read(out _magic);
-            if (!IsUnrealPak)
-                return;
+            archive.Read(ref _encryptionIndexGuid)
+                   .Read(ref _encryptedIndex)
+                   .Read(ref _magic);
 
-            reader.ReadUnsafe(out _version);
-            reader.Read(out _indexOffset);
-            reader.Read(out _indexSize);
-            reader.Read(out _indexHash);
+            if (!IsUnrealPak)
+                return archive;
+
+            archive.ReadUnsafe(ref _version)
+                   .Read(ref _indexOffset)
+                   .Read(ref _indexSize)
+                   .Read(ref _indexHash);
             if (_version < PakVersion.IndexEncryption)
                 _encryptedIndex = 0;
             if (_version < PakVersion.EncryptionKeyGuid)
                 _encryptionIndexGuid = default;
+
+            if (_version >= PakVersion.FrozenIndex)
+                archive.Read(ref _indexIsFrozen);
 
             if (_version < PakVersion.FNameBasedCompressionMethod)
             {
@@ -84,8 +87,9 @@ namespace UETools.Pak
             }
             else
             {
-                var remainingBytes = (int)(reader.Length() - reader.Tell());
-                reader.Read(out Span<byte> shit, remainingBytes);
+                var remainingBytes = (int)(archive.Length() - archive.Tell());
+                Span<byte> shit = default;
+                archive.Read(ref shit, remainingBytes);
                 for (int Index = 0, start = 0; start < shit.Length; start = ++Index * CompressionMethodNameLen)
                 {
                     var MethodString = shit.Slice(start, CompressionMethodNameLen);
@@ -96,6 +100,8 @@ namespace UETools.Pak
                     }
                 }
             }
+
+            return archive;
         }
 
         private uint _magic;
@@ -105,11 +111,11 @@ namespace UETools.Pak
         private SHA1Hash _indexHash;
         private byte _encryptedIndex;
         private Guid _encryptionIndexGuid;
+        private byte _indexIsFrozen;
         private List<FName> _compressionMethods = new List<FName>();
 
         private PakInfoSize _infoSize;
         private AesPakCryptoProvider? _aesProvider;
-
         private const int CompressionMethodNameLen = 32;
     }
 }

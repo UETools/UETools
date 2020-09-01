@@ -8,10 +8,11 @@ namespace UETools.Objects.KismetVM.Instructions
         public override EExprToken Expr => EExprToken.EX_Return;
         public Token RetVal { get; private set; } = null!;
 
-        public override void Deserialize(FArchive reader)
+        public override FArchive Serialize(FArchive archive)
         {
-            base.Deserialize(reader);
-            RetVal = Token.Read(reader);
+            base.Serialize(archive);
+            RetVal = Token.Read(archive);
+            return archive;
         }
 
         public override void ReadTo(TextWriter writer)

@@ -8,13 +8,15 @@ namespace UETools.Objects.Property
 {
     internal sealed class DelegateProperty : UProperty<FName>
     {
-        public override void Deserialize(FArchive reader, PropertyTag tag)
+        public override FArchive Serialize(FArchive reader, PropertyTag tag)
         {
-            reader.Read(out ObjectReference declaredIn);
+            ObjectReference? declaredIn = default;
+            reader.Read(ref declaredIn);
             if (tag.Size > 4)
-                reader.Read(out _value);
+                reader.Read(ref _value);
             else 
                 Debugger.Break();
+            return reader;
         }
     }
 }

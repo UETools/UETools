@@ -6,14 +6,12 @@ namespace UETools.Core.HistoryTypes
     {
         internal sealed class StringTableEntry : FTextHistory
         {
-            public override void Deserialize(FArchive reader)
+            public override FArchive Serialize(FArchive archive)
             {
-                base.Deserialize(reader);
-
-                reader.Read(out _tableId);
-                reader.Read(out _key);
-                // Read object 'TableID' as StringTable, get value for 'Key'
+                archive.Read(ref _tableId).Read(ref _key);
+                // TODO: Read object 'TableID' as StringTable, get value for 'Key'
                 throw new NotImplementedException($"{nameof(StringTableEntry)} parsing not implemented.");
+                return archive;
             }
 
             public override string ToString()

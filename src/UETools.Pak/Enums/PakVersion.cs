@@ -10,6 +10,7 @@
         DeleteRecords = 6,
         EncryptionKeyGuid = 7,
         FNameBasedCompressionMethod = 8,
+        FrozenIndex = 9,
 
         Last,
         Latest = Last - 1,

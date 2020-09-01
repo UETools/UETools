@@ -7,28 +7,31 @@ namespace UETools.Objects.Classes.Internal
 {
     internal class UStruct : UField
     {
-        public override void Deserialize(FArchive reader)
+        public override FArchive Serialize(FArchive archive)
         {
-            base.Deserialize(reader);
-            reader.Read(out _superStruct);
+            base.Serialize(archive)
+                .Read(ref _superStruct);
 
-            reader.Read(out int _childCount);
+            int _childCount = 0;
+            archive.Read(ref _childCount);
             for (var i = 0; i < _childCount; i++)
             {
-                reader.Read(out ObjectReference ChildRef);
+                ObjectReference? ChildRef = default;
+                archive.Read(ref ChildRef);
             }
 
-            reader.Read(out _scriptByteCodeSize);
-            reader.Read(out _scriptByteCodeOnDiskSize);
+            archive.Read(ref _scriptByteCodeSize)
+                  .Read(ref _scriptByteCodeOnDiskSize);
             if (_scriptByteCodeSize > 0)
             {
                 var xxx = new BlueprintReader();
-                xxx.Deserialize(reader);
+                xxx.Serialize(archive);
             }
+            return archive;
         }
 
-        private ResolvedObjectReference<UStruct> _superStruct = null!;
-        private ResolvedObjectReference<UField> _children = null!;
+        private ResolvedObjectReference<UStruct>? _superStruct;
+        private ResolvedObjectReference<UField>? _children;
         private int _scriptByteCodeSize;
         private int _scriptByteCodeOnDiskSize;
     }

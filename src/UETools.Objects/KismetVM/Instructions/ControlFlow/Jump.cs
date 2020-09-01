@@ -9,11 +9,9 @@ namespace UETools.Objects.KismetVM.Instructions
 
         public CodeSkipSize SkipCount { get => _skipCount; set => _skipCount = value; }
 
-        public override void Deserialize(FArchive reader)
-        {
-            base.Deserialize(reader);
-            reader.Read(out _skipCount);
-        }
+        public override FArchive Serialize(FArchive archive)
+            => base.Serialize(archive)
+                   .Read(ref _skipCount);
 
         public override void ReadTo(TextWriter writer) => writer.Write("Jump to {0}", SkipCount);
 

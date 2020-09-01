@@ -10,20 +10,15 @@ namespace UETools.Objects.Structures
     {
         struct LevelSequenceLegacyObjectReference : IUnrealStruct
         {
-            public void Deserialize(FArchive reader)
-            {
-                reader.Read(out _objectId);
-                reader.Read(out _objectPath);
-            }
+            public FArchive Serialize(FArchive archive)
+                => archive.Read(ref _objectId)
+                          .Read(ref _objectPath);
 
             Guid _objectId;
             FString _objectPath;
         }
-        public void Deserialize(FArchive reader)
-        {
-            reader.Read(out _map);
-        }
+        public FArchive Serialize(FArchive archive) => archive.Read(ref _map);
 
-        Dictionary<Guid, LevelSequenceLegacyObjectReference> _map;
+        Dictionary<Guid, LevelSequenceLegacyObjectReference>? _map;
     }
 }

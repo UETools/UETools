@@ -9,10 +9,11 @@ namespace UETools.Objects.KismetVM.Instructions
 
         public Token Offset { get; private set; } = null!;
 
-        public override void Deserialize(FArchive reader)
+        public override FArchive Serialize(FArchive archive)
         {
-            base.Deserialize(reader);
-            Offset = Token.Read(reader);
+            base.Serialize(archive);
+            Offset = Token.Read(archive);
+            return archive;
         }
 
         public override void ReadTo(TextWriter writer)

@@ -11,11 +11,12 @@ namespace UETools.Objects.KismetVM.Instructions
 
         public Token Expression { get; private set; } = null!;
 
-        public override void Deserialize(FArchive reader)
+        public override FArchive Serialize(FArchive archive)
         {
-            base.Deserialize(reader);
-            reader.Read(out _prop);
-            Expression = Token.Read(reader);
+            base.Serialize(archive)
+                .Read(ref _prop);
+            Expression = Token.Read(archive);
+            return archive;
         }
 
         public override void ReadTo(TextWriter writer)

@@ -6,15 +6,13 @@ using UETools.Core.Interfaces;
 
 namespace UETools.Assets.Internal.Asset
 {
-    internal class GatherableTextData : IUnrealDeserializable
+    internal class GatherableTextData : IUnrealSerializable
     {
-        public void Deserialize(FArchive reader)
-        {
-            reader.Read(out _namespaceName);
-            reader.Read(out _sourceData);
-            reader.Read(out _sourceSiteContexts);
-            throw new UnrealException($"{nameof(GatherableTextData)} is not implemented properly since I didn't have any samples using it. Feel free to share it with me!", new NotImplementedException());
-        }
+        // TODO: Verify! GatherableTextData might not be implemented properly since I didn't have any samples using it.
+        public FArchive Serialize(FArchive archive)
+            => archive.Read(ref _namespaceName)
+                      .Read(ref _sourceData)
+                      .Read(ref _sourceSiteContexts);
 
         private FString _namespaceName = null!;
         private TextSourceData _sourceData = null!;

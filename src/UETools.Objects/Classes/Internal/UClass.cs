@@ -9,44 +9,44 @@ namespace UETools.Objects.Classes.Internal
 {
     internal class UClass : UStruct
     {
-        class ImplementedInterface : IUnrealDeserializable
+        class ImplementedInterface : IUnrealSerializable
         {
-            public void Deserialize(FArchive reader)
-            {
-                reader.Read(out _class);
-                reader.Read(out _pointerOffset);
-                reader.Read(out _implementedByK2);
-            }
+            public FArchive Serialize(FArchive archive)
+                => archive.Read(ref _class)
+                          .Read(ref _pointerOffset)
+                          .Read(ref _implementedByK2);
 
             private ObjectReference _class = null!;
             private int _pointerOffset;
             private bool _implementedByK2;
         }
 
-        public override void Deserialize(FArchive reader)
+        public override FArchive Serialize(FArchive archive)
         {
-            base.Deserialize(reader);
-            reader.Read(out _funcMap);
-            reader.ReadUnsafe(out _flags);
+            base.Serialize(archive)
+                .Read(ref _funcMap)
+                .ReadUnsafe(ref _flags);
 
-            if (reader.Version < UE4Version.VER_UE4_CLASS_NOTPLACEABLE_ADDED)
+            if (archive.Version < UE4Version.VER_UE4_CLASS_NOTPLACEABLE_ADDED)
             {
                 _flags ^= EClassFlags.NotPlaceable;
                 if ((_flags & EClassFlags.NotPlaceable) == 0)
                     _flags |= EClassFlags.NotPlaceable;
             }
 
-            reader.Read(out _classWithin);
-            reader.Read(out _classConfigName);
+            archive.Read(ref _classWithin)
+                   .Read(ref _classConfigName);
 
-            if (reader.Version < UE4Version.VER_UE4_UCLASS_SERIALIZE_INTERFACES_AFTER_LINKING)
-                reader.Read(out _serializedInterface);
+            if (archive.Version < UE4Version.VER_UE4_UCLASS_SERIALIZE_INTERFACES_AFTER_LINKING)
+                archive.Read(ref _serializedInterface);
 
-            reader.Read(out _deprecatedForceScriptOrder);
-            reader.Read(out _dummy);
+            archive.Read(ref _deprecatedForceScriptOrder)
+                   .Read(ref _dummy);
 
-            if (reader.Version >= UE4Version.VER_UE4_ADD_COOKED_TO_UCLASS)
-                reader.Read(out _cooked);
+            if (archive.Version >= UE4Version.VER_UE4_ADD_COOKED_TO_UCLASS)
+                archive.Read(ref _cooked);
+
+            return archive;
         }
 
         private Dictionary<FName, ResolvedObjectReference<UFunction>> _funcMap = null!;

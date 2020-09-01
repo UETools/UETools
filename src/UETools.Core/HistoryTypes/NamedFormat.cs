@@ -4,13 +4,9 @@
     {
         internal sealed class NamedFormat : FTextHistory
         {
-            public override void Deserialize(FArchive reader)
-            {
-                base.Deserialize(reader);
-
-                reader.Read(out _format);
-                reader.Read(out _argument);
-            }
+            public override FArchive Serialize(FArchive archive)
+                => archive.Read(ref _format)
+                          .Read(ref _argument);
 
             public override string ToString()
             {

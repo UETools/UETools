@@ -6,7 +6,7 @@ using UETools.Core.Interfaces;
 namespace UETools.Pak
 {
     [DebuggerDisplay("{(int)_compressionStart}..{(int)_compressionEnd}")]
-    public struct PakCompressedBlock : IUnrealDeserializable, IEquatable<PakCompressedBlock>
+    public struct PakCompressedBlock : IUnrealSerializable, IEquatable<PakCompressedBlock>
     {
         public PakCompressedBlock(long start, long end)
         {
@@ -16,13 +16,11 @@ namespace UETools.Pak
 
         public long Start => _compressionStart;
         public long End => _compressionEnd;
-        public void Deserialize(FArchive reader)
-        {
-            reader.Read(out _compressionStart);
-            reader.Read(out _compressionEnd);
-        }
+        public FArchive Serialize(FArchive archive)
+            => archive.Read(ref _compressionStart)
+                      .Read(ref _compressionEnd);
 
-        public readonly PakCompressedBlock OffsetBy(long offset) 
+        internal readonly PakCompressedBlock OffsetBy(long offset) 
             => new PakCompressedBlock(_compressionStart - offset, _compressionEnd - offset);
 
         private long _compressionStart;

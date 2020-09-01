@@ -9,19 +9,21 @@ namespace UETools.Objects.Structures
 {
     class LevelSequenceBindingReferences : IUnrealStruct
     {
-        public void Deserialize(FArchive reader)
+        public FArchive Serialize(FArchive archive)
         {
-            foreach (var tag in PropertyTag.ReadToEnd(reader))
+            foreach (var tag in PropertyTag.ReadToEnd(archive))
             {
                 // TODO: Implement overriding processing?
                 if (tag.Name.ToString() == "BindingIdToReferences")
                 {
-                    reader.Read(out int x);
-                    reader.Read(out BindingIdToReferences);
+                    int x = 0;
+                    archive.Read(ref x);
+                    archive.Read(ref BindingIdToReferences);
                 }
             }
+            return archive;
         }
 
-        Dictionary<Guid, TaggedObject> BindingIdToReferences = null!;
+        Dictionary<Guid, TaggedObject>? BindingIdToReferences;
     }
 }

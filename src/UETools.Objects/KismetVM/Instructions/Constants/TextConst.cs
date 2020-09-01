@@ -9,10 +9,10 @@ namespace UETools.Objects.KismetVM.Instructions
 
         internal EBlueprintTextLiteralType TextLiteralType { get => _textLiteralType; set => _textLiteralType = value; }
 
-        public override void Deserialize(FArchive reader)
+        public override FArchive Serialize(FArchive archive)
         {
-            base.Deserialize(reader);
-            reader.ReadUnsafe(out _textLiteralType);
+            base.Serialize(archive)
+                .ReadUnsafe(ref _textLiteralType);
             switch (TextLiteralType)
             {
                 case EBlueprintTextLiteralType.Empty:
@@ -30,7 +30,8 @@ namespace UETools.Objects.KismetVM.Instructions
                     break;
             }
             // TODO: Implement
-            //reader.Read(out _value);
+            //reader.Read(ref _value);
+            return archive;
         }
 
         private EBlueprintTextLiteralType _textLiteralType;

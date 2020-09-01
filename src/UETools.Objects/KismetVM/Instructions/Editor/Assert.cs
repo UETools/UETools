@@ -12,12 +12,13 @@ namespace UETools.Objects.KismetVM.Instructions
         public byte InDebugMode { get => _inDebugMode; set => _inDebugMode = value; }
         public Token Test { get; private set; } = null!;
 
-        public override void Deserialize(FArchive reader)
+        public override FArchive Serialize(FArchive archive)
         {
-            base.Deserialize(reader);
-            reader.Read(out _lineNumber);
-            reader.Read(out _inDebugMode);
-            Test = Token.Read(reader);
+            base.Serialize(archive)
+                .Read(ref _lineNumber)
+                .Read(ref _inDebugMode);
+            Test = Token.Read(archive);
+            return archive;
         }
 
         public override void ReadTo(TextWriter writer)

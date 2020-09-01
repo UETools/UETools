@@ -7,10 +7,7 @@ namespace UETools.Objects.Structures
 {
     struct GameplayTagContainer : IUnrealStruct
     {
-        public void Deserialize(FArchive reader)
-        {
-            reader.Read(out _tags);
-        }
+        public FArchive Serialize(FArchive archive) => archive.Read(ref _tags);
 
         public override string ToString() => new StringBuilder()
             .Append("{ ")

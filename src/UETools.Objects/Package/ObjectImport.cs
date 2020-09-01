@@ -4,15 +4,13 @@ using UETools.Objects.Classes;
 
 namespace UETools.Objects.Package
 {
-    public sealed class ObjectImport : ObjectResource, IUnrealDeserializable
+    public sealed class ObjectImport : ObjectResource, IUnrealSerializable
     {
-        public void Deserialize(FArchive reader)
-        {
-            reader.Read(out _classPackage);
-            reader.Read(out _className);
-            reader.Read(out _outerIndex);
-            reader.Read(out _objectName);
-        }
+        public FArchive Serialize(FArchive archive)
+            => archive.Read(ref _classPackage)
+                      .Read(ref _className)
+                      .Read(ref _outerIndex)
+                      .Read(ref _objectName);
 
         public override void Fix(FArchive reader)
         {

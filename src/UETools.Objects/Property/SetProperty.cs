@@ -13,10 +13,11 @@ namespace UETools.Objects.Property
 {
     internal sealed class SetProperty : PropertyCollectionBase<HashSet<IProperty>>
     {
-        public override void Deserialize(FArchive reader, PropertyTag tag)
+        public override FArchive Serialize(FArchive reader, PropertyTag tag)
         {
-            reader.Read(out int unknown);
-            base.Deserialize(reader, tag);
+            int unknown = 0;
+            reader.Read(ref unknown);
+            base.Serialize(reader, tag);
             if (tag.InnerTypeEnum.TryGetAttribute(out LinkedTypeAttribute? attrib))
             {
                 _value = new HashSet<IProperty>(Count);
@@ -24,10 +25,11 @@ namespace UETools.Objects.Property
                 for (int i = 0; i < Count; i++)
                 {
                     var prop = func();
-                    prop.Deserialize(reader, tag);
+                    prop.Serialize(reader, tag);
                     _value.Add(prop);
                 }
             }
+            return reader;
         }
     }
 }

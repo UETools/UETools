@@ -9,7 +9,7 @@ using UETools.Core.Interfaces;
 namespace UETools.Objects
 {
     [DebuggerDisplay("{TypeEnum} {Name}")]
-    public partial class PropertyTag : IUnrealDeserializable
+    public partial class PropertyTag : IUnrealSerializable
     {
         public FName Name { get => _name; set => _name = value; }
         public FName Type { get => _type; set => _type = value; }
@@ -29,74 +29,76 @@ namespace UETools.Objects
 
         public long PropertyEnd { get; private set; }
 
-        public void Deserialize(FArchive reader)
+        public FArchive Serialize(FArchive archive)
         {
-            var version = reader.Version;
-            reader.Read(out _name);
+            var version = archive.Version;
+            archive.Read(ref _name);
             if (Name.IsNone())
-                return;
+                return archive;
 
-            reader.Read(out _type);
+            archive.Read(ref _type);
 
             var foundType = Enum.TryParse(Type, out _typeEnum);
             Debug.WriteLineIf(!foundType, $"Unimplemented property type: {_type}");
 
-            reader.Read(out _size);
-            reader.Read(out _arrayIndex);
+            archive.Read(ref _size)
+                   .Read(ref _arrayIndex);
 
             switch (TypeEnum)
             {
                 case PropertyType.StructProperty:
-                    reader.Read(out _structName);
+                    archive.Read(ref _structName);
                     if (version >= UE4Version.VER_UE4_STRUCT_GUID_IN_PROPERTY_TAG)
                     {
-                        reader.Read(out _structGuid);
+                        archive.Read(ref _structGuid);
                     }
                     break;
                 case PropertyType.BoolProperty:
-                    reader.Read(out _boolVal);
+                    archive.Read(ref _boolVal);
                     break;
                 case PropertyType.ByteProperty:
                 case PropertyType.EnumProperty:
-                    reader.Read(out _enumName);
+                    archive.Read(ref _enumName);
                     break;
                 case PropertyType.ArrayProperty when version >= UE4Version.VAR_UE4_ARRAY_PROPERTY_INNER_TAGS:
                 case PropertyType.SetProperty when version >= UE4Version.VER_UE4_PROPERTY_TAG_SET_MAP_SUPPORT:
-                    reader.Read(out _innerType);
+                    archive.Read(ref _innerType);
                     break;
                 case PropertyType.MapProperty when version >= UE4Version.VER_UE4_PROPERTY_TAG_SET_MAP_SUPPORT:
-                    reader.Read(out _innerType);
-                    reader.Read(out _valueType);
+                    archive.Read(ref _innerType)
+                           .Read(ref _valueType);
                     break;
             }
 
             if (version >= UE4Version.VER_UE4_PROPERTY_GUID_IN_PROPERTY_TAG)
             {
-                reader.Read(out _hasPropertyGuid);
+                archive.Read(ref _hasPropertyGuid);
                 if (_hasPropertyGuid != 0)
                 {
-                    reader.Read(out _propertyGuid);
+                    archive.Read(ref _propertyGuid);
                 }
             }
 
-
-            PropertyEnd = reader.Tell() + Size;
+            PropertyEnd = archive.Tell() + Size;
 
             if (_innerType is null)
-                return;
+                return archive;
             var foundInner = Enum.TryParse(_innerType, out _innerTypeEnum);
             Debug.WriteLineIf(!foundInner, $"Unimplemented inner type: {_innerType}");
             if (_valueType is null)
-                return;
+                return archive;
             var foundValue = Enum.TryParse(_valueType, out _valueTypeEnum);
             Debug.WriteLineIf(!foundValue, $"Unimplemented value type: {_valueType}");
+
+            return archive;
         }
 
         public static IEnumerable<PropertyTag> ReadToEnd(FArchive reader)
         {
             while (true)
             {
-                reader.Read(out PropertyTag tag);
+                PropertyTag? tag = default;
+                reader.Read(ref tag);
                 if (tag.Name.IsNone())
                     break;
 

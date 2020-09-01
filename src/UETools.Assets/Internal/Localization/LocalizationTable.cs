@@ -9,66 +9,76 @@ using UETools.Core.Interfaces;
 
 namespace UETools.Assets.Internal.Localization
 {
-    internal class LocalizationTable : IUnrealDeserializable, IUnrealReadable
+    internal class LocalizationTable : IUnrealSerializable, IUnrealReadable
     {
-        public void Deserialize(FArchive reader)
+        public FArchive Serialize(FArchive archive)
         {
-            var VersionNumber = (ELocResVersion)reader.AssetVersion;
+            var VersionNumber = (ELocResVersion)archive.AssetVersion;
             var IsCompact = VersionNumber >= ELocResVersion.Compact;
-            var LocalizedStringArray = new List<LocalizationString>();
+            List<LocalizationString> LocalizedStringArray = new List<LocalizationString>();
             if (IsCompact)
             {
-                reader.Read(out long LocalizedStringArrayOffset);
-                if (LocalizedStringArrayOffset != -1)
+                long localizedStringArrayOffset = 0;
+                archive.Read(ref localizedStringArrayOffset);
+                if (localizedStringArrayOffset != -1)
                 {
-                    var offset = reader.Tell();
-                    reader.Seek(LocalizedStringArrayOffset);
+                    var offset = archive.Tell();
+                    archive.Seek(localizedStringArrayOffset);
                     if (VersionNumber >= ELocResVersion.Optimized)
                     {
-                        reader.Read(out LocalizedStringArray);
+                        archive.Read(ref LocalizedStringArray!);
                     }
                     else
                     {
-                        reader.Read(out List<FString> tempStringArray);
+                        List<FString>? tempStringArray = default;
+                        archive.Read(ref tempStringArray);
                         LocalizedStringArray.AddRange(tempStringArray.Select(t => new LocalizationString(t)));
                     }
-                    reader.Seek(offset);
+                    archive.Seek(offset);
                 }
             }
 
             if (VersionNumber >= ELocResVersion.Optimized)
             {
-                reader.Read(out uint EntryCount);
+                uint entryCount = 0;
+                archive.Read(ref entryCount);
             }
-
-            reader.Read(out int NamespaceCount);
-            for (var i = 0; i < NamespaceCount; i++)
+            int namespaceCount = 0;
+            archive.Read(ref namespaceCount);
+            for (var i = 0; i < namespaceCount; i++)
             {
-                reader.Read(out LocalizationKey _namespace);
+                LocalizationKey? _namespace = default;
+                archive.Read(ref _namespace);
                 var KeyTable = _namespaces.FindOrAdd(_namespace);
-                reader.Read(out int KeyCount);
-                for (var j = 0; j < KeyCount; j++)
+                int keyCount = 0;
+                archive.Read(ref keyCount);
+                for (var j = 0; j < keyCount; j++)
                 {
-                    reader.Read(out LocalizationKey _key);
+                    LocalizationKey? _key = default;
+                    archive.Read(ref _key);
                     var Entry = KeyTable.FindOrAdd(_key);
 
-                    reader.Read(out int hash);
+                    int hash = 0;
+                    archive.Read(ref hash);
                     Entry.SourceStringHash = hash;
                     if (IsCompact)
                     {
-                        reader.Read(out int LocalizedStringIndex);
-                        if (LocalizedStringIndex > -1 && LocalizedStringIndex < LocalizedStringArray.Count)
+                        int localizedStringIndex = 0;
+                        archive.Read(ref localizedStringIndex);
+                        if (localizedStringIndex > -1 && localizedStringIndex < LocalizedStringArray.Count)
                         {
-                            Entry.LocalizedString = LocalizedStringArray[LocalizedStringIndex].Value;
+                            Entry.LocalizedString = LocalizedStringArray[localizedStringIndex].Value;
                         }
                     }
                     else
                     {
-                        reader.Read(out FString LocalizedString);
-                        Entry.LocalizedString = LocalizedString;
+                        FString? localizedString = default;
+                        archive.Read(ref localizedString);
+                        Entry.LocalizedString = localizedString;
                     }
                 }
             }
+            return archive;
         }
 
         public void ReadTo(IndentedTextWriter writer)

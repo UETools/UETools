@@ -11,11 +11,12 @@ namespace UETools.Objects.KismetVM.Instructions
         public Token ArrayToken { get; private set; } = null!;
         public TokenList Items { get; } = new TokenList();
 
-        public override void Deserialize(FArchive reader)
+        public override FArchive Serialize(FArchive archive)
         {
-            base.Deserialize(reader);
-            ArrayToken = Token.Read(reader);
-            Items.ReadUntil(reader, EExprToken.EX_EndArray);
+            base.Serialize(archive);
+            ArrayToken = Token.Read(archive);
+            Items.ReadUntil(archive, EExprToken.EX_EndArray);
+            return archive;
         }
 
         public override void ReadTo(TextWriter writer)

@@ -8,11 +8,11 @@ namespace UETools.Objects.Classes
 {
     sealed class Material : UObject
     {
-        public override void Deserialize(FArchive reader)
+        public override FArchive Serialize(FArchive archive)
         {
-            base.Deserialize(reader);
+            base.Serialize(archive);
             // TODO: Material data
-            return;
+            return archive;
         }
     }
 }

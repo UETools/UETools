@@ -6,19 +6,19 @@ using UETools.Core.Interfaces;
 
 namespace UETools.Assets.Internal.Localization
 {
-    internal class LocalizationKey : IUnrealDeserializable, IEquatable<string>, IEquatable<LocalizationKey>
+    internal class LocalizationKey : IUnrealSerializable, IEquatable<string>, IEquatable<LocalizationKey>
     {
         public static implicit operator LocalizationKey(string value) => new LocalizationKey(value);
 
         public LocalizationKey() { }
         public LocalizationKey(FString value) => _value = value;
 
-        public void Deserialize(FArchive reader)
+        public FArchive Serialize(FArchive archive)
         {
-            if (reader.AssetVersion >= (int)ELocResVersion.Optimized)
-                reader.Read(out _hash);
+            if (archive.AssetVersion >= (int)ELocResVersion.Optimized)
+                archive.Read(ref _hash);
 
-            reader.Read(out _value);
+            return archive.Read(ref _value);
         }
 
         public override string ToString() => _value.ToString();

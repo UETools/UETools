@@ -7,14 +7,17 @@ namespace UETools.Objects.Property
 {
     internal sealed class MulticastDelegateProperty : UProperty<FName>
     {
-        public override void Deserialize(FArchive reader, PropertyTag tag)
+        public override FArchive Serialize(FArchive reader, PropertyTag tag)
         {
-            reader.Read(out ObjectReference declaredIn);
+            ObjectReference? declaredIn = default;
+            reader.Read(ref declaredIn);
             if (declaredIn.Resource != null)
             {
-                reader.ReadUnsafe(out EFunctionFlags flags);
-                reader.Read(out _value);
+                EFunctionFlags flags = default;
+                reader.ReadUnsafe(ref flags);
+                reader.Read(ref _value);
             }
+            return reader;
         }
     }
 }

@@ -66,7 +66,8 @@ namespace UETools.Objects
             [LinkedType(typeof(MulticastSparseDelegateProperty))]
             MulticastSparseDelegateProperty = 26,
 
-
+            [LinkedType(typeof(FieldPathProperty))]
+            FieldPathProperty = 27,
         }
     }
 }

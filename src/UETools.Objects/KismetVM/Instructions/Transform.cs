@@ -4,14 +4,12 @@ using UETools.Objects.Structures;
 
 namespace UETools.Objects.KismetVM.Instructions
 {
-    internal struct Transform : IUnrealDeserializable
+    internal struct Transform : IUnrealSerializable
     {
-        public void Deserialize(FArchive reader)
-        {
-            reader.Read(out _rot);
-            reader.Read(out _trans);
-            reader.Read(out _scale);
-        }
+        public FArchive Serialize(FArchive archive)
+            => archive.Read(ref _rot)
+                      .Read(ref _trans)
+                      .Read(ref _scale);
 
         Vector4 _rot;
         Vector _trans;

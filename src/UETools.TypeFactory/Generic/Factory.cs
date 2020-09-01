@@ -19,7 +19,7 @@ namespace UETools.TypeFactory
         /// <returns>An instance of type <typeparamref name="T"/>.</returns>
         [return: NotNull]
 #pragma warning disable CA1000 // Do not declare static members on generic types
-        public static T CreateInstance() => _createInstanceFunc();
+        public static T CreateInstance() => _createInstanceFunc()!;
 
         public static Func<T> GetFactoryFunc() => _createInstanceFunc;
 #pragma warning restore CA1000 // Do not declare static members on generic types

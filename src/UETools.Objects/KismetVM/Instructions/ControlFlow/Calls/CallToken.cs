@@ -4,16 +4,17 @@ using UETools.Core.Interfaces;
 
 namespace UETools.Objects.KismetVM.Instructions
 {
-    internal abstract class CallToken<T> : Token where T : notnull, IUnrealDeserializable, new()
+    internal abstract class CallToken<T> : Token where T : notnull, IUnrealSerializable, new()
     {
         public T CallTo => _callTo;
         public TokenList Params { get; } = new TokenList();
 
-        public override void Deserialize(FArchive reader)
+        public override FArchive Serialize(FArchive archive)
         {
-            base.Deserialize(reader);
-            reader.Read(out _callTo);
-            Params.ReadUntil(reader, EExprToken.EX_EndFunctionParms);
+            base.Serialize(archive)
+                .Read(ref _callTo);
+            Params.ReadUntil(archive, EExprToken.EX_EndFunctionParms);
+            return archive;
         }
         public override void ReadTo(TextWriter writer)
         {

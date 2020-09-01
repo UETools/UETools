@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 
 namespace UETools.Core
@@ -52,13 +53,13 @@ namespace UETools.Core
         /// </summary>
         /// <param name="other">The <see langword="string"/> to compare to this instance.</param>
         /// <returns><see langword="true"/> if the value of the value parameter is the same as the value of this instance; otherwise, <see langword="false"/>. If value is <see langword="null"/>, the method returns <see langword="false"/>.</returns>
-        public bool Equals(string other) => Value.Equals(other);
+        public bool Equals([AllowNull] string other) => Value.Equals(other);
         /// <summary>
         /// Determines whether this instance and another specified <see cref="FString"/> object have the same underlying <see langword="string"/> value.
         /// </summary>
         /// <param name="other">The instance to compare with.</param>
         /// <returns><see langword="true"/> if the value of the value parameter is the same as the value of this instance; otherwise, <see langword="false"/>. If value is <see langword="null"/>, the method returns <see langword="false"/>.</returns>
-        public bool Equals(FString other) => Value.Equals(other.Value);
+        public bool Equals([AllowNull] FString other) => Value.Equals(other?.Value);
 
         /// <summary>
         /// Retrieves an object that can iterate through the individual characters in the underlying string.
@@ -73,7 +74,7 @@ namespace UETools.Core
         /// </summary>
         /// <param name="other">The <see langword="string"/> to compare with this instance.</param> 
         /// <returns>A 32-bit signed integer that indicates whether this instance precedes, follows, or appears in the same position in the sort order as the <paramref name="other"/> parameter.</returns>
-        public int CompareTo(string other) => Value.CompareTo(other);
+        public int CompareTo(string? other) => Value.CompareTo(other);
         /// <summary>
         /// Compares this instance with a specified <see langword="object"/> and indicates whether this instance precedes, follows, or appears in the same position in the sort order as the specified <see langword="object"/>.
         /// </summary>

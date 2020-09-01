@@ -19,7 +19,12 @@ class Program
                 using (var data = entry.Read())
                 {
                     data.Version = UE4Version.VER_UE4_AUTOMATIC_VERSION;
-                    data.Read(out UAssetAsset asset);
+                    UAssetAsset? asset = default;
+                    data.Read(ref asset);
+                    if(asset.IsValid)
+                    {
+
+                    }
                 }
             }
         }
