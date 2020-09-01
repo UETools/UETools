@@ -6,7 +6,7 @@ namespace UETools.Assets.Internal.Asset
 {
     internal class LocMetadataObject : IUnrealSerializable
     {
-        public FArchive Serialize(FArchive reader) => reader.Read(ref _values);
+        public FArchive Serialize(FArchive archive) => archive.Read(ref _values);
 
         private Dictionary<FString, LocMetadataValue> _values = null!;
     }

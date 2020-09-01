@@ -6,7 +6,7 @@ namespace UETools.Objects.Structures
 {
     public struct Guid : IUnrealStruct, System.IEquatable<Guid>, System.IEquatable<System.Guid>
     {
-        public FArchive Serialize(FArchive reader) => reader.Read(ref _guid);
+        public FArchive Serialize(FArchive archive) => archive.Read(ref _guid);
 
         public override string ToString() => _guid.ToString();
 

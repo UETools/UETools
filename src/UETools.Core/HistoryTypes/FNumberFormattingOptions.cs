@@ -13,15 +13,15 @@ namespace UETools.Core.HistoryTypes
         public int MinimumFractionalDigits { get => _minimumFractionalDigits; set => _minimumFractionalDigits = value; }
         public int MaximumFractionalDigits { get => _maximumFractionalDigits; set => _maximumFractionalDigits = value; }
 
-        public FArchive Serialize(FArchive reader) =>
+        public FArchive Serialize(FArchive archive) =>
             // TODO: Dependent on custom versions
-            //reader.Read(ref _alwaysSign);
-            reader.Read(ref _useGrouping)
-                  .ReadUnsafe(ref _roundingMode)
-                  .Read(ref _minimumIntegralDigits)
-                  .Read(ref _maximumIntegralDigits)
-                  .Read(ref _minimumFractionalDigits)
-                  .Read(ref _maximumFractionalDigits);
+            //archive.Read(ref _alwaysSign);
+            archive.Read(ref _useGrouping)
+                   .ReadUnsafe(ref _roundingMode)
+                   .Read(ref _minimumIntegralDigits)
+                   .Read(ref _maximumIntegralDigits)
+                   .Read(ref _minimumFractionalDigits)
+                   .Read(ref _maximumFractionalDigits);
 
         private bool _alwaysSign;
         private bool _useGrouping;

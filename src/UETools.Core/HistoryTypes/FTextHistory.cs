@@ -10,7 +10,7 @@ namespace UETools.Core.HistoryTypes
 {
     internal abstract partial class FTextHistory : IUnrealSerializable
     {
-        public abstract FArchive Serialize(FArchive reader);
+        public abstract FArchive Serialize(FArchive archive);
 
         internal static IReadOnlyDictionary<TextHistoryType, Func<FTextHistory>> HistoryTypes { get; } = new ReadOnlyDictionary<TextHistoryType, Func<FTextHistory>>(
             Enum.GetValues(typeof(TextHistoryType))

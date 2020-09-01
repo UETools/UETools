@@ -7,18 +7,18 @@ namespace UETools.Core.HistoryTypes
     [DebuggerDisplay("{_argumentName.ToString()}: {_argumentValue.ToString()}")]
     class FFormatArgumentData : IUnrealSerializable
     {
-        public FArchive Serialize(FArchive reader)
+        public FArchive Serialize(FArchive archive)
         {
-            if (reader.Version >= UE4Version.VER_UE4_K2NODE_VAR_REFERENCEGUIDS)
+            if (archive.Version >= UE4Version.VER_UE4_K2NODE_VAR_REFERENCEGUIDS)
             {
                 FString? _arg = default;
-                reader.Read(ref _arg);
+                archive.Read(ref _arg);
                 _argumentName = FText.FromString(_arg);
             }
             else
-                reader.Read(ref _argumentName);
+                archive.Read(ref _argumentName);
 
-            return reader.Read(ref _argumentValue);
+            return archive.Read(ref _argumentValue);
         }
 
         public string Replace(string sourceValue)

@@ -16,9 +16,9 @@ namespace UETools.Pak
 
         public long Start => _compressionStart;
         public long End => _compressionEnd;
-        public FArchive Serialize(FArchive reader)
-            => reader.Read(ref _compressionStart)
-                     .Read(ref _compressionEnd);
+        public FArchive Serialize(FArchive archive)
+            => archive.Read(ref _compressionStart)
+                      .Read(ref _compressionEnd);
 
         internal readonly PakCompressedBlock OffsetBy(long offset) 
             => new PakCompressedBlock(_compressionStart - offset, _compressionEnd - offset);

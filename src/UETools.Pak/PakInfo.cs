@@ -51,7 +51,6 @@ namespace UETools.Pak
         };
 
         private PakInfo(PakInfoSize infoSize) => _infoSize = infoSize;
-        internal PakInfo(Memory<byte> data) : this((PakInfoSize)data.Length) => Serialize(new FArchive(data));
         internal PakInfo(Memory<byte> data, AesPakCryptoProvider? aesProvider) : this((PakInfoSize)data.Length)
         {
             _aesProvider = aesProvider;
@@ -59,26 +58,26 @@ namespace UETools.Pak
             Serialize(ar);
         }
 
-        public FArchive Serialize(FArchive reader)
+        public FArchive Serialize(FArchive archive)
         {
-            reader.Read(ref _encryptionIndexGuid);
-            reader.Read(ref _encryptedIndex)
-                  .Read(ref _magic);
+            archive.Read(ref _encryptionIndexGuid)
+                   .Read(ref _encryptedIndex)
+                   .Read(ref _magic);
 
             if (!IsUnrealPak)
-                return reader;
+                return archive;
 
-            reader.ReadUnsafe(ref _version)
-                  .Read(ref _indexOffset)
-                  .Read(ref _indexSize)
-                  .Read(ref _indexHash);
+            archive.ReadUnsafe(ref _version)
+                   .Read(ref _indexOffset)
+                   .Read(ref _indexSize)
+                   .Read(ref _indexHash);
             if (_version < PakVersion.IndexEncryption)
                 _encryptedIndex = 0;
             if (_version < PakVersion.EncryptionKeyGuid)
                 _encryptionIndexGuid = default;
 
             if (_version >= PakVersion.FrozenIndex)
-                reader.Read(ref _indexIsFrozen);
+                archive.Read(ref _indexIsFrozen);
 
             if (_version < PakVersion.FNameBasedCompressionMethod)
             {
@@ -88,9 +87,9 @@ namespace UETools.Pak
             }
             else
             {
-                var remainingBytes = (int)(reader.Length() - reader.Tell());
+                var remainingBytes = (int)(archive.Length() - archive.Tell());
                 Span<byte> shit = default;
-                reader.Read(ref shit, remainingBytes);
+                archive.Read(ref shit, remainingBytes);
                 for (int Index = 0, start = 0; start < shit.Length; start = ++Index * CompressionMethodNameLen)
                 {
                     var MethodString = shit.Slice(start, CompressionMethodNameLen);
@@ -102,7 +101,7 @@ namespace UETools.Pak
                 }
             }
 
-            return reader;
+            return archive;
         }
 
         private uint _magic;

@@ -10,17 +10,17 @@ namespace UETools.Core
         public NameTable() { }
         public NameTable(int length) : base(length) { }
 
-        public override FArchive Serialize(FArchive reader)
+        public override FArchive Serialize(FArchive archive)
         {
             if (ItemCount.HasValue)
-                reader.Read(ref _nameEntries, ItemCount.Value);
+                archive.Read(ref _nameEntries, ItemCount.Value);
             else
-                reader.Read(ref _nameEntries);
+                archive.Read(ref _nameEntries);
 
             Items.AddRange(_nameEntries.Select(entry => entry.Name));
 
             // Add table to dictionary after it's filled
-            return base.Serialize(reader);
+            return base.Serialize(archive);
         }
 
         private List<NameEntrySerialized> _nameEntries = null!;

@@ -14,15 +14,15 @@ namespace UETools.Objects.Package
         public ExportTable() : base() { }
         public ExportTable(int length) : base(length) { }
 
-        public override FArchive Serialize(FArchive reader)
+        public override FArchive Serialize(FArchive archive)
         {
-            base.Serialize(reader);
+            base.Serialize(archive);
             if (ItemCount.HasValue)
-                reader.Read(ref _entries, ItemCount.Value);
+                archive.Read(ref _entries, ItemCount.Value);
             else
-                reader.Read(ref _entries);
+                archive.Read(ref _entries);
 
-            return reader;
+            return archive;
         }
 
 

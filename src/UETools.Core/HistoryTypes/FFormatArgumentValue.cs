@@ -8,57 +8,57 @@ namespace UETools.Core.HistoryTypes
     {
         public object Value { get; private set; } = null!;
 
-        public FArchive Serialize(FArchive reader)
+        public FArchive Serialize(FArchive archive)
         {
-            reader.ReadUnsafe(ref _type);
+            archive.ReadUnsafe(ref _type);
             switch (_type)
             {
                 case FormatArgumentType.Int:
                     {
                         long value = default!;
-                        reader.Read(ref value);
+                        archive.Read(ref value);
                         Value = value;
                         break;
                     }
                 case FormatArgumentType.UInt:
                     {
                         ulong value = default!;
-                        reader.Read(ref value);
+                        archive.Read(ref value);
                         Value = value;
                         break;
                     }
                 case FormatArgumentType.Float:
                     {
                         float value = default!;
-                        reader.Read(ref value);
+                        archive.Read(ref value);
                         Value = value;
                         break;
                     }
                 case FormatArgumentType.Double:
                     {
                         double value = default!;
-                        reader.Read(ref value);
+                        archive.Read(ref value);
                         Value = value;
                         break;
                     }
                 case FormatArgumentType.Text:
                     {
                         FText value = default!;
-                        reader.Read(ref value);
+                        archive.Read(ref value);
                         Value = value;
                         break;
                     }
                 case FormatArgumentType.Gender:
                     {
                         TextGender value = default!;
-                        reader.ReadUnsafe(ref value);
+                        archive.ReadUnsafe(ref value);
                         Value = value;
                         break;
                     }
                 default:
                     throw new NotImplementedException();
             }
-            return reader;
+            return archive;
         }
 
         public override string ToString()

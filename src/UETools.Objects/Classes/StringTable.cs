@@ -12,13 +12,13 @@ namespace UETools.Objects.Classes
         {
             public Dictionary<FName, FString> Meta { get => _meta; set => _meta = value; }
 
-            public FArchive Serialize(FArchive reader) => reader.Read(ref _meta);
+            public FArchive Serialize(FArchive archive) => archive.Read(ref _meta);
 
             private Dictionary<FName, FString> _meta = null!;
         }
 
-        public override FArchive Serialize(FArchive reader) 
-            => base.Serialize(reader)
+        public override FArchive Serialize(FArchive archive)
+            => base.Serialize(archive)
                    .Read(ref _namespace)
                    .Read(ref _keySourceStringMap)
                    .Read(ref _keysToMetaData);

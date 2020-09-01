@@ -13,11 +13,11 @@ namespace UETools.Assets.Internal.Asset
         public int CompressedOffset { get => _compressedOffset; set => _compressedOffset = value; }
         public int CompressedSize { get => _compressedSize; set => _compressedSize = value; }
 
-        public FArchive Serialize(FArchive reader)
-            => reader.Read(ref _uncompressedOffset)
-                     .Read(ref _uncompressedSize)
-                     .Read(ref _compressedOffset)
-                     .Read(ref _compressedSize);
+        public FArchive Serialize(FArchive archive)
+            => archive.Read(ref _uncompressedOffset)
+                      .Read(ref _uncompressedSize)
+                      .Read(ref _compressedOffset)
+                      .Read(ref _compressedSize);
 
         private int _uncompressedOffset;
         private int _uncompressedSize;

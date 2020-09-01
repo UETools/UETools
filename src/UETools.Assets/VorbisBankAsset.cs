@@ -12,7 +12,7 @@ namespace UETools.Assets
     [UnrealAssetFile(".bnk")]
     class VorbisBankAsset : IUnrealSerializable, IUnrealReadable
     {
-        public FArchive Serialize(FArchive reader) => reader;
+        public FArchive Serialize(FArchive archive) => archive;
 
         public void ReadTo(IndentedTextWriter writer)
         {

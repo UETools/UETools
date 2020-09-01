@@ -13,35 +13,35 @@ namespace UETools.Core
         public CustomVersionContainer(CustomVersionSerializationFormat format) => _type = format;
 
         internal List<CustomVersion> Versions { get; set; } = null!;
-        public FArchive Serialize(FArchive reader)
+        public FArchive Serialize(FArchive archive)
         {
             switch (_type)
             {
                 case CustomVersionSerializationFormat.Guids:
                     {
                         List<GuidCustomVersion> _versions = default!;
-                        reader.Read(ref _versions);
+                        archive.Read(ref _versions);
                         Versions = new List<CustomVersion>(_versions.Cast<CustomVersion>());
                         break;
                     }
                 case CustomVersionSerializationFormat.Enums:
                     {
                         List<EnumCustomVersion> _versions = default!;
-                        reader.Read(ref _versions);
+                        archive.Read(ref _versions);
                         Versions = new List<CustomVersion>(_versions.Cast<CustomVersion>());
                         break;
                     }
                 case CustomVersionSerializationFormat.Optimized:
                     {
                         List<CustomVersion> _versions = default!;
-                        reader.Read(ref _versions);
+                        archive.Read(ref _versions);
                         Versions = _versions;
                         break;
                     }
                 default:
                     throw new UnrealException($"{_type} custom version not implemented");
             }
-            return reader;
+            return archive;
         }
 
         private CustomVersionSerializationFormat _type;

@@ -2,9 +2,11 @@
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using UETools.Assets.Internal.Asset;
 using UETools.Core;
 using UETools.Core.Interfaces;
+using UETools.Objects.Classes;
 using UETools.Objects.Package;
 
 namespace UETools.Assets
@@ -14,39 +16,41 @@ namespace UETools.Assets
     {
         public bool IsValid => _summary.IsAssetFile;
 
-        public FArchive Serialize(FArchive reader)
+        public IEnumerable<T> GetExportsOfType<T>() where T : TaggedObject => _exports.Items.Select(x => x.Object as T).OfType<T>();
+
+        public FArchive Serialize(FArchive archive)
         {
-            reader.Read(ref _summary);
+            archive.Read(ref _summary);
             if (!IsValid)
-                return reader;
+                return archive;
 
-            reader.Seek(_summary.NameOffset);
+            archive.Seek(_summary.NameOffset);
             _nameMap = new NameTable(_summary.NameCount);
-            _nameMap.Serialize(reader);
+            _nameMap.Serialize(archive);
 
-            reader.Seek(_summary.ImportOffset);
+            archive.Seek(_summary.ImportOffset);
             _imports = new ImportTable(_summary.ImportCount);
-            _imports.Serialize(reader);
+            _imports.Serialize(archive);
 
-            reader.Seek(_summary.ExportOffset);
+            archive.Seek(_summary.ExportOffset);
             _exports = new ExportTable(_summary.ExportCount);
-            _exports.Serialize(reader);
+            _exports.Serialize(archive);
 
-            reader.Seek(_summary.SoftPackageReferencesOffset);
-            reader.Read(ref _stringAssetReferences, _summary.SoftPackageReferencesCount);
+            archive.Seek(_summary.SoftPackageReferencesOffset);
+            archive.Read(ref _stringAssetReferences, _summary.SoftPackageReferencesCount);
 
-            reader.Seek(_summary.GatherableTextDataOffset);
-            reader.Read(ref _gatherableTextDataMap, _summary.GatherableTextDataCount);
+            archive.Seek(_summary.GatherableTextDataOffset);
+            archive.Read(ref _gatherableTextDataMap, _summary.GatherableTextDataCount);
 
             foreach (var imp in _imports.Items)
-                imp.Fix(reader);
+                imp.Fix(archive);
             foreach (var exp in _exports.Items)
-                exp.Fix(reader);
+                exp.Fix(archive);
 
-            return reader;
+            return archive;
         }
 
-        public IEnumerable<ObjectExport> GetAssets() => _exports.GetAssets();
+        private IEnumerable<ObjectExport> GetAssets() => _exports.GetAssets();
 
         public ObjectExport? GetClass() => _exports.GetClass();
 

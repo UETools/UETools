@@ -10,18 +10,18 @@ namespace UETools.Core.HistoryTypes
             protected FFormatArgumentValue SourceValue => _sourceValue;
             protected CultureInfo Culture { get; private set; } = null!;
 
-            public override FArchive Serialize(FArchive reader)
+            public override FArchive Serialize(FArchive archive)
             {
                 var hasFormatOptions = false;
-                reader.Read(ref _sourceValue)
+                archive.Read(ref _sourceValue)
                       .Read(ref hasFormatOptions);
 
                 if (hasFormatOptions)
-                    reader.Read(ref _formatting);
+                    archive.Read(ref _formatting);
 
-                reader.Read(ref _cultureName);
+                archive.Read(ref _cultureName);
                 Culture = CultureInfo.GetCultureInfoByIetfLanguageTag(_cultureName);
-                return reader;
+                return archive;
             }
 
             protected string BuildDisplayString()

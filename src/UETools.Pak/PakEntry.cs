@@ -34,29 +34,29 @@ namespace UETools.Pak
 
         public PakEntry(PakFile pakFile) => Owner = pakFile;
 
-        public FArchive Serialize(FArchive reader)
+        public FArchive Serialize(FArchive archive)
         {
-            var start = reader.Tell();
-            var pakVersion = (PakVersion)reader.AssetVersion;
-            reader.Read(ref _offset)
-                  .Read(ref _size)
-                  .Read(ref _uncompressedSize);
+            var start = archive.Tell();
+            var pakVersion = (PakVersion)archive.AssetVersion;
+            archive.Read(ref _offset)
+                   .Read(ref _size)
+                   .Read(ref _uncompressedSize);
             if (pakVersion >= PakVersion.FNameBasedCompressionMethod)
             {
                 // backwards incompatible 4.22
-                if (reader.AssetSubversion == 1)
+                if (archive.AssetSubversion == 1)
                 {
                     var index = (byte)_compressionIndex;
-                    reader.Read(ref index);
+                    archive.Read(ref index);
                     _compressionIndex = index;
                 }
                 else
-                    reader.Read(ref _compressionIndex);
+                    archive.Read(ref _compressionIndex);
             }
             else
             {
                 ECompressionFlags legacyFlags = default;
-                reader.ReadUnsafe(ref legacyFlags);
+                archive.ReadUnsafe(ref legacyFlags);
                 if (legacyFlags == ECompressionFlags.COMPRESS_None)
                     _compressionIndex = 0;
                 else if ((legacyFlags & ECompressionFlags.COMPRESS_ZLIB) != 0)
@@ -72,21 +72,21 @@ namespace UETools.Pak
             if (pakVersion < PakVersion.NoTimestamps)
             {
                 long timestamp = 0;
-                reader.Read(ref timestamp); // FDateTime Timestamp
+                archive.Read(ref timestamp); // FDateTime Timestamp
             }
 
-            reader.Read(ref _hash);
+            archive.Read(ref _hash);
             if (pakVersion >= PakVersion.CompressionEncryption)
             {
                 if (_compressionIndex != 0)
-                    reader.Read(ref _compressionBlocks!);
+                    archive.Read(ref _compressionBlocks!);
 
-                reader.ReadUnsafe(ref _flags)
-                      .Read(ref _compressionBlockSize);
+                archive.ReadUnsafe(ref _flags)
+                       .Read(ref _compressionBlockSize);
             }
-            EntryHeaderSize = reader.Tell() - start;
+            EntryHeaderSize = archive.Tell() - start;
 
-            return reader;
+            return archive;
         }
 
         public FArchive Read() => new FArchive(Owner.ReadEntry(this));

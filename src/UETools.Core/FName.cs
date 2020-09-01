@@ -26,11 +26,11 @@ namespace UETools.Core
         public FName(string name) : this(new FString(name)) { }
         public FName() : this(new FString()) { }
 
-        public FArchive Serialize(FArchive reader)
+        public FArchive Serialize(FArchive archive)
         {
-            reader.Read(ref _displayId)
-                  .Read(ref _comparisionId);
-            if (reader.GetTable<FString>("Names") is NameTable table)
+            archive.Read(ref _displayId)
+                   .Read(ref _comparisionId);
+            if (archive.GetTable<FString>("Names") is NameTable table)
             {
                 var items = table.Items;
                 if (items.Count > Index && Index >= 0)
@@ -41,7 +41,7 @@ namespace UETools.Core
             else
                 throw new UnrealException($"{nameof(NameTable)} not serialized before {nameof(FName)} access.");
 
-            return reader;
+            return archive;
         }
         public bool IsNone() => IsIndexNone() || IsStringNone();
         private bool IsIndexNone() => Index == INDEX_NONE;

@@ -13,12 +13,12 @@ namespace UETools.Assets.Internal.Localization
         public LocalizationKey() { }
         public LocalizationKey(FString value) => _value = value;
 
-        public FArchive Serialize(FArchive reader)
+        public FArchive Serialize(FArchive archive)
         {
-            if (reader.AssetVersion >= (int)ELocResVersion.Optimized)
-                reader.Read(ref _hash);
+            if (archive.AssetVersion >= (int)ELocResVersion.Optimized)
+                archive.Read(ref _hash);
 
-            return reader.Read(ref _value);
+            return archive.Read(ref _value);
         }
 
         public override string ToString() => _value.ToString();

@@ -11,10 +11,10 @@ namespace UETools.Objects.Structures
     {
         private class WeighterRandomSampler : IUnrealSerializable
         {
-            public FArchive Serialize(FArchive reader)
-                => reader.Read(ref _prob)
-                         .Read(ref _alias)
-                         .Read(ref _totalWeight);
+            public FArchive Serialize(FArchive archive)
+                => archive.Read(ref _prob)
+                          .Read(ref _alias)
+                          .Read(ref _totalWeight);
 
             List<float> _prob = null!;
             List<int> _alias = null!;
@@ -25,7 +25,7 @@ namespace UETools.Objects.Structures
 
         }
 
-        public FArchive Serialize(FArchive reader) => reader.Read(ref _skeletalMeshArea);
+        public FArchive Serialize(FArchive archive) => archive.Read(ref _skeletalMeshArea);
 
         private SkeletalMeshAreaWeightedTriangleSampler _skeletalMeshArea;
     }

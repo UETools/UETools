@@ -11,8 +11,8 @@ namespace UETools.Objects.Structures
     }
     class ClothLODData : TaggedObject, IUnrealStruct
     {
-        public override FArchive Serialize(FArchive reader) 
-            => base.Serialize(reader)
+        public override FArchive Serialize(FArchive archive)
+            => base.Serialize(archive)
                    .Read(ref _transitionUpSkinData)
                    .Read(ref _transitionDownSkinData);
 

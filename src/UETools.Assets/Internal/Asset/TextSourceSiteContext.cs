@@ -5,13 +5,13 @@ namespace UETools.Assets.Internal.Asset
 {
     internal class TextSourceSiteContext : IUnrealSerializable
     {
-        public FArchive Serialize(FArchive reader) 
-            => reader.Read(ref _keyName)
-                     .Read(ref _siteDescription)
-                     .Read(ref _isEditorOnly)
-                     .Read(ref _isOptional)
-                     .Read(ref _infoMetaData)
-                     .Read(ref _keyMetaData);
+        public FArchive Serialize(FArchive archive)
+            => archive.Read(ref _keyName)
+                      .Read(ref _siteDescription)
+                      .Read(ref _isEditorOnly)
+                      .Read(ref _isOptional)
+                      .Read(ref _infoMetaData)
+                      .Read(ref _keyMetaData);
 
         private bool _isOptional;
         private bool _isEditorOnly;

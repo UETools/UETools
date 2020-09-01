@@ -7,15 +7,15 @@ namespace UETools.Core
     {
         public FString Name { get => _name; set => _name = value; }
 
-        public FArchive Serialize(FArchive reader)
+        public FArchive Serialize(FArchive archive)
         {
-            reader.Read(ref _name);
-            if (reader.Version >= UE4Version.VER_UE4_NAME_HASHES_SERIALIZED)
+            archive.Read(ref _name);
+            if (archive.Version >= UE4Version.VER_UE4_NAME_HASHES_SERIALIZED)
             {
-                reader.Read(ref _nonCasePreservingHash)
-                      .Read(ref _casePreservingHash);
+                archive.Read(ref _nonCasePreservingHash)
+                       .Read(ref _casePreservingHash);
             }
-            return reader;
+            return archive;
         }
 
         private FString _name = null!;

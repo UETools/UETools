@@ -9,11 +9,11 @@ namespace UETools.Objects.Package
     {
         public ObjectResource? Resource { get; private set; }
 
-        public virtual FArchive Serialize(FArchive reader)
+        public virtual FArchive Serialize(FArchive archive)
         {
-            reader.Read(ref _objectIndex);
-            Resource = _objectIndex.Resolve(reader);
-            return reader;
+            archive.Read(ref _objectIndex);
+            Resource = _objectIndex.Resolve(archive);
+            return archive;
         }
 
         public override string ToString() => Resource is null ? "null" : Resource.FullName;

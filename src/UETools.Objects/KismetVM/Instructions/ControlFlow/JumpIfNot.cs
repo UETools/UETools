@@ -10,12 +10,12 @@ namespace UETools.Objects.KismetVM.Instructions
         public CodeSkipSize Size => _size;
         public Token Expression { get; private set; } = null!;
 
-        public override FArchive Serialize(FArchive reader)
+        public override FArchive Serialize(FArchive archive)
         {
-            base.Serialize(reader)
+            base.Serialize(archive)
                 .Read(ref _size);
-            Expression = Token.Read(reader);
-            return reader;
+            Expression = Token.Read(archive);
+            return archive;
         }
 
         public override void ReadTo(TextWriter writer)

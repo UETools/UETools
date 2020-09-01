@@ -29,69 +29,68 @@ namespace UETools.Objects
 
         public long PropertyEnd { get; private set; }
 
-        public FArchive Serialize(FArchive reader)
+        public FArchive Serialize(FArchive archive)
         {
-            var version = reader.Version;
-            reader.Read(ref _name);
+            var version = archive.Version;
+            archive.Read(ref _name);
             if (Name.IsNone())
-                return reader;
+                return archive;
 
-            reader.Read(ref _type);
+            archive.Read(ref _type);
 
             var foundType = Enum.TryParse(Type, out _typeEnum);
             Debug.WriteLineIf(!foundType, $"Unimplemented property type: {_type}");
 
-            reader.Read(ref _size)
-                  .Read(ref _arrayIndex);
+            archive.Read(ref _size)
+                   .Read(ref _arrayIndex);
 
             switch (TypeEnum)
             {
                 case PropertyType.StructProperty:
-                    reader.Read(ref _structName);
+                    archive.Read(ref _structName);
                     if (version >= UE4Version.VER_UE4_STRUCT_GUID_IN_PROPERTY_TAG)
                     {
-                        reader.Read(ref _structGuid);
+                        archive.Read(ref _structGuid);
                     }
                     break;
                 case PropertyType.BoolProperty:
-                    reader.Read(ref _boolVal);
+                    archive.Read(ref _boolVal);
                     break;
                 case PropertyType.ByteProperty:
                 case PropertyType.EnumProperty:
-                    reader.Read(ref _enumName);
+                    archive.Read(ref _enumName);
                     break;
                 case PropertyType.ArrayProperty when version >= UE4Version.VAR_UE4_ARRAY_PROPERTY_INNER_TAGS:
                 case PropertyType.SetProperty when version >= UE4Version.VER_UE4_PROPERTY_TAG_SET_MAP_SUPPORT:
-                    reader.Read(ref _innerType);
+                    archive.Read(ref _innerType);
                     break;
                 case PropertyType.MapProperty when version >= UE4Version.VER_UE4_PROPERTY_TAG_SET_MAP_SUPPORT:
-                    reader.Read(ref _innerType)
-                          .Read(ref _valueType);
+                    archive.Read(ref _innerType)
+                           .Read(ref _valueType);
                     break;
             }
 
             if (version >= UE4Version.VER_UE4_PROPERTY_GUID_IN_PROPERTY_TAG)
             {
-                reader.Read(ref _hasPropertyGuid);
+                archive.Read(ref _hasPropertyGuid);
                 if (_hasPropertyGuid != 0)
                 {
-                    reader.Read(ref _propertyGuid);
+                    archive.Read(ref _propertyGuid);
                 }
             }
 
-
-            PropertyEnd = reader.Tell() + Size;
+            PropertyEnd = archive.Tell() + Size;
 
             if (_innerType is null)
-                return reader;
+                return archive;
             var foundInner = Enum.TryParse(_innerType, out _innerTypeEnum);
             Debug.WriteLineIf(!foundInner, $"Unimplemented inner type: {_innerType}");
             if (_valueType is null)
-                return reader;
+                return archive;
             var foundValue = Enum.TryParse(_valueType, out _valueTypeEnum);
             Debug.WriteLineIf(!foundValue, $"Unimplemented value type: {_valueType}");
 
-            return reader;
+            return archive;
         }
 
         public static IEnumerable<PropertyTag> ReadToEnd(FArchive reader)

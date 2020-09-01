@@ -19,7 +19,7 @@ namespace UETools.Assets
     [UnrealAssetFile(".upluginmanifest")]
     public sealed class TextAsset : IUnrealSerializable, IUnrealReadable
     {
-        public FArchive Serialize(FArchive reader) => reader.Read(ref _content, (int)reader.Length());
+        public FArchive Serialize(FArchive archive) => archive.Read(ref _content, (int)archive.Length());
 
         public void ReadTo(IndentedTextWriter writer)
         {

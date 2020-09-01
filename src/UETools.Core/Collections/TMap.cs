@@ -6,7 +6,7 @@ namespace UETools.Core.Collections
 {
     class TMap<TKey, TValue> : Dictionary<TKey, TValue>, IUnrealSerializable where TKey : notnull
     {
-        public FArchive Serialize(FArchive reader)
+        public FArchive Serialize(FArchive archive)
         {
             throw new NotImplementedException();
         }

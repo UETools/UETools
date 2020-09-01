@@ -24,14 +24,14 @@ namespace UETools.Assets
             return false;
         }
 
-        public FArchive Serialize(FArchive reader)
+        public FArchive Serialize(FArchive archive)
         {
-            if (ReadVersion(reader, out var version))
+            if (ReadVersion(archive, out var version))
             {
-                reader.Read(ref _nativeCulture)
-                      .Read(ref _nativeLocRes);
+                archive.Read(ref _nativeCulture)
+                       .Read(ref _nativeLocRes);
             }
-            return reader;
+            return archive;
         }
 
         private FString _nativeCulture = null!;

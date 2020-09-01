@@ -13,23 +13,23 @@ namespace UETools.Assets
     {
         static Guid LocResMagic = new Guid(0x7574140E, 0x4A67, 0xFC03, 0x4A, 0x15, 0x90, 0x9D, 0xC3, 0x37, 0x7F, 0x1B);
 
-        public FArchive Serialize(FArchive reader)
+        public FArchive Serialize(FArchive archive)
         {
-            ReadVersion(reader);
-            return reader.Read(ref _localizationTable);
+            ReadVersion(archive);
+            return archive.Read(ref _localizationTable);
         }
 
-        private ELocResVersion ReadVersion(FArchive reader)
+        private ELocResVersion ReadVersion(FArchive archive)
         {
             Guid MagicNumber = default;
-            reader.Read(ref MagicNumber);
+            archive.Read(ref MagicNumber);
             var VersionNumber = ELocResVersion.Legacy;
             if (MagicNumber == LocResMagic)
-                reader.ReadUnsafe(ref VersionNumber);
+                archive.ReadUnsafe(ref VersionNumber);
             else
-                reader.Seek(0); // legacy LocRes
+                archive.Seek(0); // legacy LocRes
 
-            reader.AssetVersion = (int)VersionNumber;
+            archive.AssetVersion = (int)VersionNumber;
             return VersionNumber;
         }
 

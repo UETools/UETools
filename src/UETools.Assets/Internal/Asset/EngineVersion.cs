@@ -15,12 +15,12 @@ namespace UETools.Assets.Internal.Asset
             _branch = branch;
         }
 
-        public FArchive Serialize(FArchive reader) 
-            => reader.Read(ref _major)
-                     .Read(ref _minor)
-                     .Read(ref _patch)
-                     .Read(ref _changelist)
-                     .Read(ref _branch);
+        public FArchive Serialize(FArchive archive)
+            => archive.Read(ref _major)
+                      .Read(ref _minor)
+                      .Read(ref _patch)
+                      .Read(ref _changelist)
+                      .Read(ref _branch);
 
         private ushort _major;
         private ushort _minor;

@@ -5,10 +5,10 @@ namespace UETools.Objects.Classes
 {
     sealed class LevelSequence : UObject
     {
-        public override FArchive Serialize(FArchive reader)
+        public override FArchive Serialize(FArchive archive)
         {
-            return reader;
-            base.Serialize(reader);
+            return archive;
+            base.Serialize(archive);
         }
     }
 }

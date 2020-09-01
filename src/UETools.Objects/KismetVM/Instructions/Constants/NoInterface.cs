@@ -6,10 +6,6 @@ namespace UETools.Objects.KismetVM.Instructions
     {
         public override EExprToken Expr => EExprToken.EX_NoInterface;
 
-        public override FArchive Serialize(FArchive reader)
-        {
-            _value = null;
-            return base.Serialize(reader);
-        }
+        public override FArchive Serialize(FArchive archive) => base.Serialize(archive);
     }
 }

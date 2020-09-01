@@ -8,7 +8,7 @@ namespace UETools.Objects.Structures
 {
     struct PointerToUberGraphFrame : IUnrealStruct
     {
-        public FArchive Serialize(FArchive reader) => reader.Read(ref _name);
+        public FArchive Serialize(FArchive archive) => archive.Read(ref _name);
 
         public override string ToString() => _name.ToString();
         private FName _name;

@@ -6,7 +6,7 @@ namespace UETools.Objects.KismetVM.Instructions
     {
         public override EExprToken Expr => EExprToken.EX_ByteConst;
 
-        public override FArchive Serialize(FArchive archive) 
+        public override FArchive Serialize(FArchive archive)
             => base.Serialize(archive)
                    .Read(ref _value);
     }

@@ -9,9 +9,9 @@ namespace UETools.Assets.Internal.Localization
         public LocalizationString() : this(null!) { }
         public LocalizationString(FString value) => _value = value;
 
-        public FArchive Serialize(FArchive reader) 
-            => reader.Read(ref _value)
-                     .Read(ref _refCount);
+        public FArchive Serialize(FArchive archive)
+            => archive.Read(ref _value)
+                      .Read(ref _refCount);
 
         private FString _value;
         private int _refCount;

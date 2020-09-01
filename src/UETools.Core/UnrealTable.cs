@@ -51,13 +51,13 @@ namespace UETools.Core
         /// <remarks>
         /// Should be called in derived class as it adds the class instance to <see cref="FArchive.Tables"/>.
         /// </remarks>
-        /// <param name="reader">Stream of binary data to read from.</param>
-        public virtual FArchive Serialize(FArchive reader)
+        /// <param name="archive">Stream of binary data to read from.</param>
+        public virtual FArchive Serialize(FArchive archive)
         {
             if (GetType().GetCustomAttributes(typeof(UnrealTableAttribute), false).First() is UnrealTableAttribute attr)
-                reader.Tables.TryAdd(attr.Name, this);
+                archive.Tables.TryAdd(attr.Name, this);
 
-            return reader;
+            return archive;
         }
 
         private static void ThrowNotImplemented(string className)

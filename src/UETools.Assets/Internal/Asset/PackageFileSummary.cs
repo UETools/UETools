@@ -28,55 +28,55 @@ namespace UETools.Assets.Internal.Asset
         public int SoftPackageReferencesCount => _softPackageReferencesCount;
         public int SoftPackageReferencesOffset => _softPackageReferencesOffset;
 
-        public FArchive Serialize(FArchive reader)
+        public FArchive Serialize(FArchive archive)
         {
             const long MinimumPackageSize = 32;
-            if (reader.Length() < MinimumPackageSize)
-                return reader;
+            if (archive.Length() < MinimumPackageSize)
+                return archive;
 
-            reader.Read(ref _tag);
+            archive.Read(ref _tag);
             if (!IsAssetFile)
-                return reader;
+                return archive;
 
             const int CurrentLegacyFileVersion = -7;
             int LegacyFileVersion = 0;
-            reader.Read(ref LegacyFileVersion);
+            archive.Read(ref LegacyFileVersion);
             if (LegacyFileVersion < 0)
             {
                 if (LegacyFileVersion < CurrentLegacyFileVersion)
                 {
                     _fileVersionUE4 = 0;
                     _fileVersionLicenseeUE4 = 0;
-                    return reader;
+                    return archive;
                 }
 
                 if (LegacyFileVersion != -4)
                 {
                     int LegacyUE3Version = 0;
                     // skip legacy ue3 version
-                    reader.Read(ref LegacyUE3Version);
+                    archive.Read(ref LegacyUE3Version);
                 }
 
-                reader.ReadUnsafe(ref _fileVersionUE4);
-                reader.Read(ref _fileVersionLicenseeUE4);
+                archive.ReadUnsafe(ref _fileVersionUE4);
+                archive.Read(ref _fileVersionLicenseeUE4);
 
                 if (LegacyFileVersion <= -2)
                 {
                     CustomVersionContainer = new CustomVersionContainer(CustomVersionFormatForArchive(LegacyFileVersion));
-                    CustomVersionContainer.Serialize(reader);
+                    CustomVersionContainer.Serialize(archive);
                 }
 
                 if (_fileVersionUE4 == 0 && _fileVersionLicenseeUE4 == 0)
                 {
                     IsUnversioned = true;
-                    if (reader.Version == 0)
+                    if (archive.Version == 0)
                     {
                         // Set latest
-                        reader.Version = _fileVersionUE4 = UE4Version.VER_UE4_AUTOMATIC_VERSION;
+                        archive.Version = _fileVersionUE4 = UE4Version.VER_UE4_AUTOMATIC_VERSION;
                         _fileVersionLicenseeUE4 = 0;
                     }
                     else
-                        _fileVersionUE4 = reader.Version; // version read from config file
+                        _fileVersionUE4 = archive.Version; // version read from config file
                 }
             }
             else
@@ -85,94 +85,94 @@ namespace UETools.Assets.Internal.Asset
                 _fileVersionLicenseeUE4 = 0;
             }
 
-            reader.Read(ref _totalHeaderSize)
-                  .Read(ref _folderName)
-                  .ReadUnsafe(ref _packageFlags)
-                  .Read(ref _nameCount)
-                  .Read(ref _nameOffset);
+            archive.Read(ref _totalHeaderSize)
+                   .Read(ref _folderName)
+                   .ReadUnsafe(ref _packageFlags)
+                   .Read(ref _nameCount)
+                   .Read(ref _nameOffset);
 
             if ((_packageFlags & EPackageFlags.FilterEditorOnly) == 0 && _fileVersionUE4 >= UE4Version.VER_UE4_ADDED_PACKAGE_SUMMARY_LOCALIZATION_ID)
-                reader.Read(ref _localizationId);
+                archive.Read(ref _localizationId);
 
             if (_fileVersionUE4 >= UE4Version.VER_UE4_SERIALIZE_TEXT_IN_PACKAGES)
             {
-                reader.Read(ref _gatherableTextDataCount)
-                      .Read(ref _gatherableTextDataOffset);
+                archive.Read(ref _gatherableTextDataCount)
+                       .Read(ref _gatherableTextDataOffset);
             }
 
-            reader.Read(ref _exportCount)
-                  .Read(ref _exportOffset)
-                  .Read(ref _importCount)
-                  .Read(ref _importOffset)
-                  .Read(ref _dependsOffset);
+            archive.Read(ref _exportCount)
+                   .Read(ref _exportOffset)
+                   .Read(ref _importCount)
+                   .Read(ref _importOffset)
+                   .Read(ref _dependsOffset);
 
             if (_fileVersionUE4 < UE4Version.VER_UE4_OLDEST_LOADABLE_PACKAGE)
-                return reader;
+                return archive;
 
             if (_fileVersionUE4 >= UE4Version.VER_UE4_ADD_STRING_ASSET_REFERENCES_MAP)
             {
-                reader.Read(ref _softPackageReferencesCount)
-                      .Read(ref _softPackageReferencesOffset);
+                archive.Read(ref _softPackageReferencesCount)
+                       .Read(ref _softPackageReferencesOffset);
             }
 
             if (_fileVersionUE4 >= UE4Version.VER_UE4_ADDED_SEARCHABLE_NAMES)
-                reader.Read(ref _searchableNamesOffset);
+                archive.Read(ref _searchableNamesOffset);
 
-            reader.Read(ref _thumbnailTableOffset)
-                  .Read(ref _guid)
-                  .Read(ref _generations);
+            archive.Read(ref _thumbnailTableOffset)
+                   .Read(ref _guid)
+                   .Read(ref _generations);
 
             if (_fileVersionUE4 >= UE4Version.VER_UE4_ENGINE_VERSION_OBJECT)
-                reader.Read(ref _savedByEngineVersion);
+                archive.Read(ref _savedByEngineVersion);
             else
             {
                 uint changelist = 0;
-                reader.Read(ref changelist);
+                archive.Read(ref changelist);
                 _savedByEngineVersion = new EngineVersion(4, 0, 0, changelist, string.Empty);
             }
 
             if (_fileVersionUE4 >= UE4Version.VER_UE4_PACKAGE_SUMMARY_HAS_COMPATIBLE_ENGINE_VERSION)
-                reader.Read(ref _compatibleWithEngineVersion);
+                archive.Read(ref _compatibleWithEngineVersion);
             else
                 _compatibleWithEngineVersion = _savedByEngineVersion;
 
-            reader.Read(ref _compressionFlags)
-                  .Read(ref _compressedChunks);
+            archive.Read(ref _compressionFlags)
+                   .Read(ref _compressedChunks);
             if (_compressedChunks.Count > 0)
                 throw new NotSupportedException("Package Level Compression is not supported by UE4 anymore.");
 
-            reader.Read(ref _packageSource);
+            archive.Read(ref _packageSource);
 
             // No longer used: List of additional packages that are needed to be cooked for this package (ie streaming levels)
             // Keeping the serialization code for backwards compatibility without bumping the package version
             List<FString>? _additionalPackagesToCook = default;
-            reader.Read(ref _additionalPackagesToCook);
+            archive.Read(ref _additionalPackagesToCook);
 
             if (LegacyFileVersion > -7)
             {
                 // Texture allocations no longer supported.
                 int NumTextureAllocations = 0;
-                reader.Read(ref NumTextureAllocations);
+                archive.Read(ref NumTextureAllocations);
             }
 
-            reader.Read(ref _assetRegistryDataOffset)
-                  .Read(ref _bulkDataStartOffset);
+            archive.Read(ref _assetRegistryDataOffset)
+                   .Read(ref _bulkDataStartOffset);
 
             if (_fileVersionUE4 >= UE4Version.VER_UE4_WORLD_LEVEL_INFO)
-                reader.Read(ref _worldTileInfoDataOffset);
+                archive.Read(ref _worldTileInfoDataOffset);
 
             if (_fileVersionUE4 >= UE4Version.VER_UE4_CHANGED_CHUNKID_TO_BE_AN_ARRAY_OF_CHUNKIDS)
-                reader.Read(ref _chunkIDs);
+                archive.Read(ref _chunkIDs);
             else if (_fileVersionUE4 >= UE4Version.VER_UE4_ADDED_CHUNKID_TO_ASSETDATA_AND_UPACKAGE)
-                reader.Read(ref _chunkIDs, 1);
+                archive.Read(ref _chunkIDs, 1);
 
             if (_fileVersionUE4 >= UE4Version.VER_UE4_PRELOAD_DEPENDENCIES_IN_COOKED_EXPORTS)
             {
-                reader.Read(ref _preloadDependencyCount)
-                      .Read(ref _preloadDependencyOffset);
+                archive.Read(ref _preloadDependencyCount)
+                       .Read(ref _preloadDependencyOffset);
             }
 
-            return reader;
+            return archive;
         }
 
         private CustomVersionSerializationFormat CustomVersionFormatForArchive(int LegacyVersion)

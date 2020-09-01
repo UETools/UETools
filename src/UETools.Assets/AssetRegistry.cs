@@ -21,38 +21,38 @@ namespace UETools.Assets
 
         /// <inheritdoc />
         /// <exception cref="UnrealException">Thrown when <see cref="FArchive.Version"/> is not set.</exception>
-        public FArchive Serialize(FArchive reader)
+        public FArchive Serialize(FArchive archive)
         {
-            if (reader.Version == 0)
-                throw new UnrealException("FArchive.Version is uninitialized, needs to be set for cooked assets.");
+            if (archive.Version == 0)
+                throw new UnrealException($"{nameof(FArchive.Version)} is uninitialized, needs to be set for cooked assets.");
 
-            ReadVersion(reader);
+            ReadVersion(archive);
 
             // AssetData format was changed from FStrings to FNames
             if (_version >= EAssetRegistryVersion.ChangedAssetData)
             {
                 long stringTableOffset = 0;
-                reader.Read(ref stringTableOffset);
-                var currentOffset = reader.Tell();
-                reader.Seek(stringTableOffset);
+                archive.Read(ref stringTableOffset);
+                var currentOffset = archive.Tell();
+                archive.Seek(stringTableOffset);
                 NameTable? names = default;
-                reader.Read(ref names);
-                reader.Seek(currentOffset);
+                archive.Read(ref names);
+                archive.Seek(currentOffset);
                 List<AssetData>? assets = default;
-                reader.Read(ref assets);
+                archive.Read(ref assets);
                 _assets = new List<IAssetData>(assets);
             }
             else
             {
                 List<AssetDataOldFormat>? assets = default;
-                reader.Read(ref assets);
+                archive.Read(ref assets);
                 _assets = new List<IAssetData>(assets);
             }
 
             // TODO: Fixup the dependencies indexes into the references to actual dependency
-            reader.Read(ref _assetDependencies)
-                  .Read(ref _packageData);
-            return reader;
+            archive.Read(ref _assetDependencies)
+                   .Read(ref _packageData);
+            return archive;
         }
 
         private void ReadVersion(FArchive reader)

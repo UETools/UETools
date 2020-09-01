@@ -7,12 +7,12 @@ namespace UETools.Core.HistoryTypes
     {
         internal sealed class AsDateTime : FTextHistory
         {
-            public override FArchive Serialize(FArchive reader)
-                => reader.Read(ref _sourceDateTime)
-                         .ReadUnsafe(ref _dateStyle)
-                         .ReadUnsafe(ref _timeStyle)
-                         .Read(ref _timeZone)
-                         .Read(ref _cultureName);
+            public override FArchive Serialize(FArchive archive)
+                => archive.Read(ref _sourceDateTime)
+                          .ReadUnsafe(ref _dateStyle)
+                          .ReadUnsafe(ref _timeStyle)
+                          .Read(ref _timeZone)
+                          .Read(ref _cultureName);
 
             public override string ToString()
             {

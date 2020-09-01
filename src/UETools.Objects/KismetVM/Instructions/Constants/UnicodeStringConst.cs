@@ -24,11 +24,11 @@ namespace UETools.Objects.KismetVM.Instructions
 
         }
 
-        public override FArchive Serialize(FArchive reader)
+        public override FArchive Serialize(FArchive archive)
         {
-            base.Serialize(reader);
-            ReadString16(reader, out _value);
-            return reader;
+            base.Serialize(archive);
+            ReadString16(archive, out _value);
+            return archive;
         }
     }
 }

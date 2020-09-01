@@ -6,7 +6,7 @@ namespace UETools.Core.Collections
 {
     class TArray<T> : List<T>, IUnrealSerializable
     {
-        public FArchive Serialize(FArchive reader)
+        public FArchive Serialize(FArchive archive)
         {
             throw new NotImplementedException();
         }

@@ -5,15 +5,15 @@ namespace UETools.Objects.Structures
 {
     public struct SmartName : IUnrealStruct
     {
-        public FArchive Serialize(FArchive reader)
+        public FArchive Serialize(FArchive archive)
         {
-            reader.Read(ref _value);
-            if (!reader.EOF())
-                reader.Read(ref _uid);
-            if (!reader.EOF())
-                reader.Read(ref _guid);
+            archive.Read(ref _value);
+            if (!archive.EOF())
+                archive.Read(ref _uid);
+            if (!archive.EOF())
+                archive.Read(ref _guid);
 
-            return reader;
+            return archive;
         }
         public override string ToString() => _value.ToString();
 

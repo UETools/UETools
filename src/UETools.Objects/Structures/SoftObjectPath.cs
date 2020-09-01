@@ -9,11 +9,11 @@ namespace UETools.Objects.Structures
 {
     struct SoftObjectPath : IUnrealStruct
     {
-        public FArchive Serialize(FArchive reader)
+        public FArchive Serialize(FArchive archive)
         {
-            if (reader.Version < UE4Version.VER_UE4_ADDED_SOFT_OBJECT_PATH)
+            if (archive.Version < UE4Version.VER_UE4_ADDED_SOFT_OBJECT_PATH)
             {
-                reader.Read(ref _path);
+                archive.Read(ref _path);
                 _value = _path;
 
                 // TODO: Convert path to FName value
@@ -27,10 +27,10 @@ namespace UETools.Objects.Structures
             }
             else
             {
-                reader.Read(ref _value);
-                reader.Read(ref _subPathString);
+                archive.Read(ref _value)
+                       .Read(ref _subPathString);
             }
-            return reader;
+            return archive;
         }
         public override string ToString() => _value.ToString();
 

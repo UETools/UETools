@@ -6,11 +6,11 @@ namespace UETools.Objects.Package
 {
     public sealed class ObjectImport : ObjectResource, IUnrealSerializable
     {
-        public FArchive Serialize(FArchive reader) 
-            => reader.Read(ref _classPackage)
-                     .Read(ref _className)
-                     .Read(ref _outerIndex)
-                     .Read(ref _objectName);
+        public FArchive Serialize(FArchive archive)
+            => archive.Read(ref _classPackage)
+                      .Read(ref _className)
+                      .Read(ref _outerIndex)
+                      .Read(ref _objectName);
 
         public override void Fix(FArchive reader)
         {

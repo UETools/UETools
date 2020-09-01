@@ -10,11 +10,11 @@ namespace UETools.Objects.KismetVM.Instructions
 
         public Token InterfaceExpression { get; private set; } = null!;
 
-        public override FArchive Serialize(FArchive reader)
+        public override FArchive Serialize(FArchive archive)
         {
-            base.Serialize(reader);
-            InterfaceExpression = Token.Read(reader);
-            return reader;
+            base.Serialize(archive);
+            InterfaceExpression = Token.Read(archive);
+            return archive;
         }
 
         public override void ReadTo(TextWriter writer)

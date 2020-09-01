@@ -11,15 +11,15 @@ namespace UETools.Core
         /// <summary>
         /// Deserializes hash data from the stream.
         /// </summary>
-        /// <param name="reader">Stream of binary data to read from.</param>
-        public FArchive Serialize(FArchive reader)
+        /// <param name="archive">Stream of binary data to read from.</param>
+        public FArchive Serialize(FArchive archive)
         {
             var isValid = !_bytes.IsEmpty;
-            reader.Read(ref isValid);
+            archive.Read(ref isValid);
             if (isValid)
-                reader.Read(ref _bytes, 16);
+                archive.Read(ref _bytes, 16);
 
-            return reader;
+            return archive;
         }
         /// <summary>
         /// Get <see cref="System.Security.Cryptography.MD5"/> as a bytestring.

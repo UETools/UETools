@@ -5,16 +5,16 @@ namespace UETools.Objects.Structures
 {
     partial struct RichCurveKey : IUnrealStruct
     {
-        public FArchive Serialize(FArchive reader) 
-            => reader.ReadUnsafe(ref _interpMode)
-                     .ReadUnsafe(ref _tangentMode)
-                     .ReadUnsafe(ref _tangentWeightMode)
-                     .Read(ref _time)
-                     .Read(ref _value)
-                     .Read(ref _arriveTangent)
-                     .Read(ref _arriveTangentWeight)
-                     .Read(ref _leaveTangent)
-                     .Read(ref _leaveTangentWeight);
+        public FArchive Serialize(FArchive archive)
+            => archive.ReadUnsafe(ref _interpMode)
+                      .ReadUnsafe(ref _tangentMode)
+                      .ReadUnsafe(ref _tangentWeightMode)
+                      .Read(ref _time)
+                      .Read(ref _value)
+                      .Read(ref _arriveTangent)
+                      .Read(ref _arriveTangentWeight)
+                      .Read(ref _leaveTangent)
+                      .Read(ref _leaveTangentWeight);
 
         public override string ToString() => $"{{ Time: {_time}, Value: {_value}, InterpMode: {_interpMode} }}";
 

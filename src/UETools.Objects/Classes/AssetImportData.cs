@@ -5,11 +5,11 @@ namespace UETools.Objects.Classes
 {
     class AssetImportData : UObject
     {
-        public override FArchive Serialize(FArchive reader)
+        public override FArchive Serialize(FArchive archive)
         {
             FString? str = default;
-            reader.Read(ref str);
-            return base.Serialize(reader);
+            archive.Read(ref str);
+            return base.Serialize(archive);
         }
     }
 }

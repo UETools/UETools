@@ -6,7 +6,7 @@ namespace UETools.Objects.Package
 {
     public struct PackageIndex : IUnrealSerializable, IEquatable<PackageIndex>, IEquatable<int>
     {
-        public FArchive Serialize(FArchive reader) => reader.Read(ref _value);
+        public FArchive Serialize(FArchive archive) => archive.Read(ref _value);
 
         internal ObjectResource? Resolve(FArchive reader)
         {

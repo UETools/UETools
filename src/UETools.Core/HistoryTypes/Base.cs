@@ -14,15 +14,15 @@ namespace UETools.Core.HistoryTypes
             public Base(FString value) : this(value, null!, null!) { }
             public Base(FString value, FString localizationNamespace, FString localizationKey) => (_namespace, _key, _value) = (localizationNamespace, localizationKey, value);
 
-            public override FArchive Serialize(FArchive reader)
+            public override FArchive Serialize(FArchive archive)
             {
-                reader.Read(ref _namespace)
-                      .Read(ref _key)
-                      .Read(ref _value);
+                archive.Read(ref _namespace)
+                       .Read(ref _key)
+                       .Read(ref _value);
 
-                _localizedString = reader.Localization?.Get(_namespace, _key);
+                _localizedString = archive.Localization?.Get(_namespace, _key);
 
-                return reader;
+                return archive;
             }
 
             public override string ToString()

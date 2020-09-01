@@ -20,18 +20,18 @@ namespace UETools.Objects.Classes
         public TaggedObject(FArchive reader) => Serialize(reader);
         public TaggedItemsList Vars { get; } = new TaggedItemsList();
         public IProperty this[string key] => Vars.Find(kv => kv.Key == key).Value;
-        public virtual FArchive Serialize(FArchive reader)
+        public virtual FArchive Serialize(FArchive archive)
         {
-            foreach (var tag in PropertyTag.ReadToEnd(reader))
+            foreach (var tag in PropertyTag.ReadToEnd(archive))
             {
-                Vars.Add(new TaggedItem(tag.Name, PropertyFactory.Get(reader.SubStream(tag.Size), tag)));
-                if(reader.Tell() != tag.PropertyEnd)
+                Vars.Add(new TaggedItem(tag.Name, PropertyFactory.Get(archive.SubStream(tag.Size), tag)));
+                if(archive.Tell() != tag.PropertyEnd)
                 {
-                    Debug.WriteLine($"Needed to move by {tag.PropertyEnd - reader.Tell()} for {tag.Name} {(tag.TypeEnum == PropertyTag.PropertyType.StructProperty ? tag.StructName : tag.Type)}");
-                    reader.Seek(tag.PropertyEnd);
+                    Debug.WriteLine($"Needed to move by {tag.PropertyEnd - archive.Tell()} for {tag.Name} {(tag.TypeEnum == PropertyTag.PropertyType.StructProperty ? tag.StructName : tag.Type)}");
+                    archive.Seek(tag.PropertyEnd);
                 }
             }
-            return reader;
+            return archive;
         }
 
         public virtual void ReadTo(IndentedTextWriter writer)

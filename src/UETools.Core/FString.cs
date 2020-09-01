@@ -40,9 +40,9 @@ namespace UETools.Core
         public FString(string value) => _value = value;
 
         /// <inheritdoc />
-        public FArchive Serialize(FArchive reader) 
-            => reader.Read(ref _length)
-                     .Read(ref _value, _length);
+        public FArchive Serialize(FArchive archive)
+            => archive.Read(ref _length)
+                      .Read(ref _value, _length);
 
         private int ByteCount => Length * CharSize;
         private int CharSize

@@ -7,9 +7,9 @@ namespace UETools.Core.Collections
 {
     public struct TRange<T> : IUnrealSerializable where T : IUnrealSerializable?, new()
     {
-        public FArchive Serialize(FArchive reader)
-            => reader.Read(ref _lowerBound)
-                     .Read(ref _upperBound);
+        public FArchive Serialize(FArchive archive)
+            => archive.Read(ref _lowerBound)
+                      .Read(ref _upperBound);
 
         TRangeBound _lowerBound;
         TRangeBound _upperBound;
@@ -23,9 +23,9 @@ namespace UETools.Core.Collections
 
         struct TRangeBound : IUnrealSerializable
         {
-            public FArchive Serialize(FArchive reader) 
-                => reader.ReadUnsafe(ref _type)
-                         .Read(ref _value);
+            public FArchive Serialize(FArchive archive)
+                => archive.ReadUnsafe(ref _type)
+                          .Read(ref _value);
 
             ERangeBoundTypes _type;
             T _value;

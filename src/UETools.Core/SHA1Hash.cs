@@ -11,8 +11,8 @@ namespace UETools.Core
         /// <summary>
         /// Deserializes hash data from the stream.
         /// </summary>
-        /// <param name="reader">Stream of binary data to read from.</param>
-        public FArchive Serialize(FArchive reader) => reader.Read(ref _bytes, 20);
+        /// <param name="archive">Stream of binary data to read from.</param>
+        public FArchive Serialize(FArchive archive) => archive.Read(ref _bytes, 20);
 
         /// <summary>
         /// Get <see cref="System.Security.Cryptography.SHA1"/> as a bytestring.

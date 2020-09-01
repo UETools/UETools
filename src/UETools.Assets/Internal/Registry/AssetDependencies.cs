@@ -6,10 +6,10 @@ namespace UETools.Assets.Internal.Registry
 {
     public partial class AssetDependencies : IUnrealSerializable
     {
-        public FArchive Serialize(FArchive reader)
+        public FArchive Serialize(FArchive archive)
         {
             List<int>? depCounts = default;
-            return reader.Read(ref depCounts, (int)EAssetRegistryDependency.MaxCount)
+            return archive.Read(ref depCounts, (int)EAssetRegistryDependency.MaxCount)
                 
                   .Read(ref _hardDependencies, depCounts[(int)EAssetRegistryDependency.Hard])
                   .Read(ref _softDependencies, depCounts[(int)EAssetRegistryDependency.Soft])

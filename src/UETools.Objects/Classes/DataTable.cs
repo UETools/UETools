@@ -13,11 +13,11 @@ namespace UETools.Objects.Classes
     {
         public TableItems Rows { get; } = new TableItems();
 
-        public override FArchive Serialize(FArchive reader)
+        public override FArchive Serialize(FArchive archive)
         {
-            base.Serialize(reader);
-            ReadRows(reader);
-            return reader;
+            base.Serialize(archive);
+            ReadRows(archive);
+            return archive;
         }
 
         private void ReadRows(FArchive reader)
@@ -30,11 +30,11 @@ namespace UETools.Objects.Classes
                 ReadDataTableRow(reader);
         }
 
-        private void ReadDataTableRow(FArchive reader)
+        private void ReadDataTableRow(FArchive archive)
         {
             FName? RowName = default;
-            reader.Read(ref RowName);
-            Rows.Add(new KeyValuePair<string, TaggedObject>(RowName, new TaggedObject(reader)));
+            archive.Read(ref RowName);
+            Rows.Add(new KeyValuePair<string, TaggedObject>(RowName, new TaggedObject(archive)));
         }
 
         public override void ReadTo(IndentedTextWriter writer)

@@ -9,8 +9,8 @@ namespace UETools.Objects.KismetVM.Instructions
         //public ResolvedObjectReference<TaggedObject> Variable { get => _variable; set => _variable = value; }
         public ObjectReference Variable => _variable;
 
-        public override FArchive Serialize(FArchive reader) 
-            => base.Serialize(reader)
+        public override FArchive Serialize(FArchive archive)
+            => base.Serialize(archive)
                    .Read(ref _variable);
 
         public override void ReadTo(TextWriter writer)

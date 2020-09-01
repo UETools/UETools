@@ -6,9 +6,9 @@ namespace UETools.Objects.Structures
 {
     public struct IntPoint : IUnrealStruct, IEquatable<IntPoint>
     {
-        public FArchive Serialize(FArchive reader)
-            => reader.Read(ref _x)
-                     .Read(ref _y);
+        public FArchive Serialize(FArchive archive)
+            => archive.Read(ref _x)
+                      .Read(ref _y);
 
         public override string ToString() => $"{{ X: {_x}, Y: {_y} }}";
         public override bool Equals(object? obj) => obj switch

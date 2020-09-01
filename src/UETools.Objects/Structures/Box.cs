@@ -10,10 +10,10 @@ namespace UETools.Objects.Structures
         public Vector Max => _max;
 
 
-        public FArchive Serialize(FArchive reader) 
-            => reader.Read(ref _min)
-                     .Read(ref _max)
-                     .Read(ref _isValid);
+        public FArchive Serialize(FArchive archive)
+            => archive.Read(ref _min)
+                      .Read(ref _max)
+                      .Read(ref _isValid);
 
         public override string ToString() => IsValid ? $"{{ Min: {_min}, Max: {_max} }}" : $"{{ Invalid {nameof(Box)} }}";
 
