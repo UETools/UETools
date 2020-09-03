@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <Nullable>enable</Nullable>
-	<PackageDescription>Base blocks for reading Unreal Engine 4 serialized data.</PackageDescription>
+    <PackageDescription>Base blocks for reading Unreal Engine 4 serialized data.</PackageDescription>
   </PropertyGroup>
 
   <ItemGroup>

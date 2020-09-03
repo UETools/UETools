@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <Nullable>enable</Nullable>
-	<PackageDescription>Implementation of serializers for specific Unreal Engine 4 asset types.</PackageDescription>
+    <PackageDescription>Implementation of serializers for specific Unreal Engine 4 asset types.</PackageDescription>
   </PropertyGroup>
 
   <ItemGroup>
