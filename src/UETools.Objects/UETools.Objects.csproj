@@ -8,9 +8,12 @@
 
   <ItemGroup>
     <ProjectReference Include="..\UETools.Core\UETools.Core.csproj" />
-    <PackageReference Include="Nullable" Version="1.3.0" Condition="'$(TargetFramework)' == 'netstandard2.0'" PrivateAssets="all" />
+  </ItemGroup>
+  
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <PackageReference Include="Nullable" Version="1.3.0" PrivateAssets="all" />
     <!-- StringBuilder AppendJoin methods -->
-    <PackageReference Include="CoreExtensions.StringBuilder" Version="1.0.0" Condition="'$(TargetFramework)' == 'netstandard2.0'" />
+    <PackageReference Include="CoreExtensions.StringBuilder" Version="1.0.0" />
   </ItemGroup>
 
 </Project>
