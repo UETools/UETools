@@ -92,7 +92,7 @@ namespace UETools.Pak
                     if (value > size)
                         continue;
 
-                    var z = data.Memory[^value..];
+                    var z = data.Memory.Slice(data.Memory.Length - value);
                     var pak = new PakInfo(z, _aesProvider);
                     if (pak.IsUnrealPak)
                     {
@@ -201,6 +201,14 @@ namespace UETools.Pak
         }
 
         public void Dispose() => SourceStream.Dispose();
-        public ValueTask DisposeAsync() => SourceStream.DisposeAsync();
+        public ValueTask DisposeAsync()
+        {
+#if NETSTANDARD2_0
+            SourceStream.Dispose();
+            return default;
+#else
+            return SourceStream.DisposeAsync();
+#endif
+        }
     }
 }

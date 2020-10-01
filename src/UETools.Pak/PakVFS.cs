@@ -27,7 +27,7 @@ namespace UETools.Pak
         private PakVFS(IEnumerable<PakFile> files)
         {
             _pakFiles = new List<PakFile>(files);
-            AbsoluteIndex = new Dictionary<string, PakEntry>(_pakFiles.SelectMany(f => f.AbsoluteIndex));
+            AbsoluteIndex = _pakFiles.SelectMany(f => f.AbsoluteIndex).ToDictionary(x => x.Key, x => x.Value);
         }
 
         public static PakVFS OpenAt(string path, IVersionProvider? versionProvider = null, IAesKeyProvider? keyProvider = null)
