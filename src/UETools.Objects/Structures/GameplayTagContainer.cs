@@ -1,4 +1,8 @@
-﻿using System.Collections.Generic;
+﻿#if NETSTANDARD2_0
+using CoreExtensions;
+#endif
+using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using UETools.Core;
 using UETools.Objects.Interfaces;
@@ -11,7 +15,7 @@ namespace UETools.Objects.Structures
 
         public override string ToString() => new StringBuilder()
             .Append("{ ")
-            .AppendJoin(", ", _tags)
+            .AppendJoin(", ", _tags.AsEnumerable())
             .Append(" }")
             .ToString();
 

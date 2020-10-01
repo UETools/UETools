@@ -23,11 +23,10 @@ namespace UETools.TypeFactory
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="actualType"/> is null</exception>
         public static Func<T> CreateInstanceFunction<T>(Type actualType)
         {
-            var type = typeof(T);
-
             if (actualType is null)
                 throw new ArgumentNullException(nameof(actualType));
 
+            var type = typeof(T);
             if (actualType.IsInterface)
                 ExceptionHelper($"{actualType.FullName} is an interface.", actualType);
 
@@ -44,10 +43,10 @@ namespace UETools.TypeFactory
             if (constructorForParams is null && !actualType.IsValueType)
                 ExceptionHelper($"{actualType.FullName} can't be constructed.", actualType);
 
-            if (type.IsInterface && actualType.IsValueType)
+            if (actualType.IsValueType && type.IsInterface)
                 return Expression.Lambda<Func<T>>(Expression.Convert(Expression.Default(actualType), type), true, Enumerable.Empty<ParameterExpression>()).Compile();
             else
-                return Expression.Lambda<Func<T>>(Expression.New(constructorForParams), true, Enumerable.Empty<ParameterExpression>()).Compile();
+                return Expression.Lambda<Func<T>>(Expression.New(constructorForParams!), true, Enumerable.Empty<ParameterExpression>()).Compile();
         }
     }
 }

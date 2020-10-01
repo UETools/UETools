@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.InteropServices;
 using UETools.Core.Interfaces;
 
 namespace UETools.Core
@@ -13,7 +14,7 @@ namespace UETools.Core
                 {
                     Span<byte> bytes = stackalloc byte[16];
                     BitConverter.GetBytes(Tag).CopyTo(bytes.Slice(12));
-                    return new Guid(bytes);
+                    return MemoryMarshal.Cast<byte, Guid>(bytes)[0];
                 }
             }
             public int Tag => _tag;

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using UETools.Core;
 using UETools.TypeFactory;
@@ -31,7 +32,8 @@ namespace UETools.Objects.KismetVM
                 .Cast<EExprToken>()
                 .ToDictionary(
                     t => t,
-                    v => Factory.CreateInstanceFunction<Token>(Types.FirstOrDefault(t => v.ToString().AsSpan().Slice(3) == t.Name.AsSpan()))
-                ));
+                    v => Factory.CreateInstanceFunction<Token>(Types.First(t => v.ToString().AsSpan().Slice(3).SequenceEqual(t.Name.AsSpan())))
+                    )
+                );
     }
 }
