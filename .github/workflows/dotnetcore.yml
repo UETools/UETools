@@ -9,10 +9,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
-    - name: Setup .NET 3.1
+    - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 3.1.x
+        dotnet-version: 5.0.100-rc.1.20452.10
     - name: Build solution
       run: dotnet build src/UETools.sln --configuration Release 
     - name: Run tests
@@ -26,7 +26,7 @@ jobs:
     - uses: actions/checkout@v1
     - uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 3.1.x
+        dotnet-version: 5.0.100-rc.1.20452.10
     - name: Pack
       run: dotnet pack src/UETools.sln --output ./artifacts --configuration Release
     - uses: actions/upload-artifact@v1

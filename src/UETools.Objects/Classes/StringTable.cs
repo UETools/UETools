@@ -36,9 +36,9 @@ namespace UETools.Objects.Classes
 
             writer.WriteLine($"BEGIN {_namespace}");
             writer.Indent++;
-            foreach (var (k, v) in _keySourceStringMap)
+            foreach (var kv in _keySourceStringMap)
             {
-                writer.WriteLine($"{k}: {v}");
+                writer.WriteLine($"{kv.Key}: {kv.Value}");
             }
             writer.Indent--;
             writer.WriteLine($"END {_namespace}");

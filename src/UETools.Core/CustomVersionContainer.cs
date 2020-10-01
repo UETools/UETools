@@ -12,7 +12,7 @@ namespace UETools.Core
     {
         public CustomVersionContainer(CustomVersionSerializationFormat format) => _type = format;
 
-        internal List<CustomVersion> Versions { get; set; } = null!;
+        internal List<CustomVersion?> Versions { get; set; } = null!;
         public FArchive Serialize(FArchive archive)
         {
             switch (_type)
@@ -21,19 +21,19 @@ namespace UETools.Core
                     {
                         List<GuidCustomVersion> _versions = default!;
                         archive.Read(ref _versions);
-                        Versions = new List<CustomVersion>(_versions.Cast<CustomVersion>());
+                        Versions = new List<CustomVersion?>(_versions.Cast<CustomVersion>());
                         break;
                     }
                 case CustomVersionSerializationFormat.Enums:
                     {
                         List<EnumCustomVersion> _versions = default!;
                         archive.Read(ref _versions);
-                        Versions = new List<CustomVersion>(_versions.Cast<CustomVersion>());
+                        Versions = new List<CustomVersion?>(_versions.Cast<CustomVersion>());
                         break;
                     }
                 case CustomVersionSerializationFormat.Optimized:
                     {
-                        List<CustomVersion> _versions = default!;
+                        List<CustomVersion?> _versions = default!;
                         archive.Read(ref _versions);
                         Versions = _versions;
                         break;

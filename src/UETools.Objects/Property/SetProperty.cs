@@ -20,7 +20,7 @@ namespace UETools.Objects.Property
             base.Serialize(reader, tag);
             if (tag.InnerTypeEnum.TryGetAttribute(out LinkedTypeAttribute? attrib))
             {
-                _value = new HashSet<IProperty>(Count);
+                _value = new HashSet<IProperty>();
                 var func = PropertyFactory.Get(attrib.LinkedType);
                 for (int i = 0; i < Count; i++)
                 {

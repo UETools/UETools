@@ -36,7 +36,15 @@ namespace UETools.Pak
         }
 
         public void Dispose() => _fileStream.Dispose();
-        public ValueTask DisposeAsync() => _fileStream.DisposeAsync();
+        public ValueTask DisposeAsync()
+        {
+#if NETSTANDARD2_0
+            _fileStream.Dispose();
+            return default;
+#else
+            return _fileStream.DisposeAsync();
+#endif
+        }
 
 
         private FileStream _fileStream;

@@ -14,9 +14,9 @@ namespace UETools.Objects.KismetVM.Instructions
             {
                 bytes.Add(reader.Read<short>());
             } while (bytes.Last() != 0);
-            str = string.Create(bytes.Count - 1, bytes, (chars, b) =>
+            str = StringHelper.Create(bytes.Count - 1, bytes, (chars, b) =>
             {
-                for (int i = 0; i < chars.Length; i++)
+                for (var i = 0; i < chars.Length; i++)
                 {
                     chars[i] = (char)b[i];
                 }

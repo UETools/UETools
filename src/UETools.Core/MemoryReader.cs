@@ -67,21 +67,39 @@ namespace UETools.Core
         public decimal ReadDecimal() => ReadValue<decimal>();
         public string ReadByteString() => ReadUnrealString(ReadByte());
 
+
+        private string BytesToString(Encoding encoding, int length, ReadOnlyMemory<byte> memory)
+        {
+#if NETSTANDARD2_0
+            var result = new string((char)0, length);
+            using var x = memory.Pin();
+            unsafe
+            {
+                fixed (char* chars = result)
+                {
+                    var data = (byte*)x.Pointer;
+                    encoding.GetChars(data, memory.Length, chars, length);
+                }
+            }
+            return result;
+#else
+            return string.Create(length, memory, (Span<char> buf, ReadOnlyMemory<byte> mem) =>
+                Encoding.UTF8.GetChars(mem.Span, buf));
+#endif
+        }
         public string ReadUnrealString(int length)
         {
             var pos = IntPosition;
             if (length > 0)
             {
                 Position += length;
-                return string.Create(length - 1, Buffer.Slice(pos, length - 1), (Span<char> buf, Memory<byte> mem) =>
-                    Encoding.UTF8.GetChars(mem.Span, buf));
+                return BytesToString(Encoding.UTF8, length - 1, Buffer.Slice(pos, length - 1));
             }
             else if (length < 0)
             {
                 var len = -length * 2;
                 Position += len;
-                return string.Create(-length - 1, Buffer.Slice(pos, len - 2), (Span<char> buf, Memory<byte> mem) =>
-                    Encoding.Unicode.GetChars(mem.Span, buf));
+                return BytesToString(Encoding.Unicode, -length - 1, Buffer.Slice(pos, len - 2));
             }
             else
                 return string.Empty;

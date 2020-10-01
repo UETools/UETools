@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.1</TargetFramework>
+    <TargetFrameworks>netstandard2.0;netstandard2.1;net5.0</TargetFrameworks>
     <Nullable>enable</Nullable>
     <PackageDescription>Implementation of serializers for specific Unreal Engine 4 asset types.</PackageDescription>
   </PropertyGroup>
@@ -9,6 +9,7 @@
   <ItemGroup>
     <ProjectReference Include="..\UETools.Core\UETools.Core.csproj" />
     <ProjectReference Include="..\UETools.Objects\UETools.Objects.csproj" />
+    <PackageReference Include="Nullable" Version="1.3.0" Condition="'$(TargetFramework)' == 'netstandard2.0'" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup>

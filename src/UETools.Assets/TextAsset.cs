@@ -23,8 +23,7 @@ namespace UETools.Assets
 
         public void ReadTo(IndentedTextWriter writer)
         {
-            writer.Indent = 0;
-            writer.Write(MemoryMarshal.Cast<byte, char>(_content.Span));
+            throw new NotImplementedException();
         }
 
         private Memory<byte> _content;

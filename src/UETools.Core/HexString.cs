@@ -15,14 +15,14 @@ namespace UETools.Core
                 return s[1] + ((uint)s[0] << 16);
         }).ToArray();
 
-        public static string FromByteArray(ReadOnlyMemory<byte> bytes) => string.Create(bytes.Length * 2, bytes, (chars, b) =>
-                                                                                    {
-                                                                                        var span = bytes.Span;
-                                                                                        var x = MemoryMarshal.Cast<char, uint>(chars);
-                                                                                        for (var i = bytes.Length - 1; i >= 0; i--)
-                                                                                        {
-                                                                                            x[i] = _lookup32[span[i]];
-                                                                                        }
-                                                                                    });
+        public static string FromByteArray(ReadOnlyMemory<byte> bytes) => StringHelper.Create(bytes.Length * 2, bytes, (chars, b) =>
+        {
+            var span = bytes.Span;
+            var x = MemoryMarshal.Cast<char, uint>(chars);
+            for (var i = bytes.Length - 1; i >= 0; i--)
+            {
+                x[i] = _lookup32[span[i]];
+            }
+        });
     }
 }

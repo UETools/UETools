@@ -1,9 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.1</TargetFramework>
+    <TargetFrameworks>netstandard2.0;netstandard2.1;net5.0</TargetFrameworks>
     <Nullable>enable</Nullable>
     <PackageDescription>Internal object factory and type collection.</PackageDescription>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Nullable" Version="1.3.0" Condition="'$(TargetFramework)' == 'netstandard2.0'" PrivateAssets="all" />
+  </ItemGroup>
 </Project>

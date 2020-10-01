@@ -49,7 +49,7 @@ namespace UETools.Pak
                     mem.Seek(block.Start, SeekOrigin.Begin);
                     using Stream stream = entry.CompressionMethod switch
                     {
-                        1 => new ZlibStream(mem, CompressionMode.Decompress, true),
+                        1 => new Ionic.Zlib.ZlibStream(mem, Ionic.Zlib.CompressionMode.Decompress, true),
                         2 => new GZipStream(mem, CompressionMode.Decompress, true),
                         _ => throw new NotImplementedException($"CompressionMethod '{entry.CompressionMethod}' not implemented")
                     };
@@ -102,7 +102,7 @@ namespace UETools.Pak
                     mem.Seek(block.Start, SeekOrigin.Begin);
                     using Stream stream = entry.CompressionMethod switch
                     {
-                        1 => new ZlibStream(mem, CompressionMode.Decompress, true),
+                        1 => new Ionic.Zlib.ZlibStream(mem, Ionic.Zlib.CompressionMode.Decompress, true),
                         2 => new GZipStream(mem, CompressionMode.Decompress, true),
                         _ => throw new NotImplementedException($"CompressionMethod '{entry.CompressionMethod}' not implemented")
                     };
