@@ -83,8 +83,8 @@ namespace UETools.Core
             }
             return result;
 #else
-            return string.Create(length, (Memory: memory, Encoding: encoding), (Span<char> buf, state) =>
-                state.Encoding.GetChars(state.Memory.Span, buf));
+            return string.Create(length, (Memory: memory, Encoding: encoding), (buffer, state) =>
+                state.Encoding.GetChars(state.Memory.Span, buffer));
 #endif
         }
         public string ReadUnrealString(int length)
