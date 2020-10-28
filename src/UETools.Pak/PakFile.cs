@@ -48,7 +48,7 @@ namespace UETools.Pak
                     throw new PakEncryptedException("Pak file contains encrypted entries. AES encryption key is necessary for reading this asset.");
 
                 // decrypts data inplace
-                _aesProvider.DecryptEntry(data.Memory, entry);
+                _aesProvider.Decrypt(data.Memory);
             }
             return entry.IsCompressed ? UnrealCompression.Decompress(data, entry) : data;
         }
@@ -60,7 +60,7 @@ namespace UETools.Pak
                 if (_aesProvider is null)
                     throw new PakEncryptedException("Pak file contains encrypted entries. AES encryption key is necessary for reading this asset.");
 
-                _aesProvider.DecryptEntry(data.Memory, entry);
+                _aesProvider.Decrypt(data.Memory);
             }
             return entry.IsCompressed ? await UnrealCompression.DecompressAsync(data, entry) : data;
         }
