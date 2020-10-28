@@ -15,14 +15,57 @@ namespace UETools.Core
     /// </summary>
     public class MemoryReader : IUnrealValueReader
     {
-        private Memory<byte> Buffer => _owner is null ? _buffer : _owner.Memory;
-        private int IntPosition => (int)Position;
+        private Memory<byte> CurrentBuffer => CurrentSegment.MemoryOwner.Memory;
+        private int CurrentBufferPosition => (int)(Position - CurrentSegment.RunningIndex);
 
-        public long Length => Buffer.Length;
-        public long Position { get; set; }
+        public long Length => _lastSegment.Length;
+        public long Position
+        {
+            get => _position;
+            set
+            {
+                _position = value;
+                UpdateBuffer();
+            }
+        }
 
-        public MemoryReader(IMemoryOwner<byte> owner) => _owner = owner;
-        public MemoryReader(Memory<byte> memory) => _buffer = memory;
+        private DataSegment CurrentSegment { get; set; }
+
+        private void UpdateBuffer()
+        {
+            if (CurrentSegment.Length > _position)
+                return;
+            else if (CurrentSegment.NextElement is not null)
+            {
+                CurrentSegment = CurrentSegment.NextElement;
+                UpdateBuffer();
+            }
+        }
+
+        public MemoryReader(IMemoryOwner<byte> owner) : this(new DataSegment(owner)) { }
+        public MemoryReader(Memory<byte> memory) : this(new DataSegment(memory)) { }
+        public MemoryReader(DataSegment firstSegment)
+        {
+            CurrentSegment = _firstSegment = firstSegment;
+            _lastSegment = _firstSegment.GetLastSegment();
+        }
+
+        private MemoryReader(DataSegment firstSegment, long startOffset) : this(firstSegment) => Position = startOffset;
+        private MemoryReader(DataSegment firstSegment, long startOffset, long length) : this(firstSegment, startOffset)
+        {
+            var segment = CurrentSegment;
+            while (segment is not null)
+            {
+                if(segment.Length < length)
+                    segment = segment.NextElement;
+                else
+                {
+                    // TODO: Slice of original segment instead of whole
+                    _lastSegment = segment;
+                    break;
+                }
+            }
+        }
 
         /// <summary>
         /// 
@@ -38,19 +81,17 @@ namespace UETools.Core
             _ => throw new NotImplementedException()
         };
 
-        public Memory<byte> GetBuffer() => Buffer;
-        public Span<byte> GetSpanBuffer() => Buffer.Span;
-
         public Memory<byte> ReadBytes(int count)
         {
-            if (Buffer.Length < IntPosition + count)
-                ThrowEndOfStream();
+            var buf = CurrentBuffer;
+            var pos = CurrentBufferPosition;
+            if (buf.Length < pos + count)
+                ThrowOutOfRange(nameof(count), Length - pos, "Requested amount of bytes exceeds the current segment size.");
 
-            var data = Buffer.Slice(IntPosition, count);
+            var data = buf.Slice(pos, count);
             Position += count;
             return data;
         }
-
         public Span<byte> ReadSpanBytes(int count) => ReadBytes(count).Span;
 
         public bool ReadBoolean() => ReadInt32() != 0;
@@ -67,6 +108,15 @@ namespace UETools.Core
         public decimal ReadDecimal() => ReadValue<decimal>();
         public string ReadByteString() => ReadUnrealString(ReadByte());
 
+        public IUnrealValueReader Slice(long start)
+        {
+            return new MemoryReader(_firstSegment, start);
+        }
+        public IUnrealValueReader Slice(long start, long length)
+        {
+            return new MemoryReader(_firstSegment, start, length);
+        }
+
 
         private string BytesToString(Encoding encoding, int length, ReadOnlyMemory<byte> memory)
         {
@@ -77,29 +127,28 @@ namespace UETools.Core
             {
                 fixed (char* chars = result)
                 {
-                    var data = (byte*)x.Pointer;
-                    encoding.GetChars(data, memory.Length, chars, length);
+                    encoding.GetChars((byte*)x.Pointer, memory.Length, chars, length);
                 }
             }
             return result;
 #else
-            return string.Create(length, (Memory: memory, Encoding: encoding), (buffer, state) =>
-                state.Encoding.GetChars(state.Memory.Span, buffer));
+            return string.Create(length, (Memory: memory, Encoding: encoding), (buffer, state) 
+                => state.Encoding.GetChars(state.Memory.Span, buffer));
 #endif
         }
         public string ReadUnrealString(int length)
         {
-            var pos = IntPosition;
+            var pos = CurrentBufferPosition;
             if (length > 0)
             {
                 Position += length;
-                return BytesToString(Encoding.UTF8, length - 1, Buffer.Slice(pos, length - 1));
+                return BytesToString(Encoding.UTF8, length - 1, CurrentBuffer.Slice(pos, length - 1));
             }
             else if (length < 0)
             {
                 var len = -length * 2;
                 Position += len;
-                return BytesToString(Encoding.Unicode, -length - 1, Buffer.Slice(pos, len - 2));
+                return BytesToString(Encoding.Unicode, -length - 1, CurrentBuffer.Slice(pos, len - 2));
             }
             else
                 return string.Empty;
@@ -107,12 +156,13 @@ namespace UETools.Core
 
         private T ReadValue<T>() where T : struct => MemoryMarshal.Read<T>(ReadSpanBytes(Unsafe.SizeOf<T>()));
 
-        public void Dispose() => _owner?.Dispose();
+        public void Dispose() => _firstSegment?.Dispose();
 
         [DoesNotReturn]
-        private static void ThrowEndOfStream() => throw new EndOfStreamException();
+        private static void ThrowOutOfRange(string argument, object actualValue, string message) => throw new ArgumentOutOfRangeException(argument, actualValue, message);
 
-        private readonly Memory<byte> _buffer;
-        private readonly IMemoryOwner<byte>? _owner;
+        private readonly DataSegment _firstSegment;
+        private readonly DataSegment _lastSegment;
+        private long _position;
     }
 }
