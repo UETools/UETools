@@ -29,17 +29,6 @@ namespace UETools.Core.Interfaces
         /// <summary>
         /// Reads <see cref="Memory{T}"/> of bytes out of the underlying data stream.
         /// </summary>
-        /// <returns>Deserialized <see cref="Memory{T}"/> of bytes.</returns>
-        Memory<byte> GetBuffer();
-        /// <summary>
-        /// Reads <see cref="Span{T}"/> of bytes out of the underlying data stream.
-        /// </summary>
-        /// <returns>Deserialized <see cref="Span{T}"/> of bytes.</returns>
-        Span<byte> GetSpanBuffer();
-
-        /// <summary>
-        /// Reads <see cref="Memory{T}"/> of bytes out of the underlying data stream.
-        /// </summary>
         /// <param name="count">Number of bytes to read.</param>
         /// <returns>Deserialized <see cref="Memory{T}"/> of bytes.</returns>
         Memory<byte> ReadBytes(int count);
@@ -89,6 +78,20 @@ namespace UETools.Core.Interfaces
         /// </summary>
         /// <returns>Deserialized <see langword="uint"/> value.</returns>
         uint ReadUInt32();
+        /// <summary>
+        /// Get reader starting at specific <paramref name="start"/> offset.
+        /// </summary>
+        /// <param name="start">Offset at which the stream should start from the original stream.</param>
+        /// <returns>Reader of the selected part of the stream.</returns>
+        IUnrealValueReader Slice(long start);
+        /// <summary>
+        /// Get reader starting at specific <paramref name="start"/> offset, with specified <paramref name="length"/>.
+        /// </summary>
+        /// <param name="start">Offset at which the stream should start from the original stream.</param>
+        /// <param name="length">Length of the sliced stream from the original stream.</param>
+        /// <returns>Reader of the selected part of the stream.</returns>
+        IUnrealValueReader Slice(long start, long length);
+
         /// <summary>
         /// Reads <see langword="ulong"/> value out of the underlying data stream.
         /// </summary>

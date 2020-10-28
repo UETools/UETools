@@ -13,7 +13,7 @@ namespace UETools.Core
     public partial class FArchive : IDisposable
     {
         public FArchive FindParent() => Parent is null ? this : Parent.FindParent();
-        private FArchive Parent { get; set; }
+        private FArchive? Parent { get; set; }
         /// <summary>
         /// Version of the asset, separate from serialized UObject <see cref="Version"/>.
         /// </summary>
@@ -35,8 +35,15 @@ namespace UETools.Core
         // Some constructors?
         public FArchive(Memory<byte> memory) : this(new MemoryReader(memory)) { }
         public FArchive(IMemoryOwner<byte> memory) : this(new MemoryReader(memory)) { }
+        public FArchive(DataSegment memory) : this(new MemoryReader(memory)) { }
+        public FArchive(IUnrealValueReader reader) : this(reader, true) { }
 
-        public FArchive(IUnrealValueReader reader) => Stream = reader;
+        private FArchive(Memory<byte> memory, bool ownsStream) : this(new MemoryReader(memory), ownsStream) { }
+        private FArchive(IUnrealValueReader reader, bool ownsStream)
+        {
+            Stream = reader;
+            OwnsStream = ownsStream;
+        }
 
         /// <summary>
         /// Sets the position within the current stream counting from <see cref="SeekOrigin.Current"/> by <paramref name="len"/> bytes.
@@ -73,20 +80,15 @@ namespace UETools.Core
         /// <returns><see langword="true"/> if <see cref="Length()"/> is greater than current stream position; otherwise <see langword="false"/>.</returns>
         public bool EOF() => Tell() >= Length();
 
-
-        public FArchive Slice(long offset)
+        public FArchive Slice(long offset) => new FArchive(Stream.Slice(offset), false)
         {
-            Stream.Seek(offset, SeekOrigin.Begin);
-            return new FArchive(Stream)
-            {
-                Parent = this,
-                Tables = this.Tables,
-                Version = this.Version,
-                AssetVersion = this.AssetVersion,
-                AssetSubversion = this.AssetSubversion,
-                Localization = this.Localization,
-            };
-        }
+            Parent = this,
+            Tables = this.Tables,
+            Version = this.Version,
+            AssetVersion = this.AssetVersion,
+            AssetSubversion = this.AssetSubversion,
+            Localization = this.Localization,
+        };
         public FArchive SubStream(int length) => new FArchive(Stream.ReadBytes(length))
         {
             Parent = this,
@@ -105,16 +107,15 @@ namespace UETools.Core
         /// <summary>
         /// Disposes underlying data stream.
         /// </summary>
-        public void Dispose() => Stream.Dispose();
-        /// <summary>
-        /// Asynchronously disposes underlying data stream.
-        /// </summary>
-        public ValueTask DisposeAsync()
+        public void Dispose()
         {
-            return default;
-            //return Stream.DisposeAsync();
+            if (OwnsStream)
+            {
+                Stream.Dispose();
+            }
         }
 
         private IUnrealValueReader Stream { get; set; }
+        private bool OwnsStream { get; }
     }
 }
