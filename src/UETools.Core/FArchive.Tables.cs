@@ -1,6 +1,8 @@
-﻿using System.Collections.Concurrent;
+﻿using System;
+using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using UETools.Core.Interfaces;
 
 namespace UETools.Core
@@ -28,6 +30,13 @@ namespace UETools.Core
             table = kv.Value as UnrealTable<T>;
             return table != null;
         }
+
+        public bool FindTagSubstream(string tag, [NotNullWhen(true)] out FArchive? tagData) 
+        => (tagData = Stream.FindElement(tag, out var segment) switch
+        {
+            true => Slice(segment!.RunningIndex),
+            false => null
+        }) is not null;
 
         internal ConcurrentDictionary<string, IUnrealTable> Tables { get; private set; } = new ConcurrentDictionary<string, IUnrealTable>();
         public IUnrealLocalizationProvider? Localization { get; set; }

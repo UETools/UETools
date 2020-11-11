@@ -9,27 +9,8 @@ namespace UETools.Core
 {
     public static partial class StreamExtensions
     {
-        public static void ReadWholeBuf(this Stream stream, Span<byte> buf)
-        {
-            var remaining = buf.Length;
-            var offset = 0;
-            while (remaining > 0)
-            {
-                var read = stream.Read(buf.Slice(offset));
-                if (read <= 0)
-                    throw new EndOfStreamException($"End of stream reached, {remaining} bytes left to read");
 
-                remaining -= read;
-                offset += read;
-            }
-        }
         public static void ReadWholeBuf(this Stream stream, byte[] buf) => stream.ReadCount(buf, buf.Length);
-        public static void ReadWholeBuf(this Stream stream, long offset, in Span<byte> buf) => stream.ReadWholeBuf(offset, SeekOrigin.Begin, buf);
-        public static void ReadWholeBuf(this Stream stream, long offset, SeekOrigin origin, in Span<byte> buf)
-        {
-            stream.Seek(offset, origin);
-            stream.ReadWholeBuf(buf);
-        }
         public static void ReadCount(this Stream stream, byte[] buf, int count) => stream.ReadCount(buf, 0, buf.Length, count);
         public static void ReadCount(this Stream stream, byte[] buf, int bufOffset, int bufCount, int count)
         {
@@ -48,6 +29,56 @@ namespace UETools.Core
                 offset += read;
             }
         }
+        #region Read whole buffer to Span<T>
+        public static void ReadWholeBuf(this Stream stream, Span<byte> buf)
+        {
+            var remaining = buf.Length;
+            var offset = 0;
+            while (remaining > 0)
+            {
+                var read = stream.Read(buf.Slice(offset));
+                if (read <= 0)
+                    throw new EndOfStreamException($"End of stream reached, {remaining} bytes left to read");
+
+                remaining -= read;
+                offset += read;
+            }
+        }
+        public static void ReadWholeBuf(this Stream stream, long offset, Span<byte> buf) => stream.ReadWholeBuf(offset, SeekOrigin.Begin, buf);
+        public static void ReadWholeBuf(this Stream stream, long offset, SeekOrigin origin, Span<byte> buf)
+        {
+            stream.Seek(offset, origin);
+            stream.ReadWholeBuf(buf);
+        }
+        #endregion
+        #region Read whole buffer to Memory<T>
+        public static void ReadWholeBuf(this Stream stream, Memory<byte> buf)
+        {
+            if (MemoryMarshal.TryGetArray<byte>(buf, out var array))
+            {
+                stream.ReadCount(array.Array!, array.Offset, array.Count, buf.Length);
+            }
+            else
+            {
+                var sharedBuffer = ArrayPool<byte>.Shared.Rent(buf.Length);
+                try
+                {
+                    stream.ReadCount(sharedBuffer, buf.Length);
+                    sharedBuffer.AsSpan(0, buf.Length).CopyTo(buf.Span);
+                }
+                finally
+                {
+                    ArrayPool<byte>.Shared.Return(sharedBuffer);
+                }
+            }
+        }
+        public static void ReadWholeBuf(this Stream stream, long offset, Memory<byte> buf) => stream.ReadWholeBuf(offset, SeekOrigin.Begin, buf);
+        public static void ReadWholeBuf(this Stream stream, long offset, SeekOrigin origin, Memory<byte> buf)
+        {
+            stream.Seek(offset, origin);
+            stream.ReadWholeBuf(buf);
+        }
+        #endregion
 
         public static async ValueTask ReadWholeBufAsync(this Stream stream, Memory<byte> buf, CancellationToken cancellationToken = default)
         {

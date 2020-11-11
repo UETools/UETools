@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Text;
 
@@ -25,17 +26,6 @@ namespace UETools.Core.Interfaces
         /// <param name="origin">A value of type <see cref="SeekOrigin"/> indicating the reference point used to obtain the new position.</param>
         /// <returns>The new position within the current stream.</returns>
         long Seek(long offset, SeekOrigin origin);
-
-        /// <summary>
-        /// Reads <see cref="Memory{T}"/> of bytes out of the underlying data stream.
-        /// </summary>
-        /// <returns>Deserialized <see cref="Memory{T}"/> of bytes.</returns>
-        Memory<byte> GetBuffer();
-        /// <summary>
-        /// Reads <see cref="Span{T}"/> of bytes out of the underlying data stream.
-        /// </summary>
-        /// <returns>Deserialized <see cref="Span{T}"/> of bytes.</returns>
-        Span<byte> GetSpanBuffer();
 
         /// <summary>
         /// Reads <see cref="Memory{T}"/> of bytes out of the underlying data stream.
@@ -90,6 +80,20 @@ namespace UETools.Core.Interfaces
         /// <returns>Deserialized <see langword="uint"/> value.</returns>
         uint ReadUInt32();
         /// <summary>
+        /// Get reader starting at specific <paramref name="start"/> offset.
+        /// </summary>
+        /// <param name="start">Offset at which the stream should start from the original stream.</param>
+        /// <returns>Reader of the selected part of the stream.</returns>
+        IUnrealValueReader Slice(long start);
+        /// <summary>
+        /// Get reader starting at specific <paramref name="start"/> offset, with specified <paramref name="length"/>.
+        /// </summary>
+        /// <param name="start">Offset at which the stream should start from the original stream.</param>
+        /// <param name="length">Length of the sliced stream from the original stream.</param>
+        /// <returns>Reader of the selected part of the stream.</returns>
+        IUnrealValueReader Slice(long start, long length);
+
+        /// <summary>
         /// Reads <see langword="ulong"/> value out of the underlying data stream.
         /// </summary>
         /// <returns>Deserialized <see langword="ulong"/> value.</returns>
@@ -120,5 +124,7 @@ namespace UETools.Core.Interfaces
         /// <param name="length">Negative length denotes <see cref="UnicodeEncoding"/>, positive <see cref="UTF8Encoding"/>.</param>
         /// <returns></returns>
         string ReadUnrealString(int length);
+
+        bool FindElement(string tag, [NotNullWhen(true)] out DataSegment? element);
     }
 }
