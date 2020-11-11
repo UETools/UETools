@@ -67,11 +67,19 @@ namespace UETools.Pak
 
         public DataSegment ReadEntry(PakEntry entry)
         {
-            var firstSegment = new DataSegment(ProcessEntry(entry));
-            var segments = firstSegment;
-            for (var ent = entry.LinkedEntry; ent is not null; ent = ent.LinkedEntry)
+            DataSegment firstSegment = null!, segments = null;
+            for (var ent = entry; ent is not null; ent = ent.LinkedEntry)
             {
-                segments = segments.Append(ProcessEntry(ent));
+                var entryData = ProcessEntry(ent);
+                if (segments is null)
+                {
+                    segments = firstSegment = new DataSegment(entryData);
+                }
+                else
+                {
+                    segments = segments.Append(entryData);
+                }
+                segments.Tag(Path.GetExtension(ent.FileName));
             }
             return firstSegment;
         }
@@ -128,7 +136,7 @@ namespace UETools.Pak
                 FString? fileName = default;
                 reader.Read(ref fileName);
                 var filePath = Path.Combine(MountPoint, fileName.ToString());
-                var entry = new PakEntry(this);
+                var entry = new PakEntry(this, Path.GetFileName(filePath));
                 entry.Serialize(reader);
                 AbsoluteIndex.Add(filePath, entry);
             }
