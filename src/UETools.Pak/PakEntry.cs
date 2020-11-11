@@ -17,6 +17,7 @@ namespace UETools.Pak
     /// </summary>
     public class PakEntry : IUnrealSerializable, IEntry
     {
+        public string FileName { get; }
         private PakFile Owner { get; }
         internal PakEntry LinkedEntry { get; set; } = null!;
         internal long EntryHeaderSize { get; private set; }
@@ -32,7 +33,11 @@ namespace UETools.Pak
 
         public List<PakCompressedBlock> CompressionBlocks => _compressionBlocks;
 
-        public PakEntry(PakFile pakFile) => Owner = pakFile;
+        public PakEntry(PakFile pakFile, string fileName)
+        {
+            Owner = pakFile;
+            FileName = fileName;
+        }
 
         public FArchive Serialize(FArchive archive)
         {

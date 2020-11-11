@@ -161,6 +161,19 @@ namespace UETools.Core
         [DoesNotReturn]
         private static void ThrowOutOfRange(string argument, object actualValue, string message) => throw new ArgumentOutOfRangeException(argument, actualValue, message);
 
+
+        public bool FindElement(string tag, [NotNullWhen(true)] out DataSegment? element) => (element = FindTagSegment(tag)) is not null;
+
+        private DataSegment? FindTagSegment(string tag)
+        {
+            for (var segment = _firstSegment; segment is not null; segment = segment.NextElement)
+            {
+                if (segment.HasTag(tag))
+                    return segment;
+            }
+            return null;
+        }
+
         private readonly DataSegment _firstSegment;
         private readonly DataSegment _lastSegment;
         private long _position;

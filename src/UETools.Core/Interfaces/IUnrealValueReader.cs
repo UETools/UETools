@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Text;
 
@@ -123,5 +124,7 @@ namespace UETools.Core.Interfaces
         /// <param name="length">Negative length denotes <see cref="UnicodeEncoding"/>, positive <see cref="UTF8Encoding"/>.</param>
         /// <returns></returns>
         string ReadUnrealString(int length);
+
+        bool FindElement(string tag, [NotNullWhen(true)] out DataSegment? element);
     }
 }

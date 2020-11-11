@@ -74,6 +74,11 @@ namespace UETools.Core
         }
         internal DataSegment GetLastSegment() => NextElement?.GetLastSegment() ?? this;
 
+        public void Tag(string tag) => Tags.Add(tag);
+        public bool HasTag(string tag) => Tags.Contains(tag);
+
+        internal List<string> Tags { get; } = new List<string>();
+
         private class NotOwnedOwner : IMemoryOwner<byte>
         {
             public NotOwnedOwner(Memory<byte> data) => Memory = data;
